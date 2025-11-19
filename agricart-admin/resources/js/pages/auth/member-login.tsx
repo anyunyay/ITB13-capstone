@@ -10,7 +10,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import PasswordInput from '@/components/ui/password-input';
 import AuthLayout from '@/layouts/auth-layout';
-import LoginRestrictionPopup from '@/components/shared/auth/LoginRestrictionPopup';
 import CountdownTimer from '@/components/common/feedback/CountdownTimer';
 import { useLockoutStatus } from '@/hooks/useLockoutStatus';
 
@@ -23,13 +22,9 @@ type MemberLoginForm = {
 interface MemberLoginProps {
     status?: string;
     canResetPassword: boolean;
-    restrictionPopup?: {
-        userType: string;
-        targetPortal: string;
-    };
 }
 
-export default function MemberLogin({ status, canResetPassword, restrictionPopup }: MemberLoginProps) {
+export default function MemberLogin({ status, canResetPassword }: MemberLoginProps) {
     const { data, setData, post, processing, errors, reset } = useForm<Required<MemberLoginForm>>({
         member_id: '',
         password: '',
@@ -37,20 +32,12 @@ export default function MemberLogin({ status, canResetPassword, restrictionPopup
     });
 
     const { props } = usePage<{ auth?: { user?: { type?: string } } }>();
-    const [showRestrictionPopup, setShowRestrictionPopup] = useState(false);
     
     // Lockout status management
     const { lockoutStatus, refreshLockoutStatus } = useLockoutStatus({
         identifier: data.member_id,
         userType: 'member',
     });
-
-    // Show restriction popup if needed
-    useEffect(() => {
-        if (restrictionPopup) {
-            setShowRestrictionPopup(true);
-        }
-    }, [restrictionPopup]);
 
     // If user is already authenticated and navigates back to login, redirect them
     useEffect(() => {
@@ -171,20 +158,9 @@ export default function MemberLogin({ status, canResetPassword, restrictionPopup
                 </div>
 
                 <div className="text-center text-sm text-gray-600">
-                    <p className="mb-2">New to our platform?</p>
-                    <p>
-                        <TextLink href={route('register')} tabIndex={5}>
-                            Become a Member
-                        </TextLink>
-                        {' '}or{' '}
-                        <TextLink href={route('login')} tabIndex={5}>
-                            Customer Login
-                        </TextLink>
-                    </p>
+                    <p>Need help? Contact your system administrator</p>
                 </div>
             </form>
-
-                {status && <div className="mb-4 text-center text-sm font-medium text-green-600">{status}</div>}
 
                 {lockoutStatus?.locked && (
                     <div className="mb-4 text-center text-sm font-medium text-red-600">
@@ -202,14 +178,6 @@ export default function MemberLogin({ status, canResetPassword, restrictionPopup
                     </div>
                 )}
             </AuthLayout>
-
-            {restrictionPopup && (
-                <LoginRestrictionPopup
-                    isOpen={showRestrictionPopup}
-                    userType={restrictionPopup.userType}
-                    targetPortal={restrictionPopup.targetPortal}
-                />
-            )}
         </>
     );
 }

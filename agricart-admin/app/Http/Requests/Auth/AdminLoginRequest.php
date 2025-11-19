@@ -47,6 +47,54 @@ class AdminLoginRequest extends FormRequest
         // Check if account is locked for admin/staff
         LoginLockoutService::checkLoginAllowed($email, 'admin', $ipAddress);
 
+        // Check if user exists and verify they are admin/staff before attempting authentication
+        $user = \App\Models\User::where('email', $email)->first();
+        
+        if ($user && !$user->active) {
+            // Log deactivated account login attempt
+            SystemLogger::logSecurityEvent(
+                'login_failed_deactivated',
+                $user->id,
+                $ipAddress,
+                [
+                    'email' => $email,
+                    'user_type' => 'admin'
+                ]
+            );
+            
+            throw ValidationException::withMessages([
+                'email' => __('auth.deactivated')
+            ]);
+        }
+
+        if ($user && !in_array($user->type, ['admin', 'staff'])) {
+            // Record failed attempt for wrong portal access
+            $lockoutInfo = LoginLockoutService::recordFailedAttempt($email, 'admin', $ipAddress);
+            
+            // Log failed login attempt
+            SystemLogger::logSecurityEvent(
+                'login_failed_wrong_portal',
+                $user->id,
+                $ipAddress,
+                [
+                    'email' => $email,
+                    'user_type' => $user->type,
+                    'target_portal' => 'admin',
+                    'is_locked' => $lockoutInfo['is_locked'],
+                    'attempts_remaining' => $lockoutInfo['attempts_remaining'] ?? null
+                ]
+            );
+            
+            $messages = ['email' => __('auth.failed')];
+            
+            // Add lockout information if account is locked
+            if ($lockoutInfo['is_locked']) {
+                $messages['lockout'] = $lockoutInfo;
+            }
+
+            throw ValidationException::withMessages($messages);
+        }
+
         if (! Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
             // Record failed attempt
             $lockoutInfo = LoginLockoutService::recordFailedAttempt($email, 'admin', $ipAddress);

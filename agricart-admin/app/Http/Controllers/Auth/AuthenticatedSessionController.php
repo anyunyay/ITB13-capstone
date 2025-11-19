@@ -89,7 +89,6 @@ class AuthenticatedSessionController extends Controller
         return Inertia::render('auth/login', [
             'canResetPassword' => Route::has('password.request'),
             'status' => $request->session()->get('status'),
-            'restrictionPopup' => $request->session()->get('restrictionPopup'),
         ]);
     }
 
@@ -115,7 +114,6 @@ class AuthenticatedSessionController extends Controller
         return Inertia::render('auth/admin-login', [
             'canResetPassword' => Route::has('password.request'),
             'status' => $request->session()->get('status'),
-            'restrictionPopup' => $request->session()->get('restrictionPopup'),
         ]);
     }
 
@@ -141,7 +139,6 @@ class AuthenticatedSessionController extends Controller
         return Inertia::render('auth/member-login', [
             'canResetPassword' => Route::has('password.request'),
             'status' => $request->session()->get('status'),
-            'restrictionPopup' => $request->session()->get('restrictionPopup'),
         ]);
     }
 
@@ -167,7 +164,6 @@ class AuthenticatedSessionController extends Controller
         return Inertia::render('auth/logistic-login', [
             'canResetPassword' => Route::has('password.request'),
             'status' => $request->session()->get('status'),
-            'restrictionPopup' => $request->session()->get('restrictionPopup'),
         ]);
     }
 
@@ -182,29 +178,8 @@ class AuthenticatedSessionController extends Controller
 
         $user = $request->user();
 
-        // Block non-customers from using customer login
-        if ($user->type !== 'customer') {
-            // Log failed login attempt
-            SystemLogger::logAuthentication(
-                'login_failed_wrong_portal',
-                $user->id,
-                $user->type,
-                [
-                    'target_portal' => 'customer',
-                    'ip_address' => $request->ip()
-                ]
-            );
-            
-            Auth::logout();
-            $request->session()->invalidate();
-            $request->session()->regenerateToken();
-            return redirect()->route($this->getCorrectLoginRoute($user->type))->with([
-                'restrictionPopup' => [
-                    'userType' => $user->type,
-                    'targetPortal' => 'customer'
-                ]
-            ]);
-        }
+        // User type validation is now handled in LoginRequest
+        // This code should never be reached for wrong user types
 
         $user->ensurePermissions();
 
@@ -237,29 +212,8 @@ class AuthenticatedSessionController extends Controller
 
         $user = $request->user();
 
-        // Block non-admin/staff users from using admin login
-        if (!in_array($user->type, ['admin', 'staff'])) {
-            // Log failed login attempt
-            SystemLogger::logAuthentication(
-                'login_failed_wrong_portal',
-                $user->id,
-                $user->type,
-                [
-                    'target_portal' => 'admin',
-                    'ip_address' => $request->ip()
-                ]
-            );
-            
-            Auth::logout();
-            $request->session()->invalidate();
-            $request->session()->regenerateToken();
-            return redirect()->route($this->getCorrectLoginRoute($user->type))->with([
-                'restrictionPopup' => [
-                    'userType' => $user->type,
-                    'targetPortal' => 'admin'
-                ]
-            ]);
-        }
+        // User type validation is now handled in AdminLoginRequest
+        // This code should never be reached for wrong user types
 
         $user->ensurePermissions();
 
@@ -292,29 +246,8 @@ class AuthenticatedSessionController extends Controller
 
         $user = $request->user();
 
-        // Block non-members from using member login
-        if ($user->type !== 'member') {
-            // Log failed login attempt
-            SystemLogger::logAuthentication(
-                'login_failed_wrong_portal',
-                $user->id,
-                $user->type,
-                [
-                    'target_portal' => 'member',
-                    'ip_address' => $request->ip()
-                ]
-            );
-            
-            Auth::logout();
-            $request->session()->invalidate();
-            $request->session()->regenerateToken();
-            return redirect()->route($this->getCorrectLoginRoute($user->type))->with([
-                'restrictionPopup' => [
-                    'userType' => $user->type,
-                    'targetPortal' => 'member'
-                ]
-            ]);
-        }
+        // User type validation is now handled in MemberLoginRequest
+        // This code should never be reached for wrong user types
 
         $user->ensurePermissions();
 
@@ -348,29 +281,8 @@ class AuthenticatedSessionController extends Controller
 
         $user = $request->user();
 
-        // Block non-logistics from using logistics login
-        if ($user->type !== 'logistic') {
-            // Log failed login attempt
-            SystemLogger::logAuthentication(
-                'login_failed_wrong_portal',
-                $user->id,
-                $user->type,
-                [
-                    'target_portal' => 'logistic',
-                    'ip_address' => $request->ip()
-                ]
-            );
-            
-            Auth::logout();
-            $request->session()->invalidate();
-            $request->session()->regenerateToken();
-            return redirect()->route($this->getCorrectLoginRoute($user->type))->with([
-                'restrictionPopup' => [
-                    'userType' => $user->type,
-                    'targetPortal' => 'logistic'
-                ]
-            ]);
-        }
+        // User type validation is now handled in LogisticLoginRequest
+        // This code should never be reached for wrong user types
 
         $user->ensurePermissions();
 

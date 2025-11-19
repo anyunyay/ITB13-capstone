@@ -68,6 +68,35 @@ class LoginRequest extends FormRequest
             ]);
         }
 
+        // Check if user exists and verify they are a customer before attempting authentication
+        if ($user && $user->type !== 'customer') {
+            // Record failed attempt for wrong portal access
+            $lockoutInfo = LoginLockoutService::recordFailedAttempt($email, $userType, $ipAddress);
+            
+            // Log failed login attempt
+            SystemLogger::logSecurityEvent(
+                'login_failed_wrong_portal',
+                $user->id,
+                $ipAddress,
+                [
+                    'email' => $email,
+                    'user_type' => $user->type,
+                    'target_portal' => 'customer',
+                    'is_locked' => $lockoutInfo['is_locked'],
+                    'attempts_remaining' => $lockoutInfo['attempts_remaining'] ?? null
+                ]
+            );
+            
+            $messages = ['email' => __('auth.failed')];
+            
+            // Add lockout information if account is locked
+            if ($lockoutInfo['is_locked']) {
+                $messages['lockout'] = $lockoutInfo;
+            }
+
+            throw ValidationException::withMessages($messages);
+        }
+
         if (! Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
             // Record failed attempt
             $lockoutInfo = LoginLockoutService::recordFailedAttempt($email, $userType, $ipAddress);

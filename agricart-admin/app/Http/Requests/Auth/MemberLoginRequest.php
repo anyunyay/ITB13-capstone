@@ -72,6 +72,34 @@ class MemberLoginRequest extends FormRequest
             ]);
         }
 
+        if ($user && $user->type !== 'member') {
+            // Record failed attempt for wrong portal access
+            $lockoutInfo = LoginLockoutService::recordFailedAttempt($memberId, $userType, $ipAddress);
+            
+            // Log failed login attempt
+            SystemLogger::logSecurityEvent(
+                'login_failed_wrong_portal',
+                $user->id,
+                $ipAddress,
+                [
+                    'member_id' => $memberId,
+                    'user_type' => $user->type,
+                    'target_portal' => 'member',
+                    'is_locked' => $lockoutInfo['is_locked'],
+                    'attempts_remaining' => $lockoutInfo['attempts_remaining'] ?? null
+                ]
+            );
+            
+            $messages = ['member_id' => __('auth.failed')];
+            
+            // Add lockout information if account is locked
+            if ($lockoutInfo['is_locked']) {
+                $messages['lockout'] = $lockoutInfo;
+            }
+
+            throw ValidationException::withMessages($messages);
+        }
+
         if (!$user || !Hash::check($this->input('password'), $user->password)) {
             // Record failed attempt
             $lockoutInfo = LoginLockoutService::recordFailedAttempt($memberId, $userType, $ipAddress);

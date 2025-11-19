@@ -10,7 +10,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import PasswordInput from '@/components/ui/password-input';
 import AuthLayout from '@/layouts/auth-layout';
-import LoginRestrictionPopup from '@/components/shared/auth/LoginRestrictionPopup';
 import CountdownTimer from '@/components/common/feedback/CountdownTimer';
 import { useLockoutStatus } from '@/hooks/useLockoutStatus';
 
@@ -24,13 +23,9 @@ type LoginForm = {
 interface LoginProps {
     status?: string;
     canResetPassword: boolean;
-    restrictionPopup?: {
-        userType: string;
-        targetPortal: string;
-    };
 }
 
-export default function Login({ status, canResetPassword, restrictionPopup }: LoginProps) {
+export default function Login({ status, canResetPassword }: LoginProps) {
     const { data, setData, post, processing, errors, reset } = useForm<LoginForm>({
         email: '',
         password: '',
@@ -38,20 +33,12 @@ export default function Login({ status, canResetPassword, restrictionPopup }: Lo
     });
 
     const { props } = usePage<{ auth?: { user?: { type?: string } } }>();
-    const [showRestrictionPopup, setShowRestrictionPopup] = useState(false);
-
+    
     // Lockout status management
     const { lockoutStatus, refreshLockoutStatus } = useLockoutStatus({
         identifier: data.email,
         userType: 'customer',
     });
-
-    // Show restriction popup if needed
-    useEffect(() => {
-        if (restrictionPopup) {
-            setShowRestrictionPopup(true);
-        }
-    }, [restrictionPopup]);
 
     // If user is already authenticated and navigates back to login, redirect them
     useEffect(() => {
@@ -168,38 +155,15 @@ export default function Login({ status, canResetPassword, restrictionPopup }: Lo
                         </Button>
                     </div>
 
-                    <div className="text-center text-xs sm:text-sm text-gray-600">
-                        <p className="mb-2">Don't have an account?</p>
-                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-center gap-1 sm:gap-0">
-                            <TextLink href={route('register')} tabIndex={5} className="font-medium">
-                                Sign up
-                            </TextLink>
-                            <span className="hidden sm:inline">{' '}or access other portals:{' '}</span>
-                            <span className="sm:hidden">Other portals:</span>
-                            <div className="flex flex-wrap justify-center gap-1 sm:gap-0">
-                                <TextLink href={route('admin.login')} tabIndex={5} className="text-xs sm:text-sm">
-                                    Admin
-                                </TextLink>
-                                <span className="hidden sm:inline">,{' '}</span>
-                                <TextLink href={route('member.login')} tabIndex={5} className="text-xs sm:text-sm">
-                                    Member
-                                </TextLink>
-                                <span className="hidden sm:inline">,{' '}</span>
-                                <TextLink href={route('logistic.login')} tabIndex={5} className="text-xs sm:text-sm">
-                                    Logistics
-                                </TextLink>
-                            </div>
-                        </div>
-                    </div>
-                </form>
+                <div className="text-center text-xs sm:text-sm text-gray-600">
+                    <p className="mb-2">Don't have an account?</p>
+                    <TextLink href={route('register')} tabIndex={5} className="font-medium">
+                        Sign up
+                    </TextLink>
+                </div>
+            </form>
 
                 {status && <div className="mb-4 text-center text-sm font-medium text-green-600">{status}</div>}
-
-                {errors.email && (
-                    <div className="mb-4 text-center text-sm font-medium text-red-600">
-                        {errors.email}
-                    </div>
-                )}
 
                 {lockoutStatus?.locked && (
                     <div className="mb-4 text-center text-sm font-medium text-red-600">
@@ -217,14 +181,6 @@ export default function Login({ status, canResetPassword, restrictionPopup }: Lo
                     </div>
                 )}
             </AuthLayout>
-
-            {restrictionPopup && (
-                <LoginRestrictionPopup
-                    isOpen={showRestrictionPopup}
-                    userType={restrictionPopup.userType}
-                    targetPortal={restrictionPopup.targetPortal}
-                />
-            )}
         </>
     );
 }
