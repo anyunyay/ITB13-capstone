@@ -42,11 +42,11 @@ export function StockOverviewTable({ data, sortBy, sortDir, onSort }: StockOverv
 
     const getSortIcon = (column: string) => {
         if (sortBy !== column) {
-            return <ArrowUpDown className="h-3 w-3 ml-1 opacity-50" />;
+            return <ArrowUpDown className="h-3 w-3 ml-1 opacity-50 group-hover:opacity-100 transition-opacity" />;
         }
         return sortDir === 'asc' 
-            ? <ArrowUp className="h-3 w-3 ml-1" />
-            : <ArrowDown className="h-3 w-3 ml-1" />;
+            ? <ArrowUp className="h-3 w-3 ml-1 text-primary" />
+            : <ArrowDown className="h-3 w-3 ml-1 text-primary" />;
     };
 
     const SortableHeader = ({ column, children }: { column: string; children: React.ReactNode }) => (
@@ -54,7 +54,7 @@ export function StockOverviewTable({ data, sortBy, sortDir, onSort }: StockOverv
             <Button
                 variant="ghost"
                 size="sm"
-                className="h-auto p-0 hover:bg-transparent font-semibold"
+                className="h-auto p-2 group hover:bg-primary/10 dark:hover:bg-primary/20 hover:text-primary dark:hover:text-primary font-semibold transition-colors duration-200"
                 onClick={() => onSort?.(column)}
             >
                 {children}
@@ -67,7 +67,7 @@ export function StockOverviewTable({ data, sortBy, sortDir, onSort }: StockOverv
         <div className="hidden md:block overflow-x-auto">
             <Table>
                 <TableHeader>
-                    <TableRow className="">
+                    <TableRow className="bg-muted/50 dark:bg-muted/30">
                         <SortableHeader column="product_name">{t('member.stock_name')}</SortableHeader>
                         <SortableHeader column="category">{t('member.category')}</SortableHeader>
                         <SortableHeader column="total_quantity">{t('member.total_stock_label')}</SortableHeader>
@@ -76,7 +76,7 @@ export function StockOverviewTable({ data, sortBy, sortDir, onSort }: StockOverv
                         <SortableHeader column="total_revenue">{t('member.total_revenue')}</SortableHeader>
                         <SortableHeader column="total_cogs">{t('member.cogs')}</SortableHeader>
                         <SortableHeader column="total_gross_profit">{t('member.gross_profit')}</SortableHeader>
-                        <TableHead className="text-foreground text-center whitespace-nowrap">{t('member.status')}</TableHead>
+                        <TableHead className="text-foreground text-center whitespace-nowrap font-semibold">{t('member.status')}</TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>

@@ -88,7 +88,7 @@ export default function LogisticLogin({ status, canResetPassword, restrictionPop
             <AuthLayout
                 title="Logistics Portal Access"
                 description="Sign in to manage deliveries and track shipments"
-                imageUrl="/images/frontpage/Regis_Logistic.jpg"
+                imageUrl="/images/frontpage/pexels-pixabay-265216.jpg"
                 imagePosition="right"
                 icon={<Truck />}
                 iconBgColor="bg-primary/10"
