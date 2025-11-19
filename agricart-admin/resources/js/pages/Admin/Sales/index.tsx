@@ -66,7 +66,23 @@ export default function SalesIndex({ sales, summary, memberSales, filters }: Sal
   const [selectedRevenueRange, setSelectedRevenueRange] = useState('all');
   const [selectedOrderRange, setSelectedOrderRange] = useState('all');
 
-  const itemsPerPage = 10;
+  // Track mobile state for responsive pagination
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Detect mobile screen size
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768); // 768px is the md breakpoint
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  // Dynamic items per page based on screen size
+  const itemsPerPage = isMobile ? 4 : 10;
 
   // Extract unique admins and logistics from sales data
   const uniqueAdmins = useMemo(() => {
@@ -372,6 +388,12 @@ export default function SalesIndex({ sales, summary, memberSales, filters }: Sal
   useEffect(() => {
     setMemberCurrentPage(1);
   }, [memberSales.length, memberSearchTerm, selectedRevenueRange, selectedOrderRange]);
+
+  // Reset pagination when switching between mobile and desktop
+  useEffect(() => {
+    setSalesCurrentPage(1);
+    setMemberCurrentPage(1);
+  }, [isMobile]);
 
   return (
     <PermissionGuard
