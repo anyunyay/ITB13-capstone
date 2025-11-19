@@ -319,14 +319,13 @@ export default function History({ orders, currentStatus, currentDeliveryStatus, 
       case 'pending':
         return <Badge variant="secondary" className="text-xs sm:text-sm md:text-base px-2 sm:px-3 py-1 sm:py-1.5">{t('customer.pending_approval')}</Badge>;
       case 'approved':
-        return <Badge variant="default" className="text-xs sm:text-sm md:text-base px-2 sm:px-3 py-1 sm:py-1.5">{t('customer.approved')}</Badge>;
+        return <Badge className="status-approved text-xs sm:text-sm md:text-base px-2 sm:px-3 py-1 sm:py-1.5">{t('customer.approved')}</Badge>;
       case 'rejected':
-        return <Badge variant="destructive" className="text-xs sm:text-sm md:text-base px-2 sm:px-3 py-1 sm:py-1.5">{t('customer.rejected')}</Badge>;
+        return <Badge className="status-rejected text-xs sm:text-sm md:text-base px-2 sm:px-3 py-1 sm:py-1.5">{t('customer.rejected')}</Badge>;
       case 'delayed':
-        return <Badge variant="destructive" className="text-xs sm:text-sm md:text-base px-2 sm:px-3 py-1 sm:py-1.5">{t('customer.delayed')}</Badge>;
+        return <Badge className="status-delayed text-xs sm:text-sm md:text-base px-2 sm:px-3 py-1 sm:py-1.5">{t('customer.delayed')}</Badge>;
       case 'cancelled':
-        return <Badge variant="destructive">{t('ui.cancelled')}</Badge>;
-        return <Badge variant="outline" className="text-xs sm:text-sm md:text-base px-2 sm:px-3 py-1 sm:py-1.5">{t('customer.cancelled')}</Badge>;
+        return <Badge className="status-cancelled text-xs sm:text-sm md:text-base px-2 sm:px-3 py-1 sm:py-1.5">{t('customer.cancelled')}</Badge>;
       default:
         return <Badge variant="outline" className="text-xs sm:text-sm md:text-base px-2 sm:px-3 py-1 sm:py-1.5">{status}</Badge>;
     }
@@ -335,13 +334,13 @@ export default function History({ orders, currentStatus, currentDeliveryStatus, 
   const getDeliveryStatusBadge = (status: string) => {
     switch (status) {
       case 'pending':
-        return <Badge variant="secondary" className="text-xs sm:text-sm md:text-base px-2 sm:px-3 py-1 sm:py-1.5">{t('customer.pending')}</Badge>;
+        return <Badge className="status-pending text-xs sm:text-sm md:text-base px-2 sm:px-3 py-1 sm:py-1.5">{t('customer.pending')}</Badge>;
       case 'ready_to_pickup':
-        return <Badge variant="default" className="bg-primary/10 text-primary border-primary/20 text-xs sm:text-sm md:text-base px-2 sm:px-3 py-1 sm:py-1.5">{t('customer.ready_to_pickup')}</Badge>;
+        return <Badge className="status-ready text-xs sm:text-sm md:text-base px-2 sm:px-3 py-1 sm:py-1.5">{t('customer.ready_to_pickup')}</Badge>;
       case 'out_for_delivery':
-        return <Badge variant="default" className="text-xs sm:text-sm md:text-base px-2 sm:px-3 py-1 sm:py-1.5">{t('customer.out_for_delivery')}</Badge>;
+        return <Badge className="status-out-for-delivery text-xs sm:text-sm md:text-base px-2 sm:px-3 py-1 sm:py-1.5">{t('customer.out_for_delivery')}</Badge>;
       case 'delivered':
-        return <Badge variant="outline" className="text-xs sm:text-sm md:text-base px-2 sm:px-3 py-1 sm:py-1.5">{t('customer.delivered')}</Badge>;
+        return <Badge className="status-delivered text-xs sm:text-sm md:text-base px-2 sm:px-3 py-1 sm:py-1.5">{t('customer.delivered')}</Badge>;
       default:
         return <Badge variant="outline" className="text-xs sm:text-sm md:text-base px-2 sm:px-3 py-1 sm:py-1.5">{status}</Badge>;
     }

@@ -41,16 +41,16 @@ export const createOrderTableColumns = (t: (key: string) => string): BaseTableCo
     label: t('admin.status'),
     sortable: true,
     render: (order) => {
-      const statusMap: Record<string, { variant: any; className: string; label: string }> = {
-        pending: { variant: 'secondary', className: 'bg-yellow-100 text-yellow-800', label: t('admin.pending') },
-        approved: { variant: 'default', className: 'bg-green-100 text-green-800', label: t('admin.approved') },
-        rejected: { variant: 'destructive', className: 'bg-red-100 text-red-800', label: t('admin.rejected') },
-        expired: { variant: 'outline', className: 'bg-gray-100 text-gray-600', label: t('admin.expired') },
-        delayed: { variant: 'destructive', className: 'bg-red-100 text-red-800', label: t('admin.delayed') },
-        cancelled: { variant: 'destructive', className: 'bg-red-100 text-red-800', label: t('admin.cancelled') },
+      const statusMap: Record<string, { className: string; label: string }> = {
+        pending: { className: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400', label: t('admin.pending') },
+        approved: { className: 'status-approved', label: t('admin.approved') },
+        rejected: { className: 'status-rejected', label: t('admin.rejected') },
+        expired: { className: 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400', label: t('admin.expired') },
+        delayed: { className: 'status-delayed', label: t('admin.delayed') },
+        cancelled: { className: 'status-cancelled', label: t('admin.cancelled') },
       };
-      const config = statusMap[order.status] || { variant: 'outline', className: '', label: order.status };
-      return <Badge variant={config.variant} className={config.className}>{config.label}</Badge>;
+      const config = statusMap[order.status] || { className: 'bg-gray-100 text-gray-600', label: order.status };
+      return <Badge className={config.className}>{config.label}</Badge>;
     },
   },
   {
@@ -58,14 +58,14 @@ export const createOrderTableColumns = (t: (key: string) => string): BaseTableCo
     label: t('admin.delivery_status'),
     sortable: true,
     render: (order) => {
-      const deliveryStatusMap: Record<string, { variant: any; className: string; label: string }> = {
-        pending: { variant: 'secondary', className: 'bg-blue-100 text-blue-800', label: t('admin.pending') },
-        out_for_delivery: { variant: 'default', className: 'bg-purple-100 text-purple-800', label: t('admin.out_for_delivery') },
-        delivered: { variant: 'default', className: 'bg-green-100 text-green-800', label: t('admin.delivered') },
-        ready_to_pickup: { variant: 'default', className: 'bg-orange-100 text-orange-800', label: t('admin.ready_to_pickup') },
+      const deliveryStatusMap: Record<string, { className: string; label: string }> = {
+        pending: { className: 'status-pending', label: t('admin.pending') },
+        out_for_delivery: { className: 'status-out-for-delivery', label: t('admin.out_for_delivery') },
+        delivered: { className: 'status-delivered', label: t('admin.delivered') },
+        ready_to_pickup: { className: 'status-ready', label: t('admin.ready_to_pickup') },
       };
-      const config = deliveryStatusMap[order.delivery_status] || { variant: 'outline', className: '', label: order.delivery_status };
-      return <Badge variant={config.variant} className={config.className}>{config.label}</Badge>;
+      const config = deliveryStatusMap[order.delivery_status] || { className: 'bg-gray-100 text-gray-600', label: order.delivery_status };
+      return <Badge className={config.className}>{config.label}</Badge>;
     },
   },
   {
@@ -95,27 +95,27 @@ export const createOrderTableColumns = (t: (key: string) => string): BaseTableCo
 
 export const OrderMobileCard = ({ order, t }: { order: Order; t: (key: string) => string }) => {
   const getStatusBadge = (status: string) => {
-    const statusMap: Record<string, { variant: any; className: string; label: string }> = {
-      pending: { variant: 'secondary', className: 'bg-yellow-100 text-yellow-800', label: t('admin.pending') },
-      approved: { variant: 'default', className: 'bg-green-100 text-green-800', label: t('admin.approved') },
-      rejected: { variant: 'destructive', className: 'bg-red-100 text-red-800', label: t('admin.rejected') },
-      expired: { variant: 'outline', className: 'bg-gray-100 text-gray-600', label: t('admin.expired') },
-      delayed: { variant: 'destructive', className: 'bg-red-100 text-red-800', label: t('admin.delayed') },
-      cancelled: { variant: 'destructive', className: 'bg-red-100 text-red-800', label: t('admin.cancelled') },
+    const statusMap: Record<string, { className: string; label: string }> = {
+      pending: { className: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400', label: t('admin.pending') },
+      approved: { className: 'status-approved', label: t('admin.approved') },
+      rejected: { className: 'status-rejected', label: t('admin.rejected') },
+      expired: { className: 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400', label: t('admin.expired') },
+      delayed: { className: 'status-delayed', label: t('admin.delayed') },
+      cancelled: { className: 'status-cancelled', label: t('admin.cancelled') },
     };
-    const config = statusMap[status] || { variant: 'outline', className: '', label: status };
-    return <Badge variant={config.variant} className={config.className}>{config.label}</Badge>;
+    const config = statusMap[status] || { className: 'bg-gray-100 text-gray-600', label: status };
+    return <Badge className={config.className}>{config.label}</Badge>;
   };
 
   const getDeliveryStatusBadge = (status: string) => {
-    const deliveryStatusMap: Record<string, { variant: any; className: string; label: string }> = {
-      pending: { variant: 'secondary', className: 'bg-blue-100 text-blue-800', label: t('admin.pending') },
-      out_for_delivery: { variant: 'default', className: 'bg-purple-100 text-purple-800', label: t('admin.out_for_delivery') },
-      delivered: { variant: 'default', className: 'bg-green-100 text-green-800', label: t('admin.delivered') },
-      ready_to_pickup: { variant: 'default', className: 'bg-orange-100 text-orange-800', label: t('admin.ready_to_pickup') },
+    const deliveryStatusMap: Record<string, { className: string; label: string }> = {
+      pending: { className: 'status-pending', label: t('admin.pending') },
+      out_for_delivery: { className: 'status-out-for-delivery', label: t('admin.out_for_delivery') },
+      delivered: { className: 'status-delivered', label: t('admin.delivered') },
+      ready_to_pickup: { className: 'status-ready', label: t('admin.ready_to_pickup') },
     };
-    const config = deliveryStatusMap[status] || { variant: 'outline', className: '', label: status };
-    return <Badge variant={config.variant} className={config.className}>{config.label}</Badge>;
+    const config = deliveryStatusMap[status] || { className: 'bg-gray-100 text-gray-600', label: status };
+    return <Badge className={config.className}>{config.label}</Badge>;
   };
 
   return (
