@@ -105,9 +105,9 @@ export default function MembershipReport({ members, summary, filters }: ReportPa
     if (!startDate && !endDate) return t('admin.no_date_range_selected');
     if (startDate && !endDate) return t('admin.from_date_format', { date: format(startDate, 'MMM dd, yyyy') });
     if (!startDate && endDate) return t('admin.until_date_format', { date: format(endDate, 'MMM dd, yyyy') });
-    return t('admin.date_range_format', { 
-      start: format(startDate!, 'MMM dd, yyyy'), 
-      end: format(endDate!, 'MMM dd, yyyy') 
+    return t('admin.date_range_format', {
+      start: format(startDate!, 'MMM dd, yyyy'),
+      end: format(endDate!, 'MMM dd, yyyy')
     });
   };
 
@@ -278,7 +278,7 @@ export default function MembershipReport({ members, summary, filters }: ReportPa
                   </div>
                   <h1 className="text-lg font-bold text-foreground truncate">{t('admin.membership_report')}</h1>
                 </div>
-                <Link href={route('admin.dashboard')}>
+                <Link href={route('membership.index')}>
                   <Button variant="outline" size="sm" className="h-8 w-8 p-0 shrink-0">
                     <ArrowLeft className="h-4 w-4" />
                   </Button>
@@ -298,10 +298,10 @@ export default function MembershipReport({ members, summary, filters }: ReportPa
                     </div>
                   </div>
                   <div className="flex gap-2 shrink-0">
-                    <Link href={route('admin.dashboard')}>
+                    <Link href={route('membership.index')}>
                       <Button variant="outline" className="flex items-center gap-2">
                         <ArrowLeft className="h-4 w-4" />
-                        {t('admin.back_to_dashboard')}
+                        {t('admin.back_to_membership')}
                       </Button>
                     </Link>
                     <Button onClick={() => exportReport('csv')} variant="outline" className="flex items-center gap-2">
@@ -401,13 +401,13 @@ export default function MembershipReport({ members, summary, filters }: ReportPa
                       </div>
                       <div className="flex items-center gap-2">
                         {hasActiveFilters() && (
-                          <Button 
+                          <Button
                             onClick={(e) => {
                               e.stopPropagation();
                               clearFilters();
-                            }} 
-                            variant="outline" 
-                            size="sm" 
+                            }}
+                            variant="outline"
+                            size="sm"
                             className="flex items-center gap-2"
                           >
                             <X className="h-4 w-4" />
