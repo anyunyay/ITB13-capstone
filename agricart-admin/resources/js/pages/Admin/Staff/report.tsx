@@ -97,9 +97,9 @@ export default function StaffReport({ staff, summary, filters }: ReportPageProps
     if (!startDate && !endDate) return t('admin.no_date_range_selected');
     if (startDate && !endDate) return t('admin.from_date_format', { date: format(startDate, 'MMM dd, yyyy') });
     if (!startDate && endDate) return t('admin.until_date_format', { date: format(endDate, 'MMM dd, yyyy') });
-    return t('admin.date_range_format', { 
-      start: format(startDate!, 'MMM dd, yyyy'), 
-      end: format(endDate!, 'MMM dd, yyyy') 
+    return t('admin.date_range_format', {
+      start: format(startDate!, 'MMM dd, yyyy'),
+      end: format(endDate!, 'MMM dd, yyyy')
     });
   };
 
@@ -190,6 +190,11 @@ export default function StaffReport({ staff, summary, filters }: ReportPageProps
       end_date: '',
       status: 'all',
       search: ''
+    });
+
+    router.get(route('admin.staff.report'), {}, {
+      preserveScroll: true,
+      only: ['staff', 'filters']
     });
   };
 
