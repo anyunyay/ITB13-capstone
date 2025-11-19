@@ -1,14 +1,15 @@
 import { useState, useRef, useEffect } from 'react';
-import { useForm, router } from '@inertiajs/react';
+import { useForm, router, usePage } from '@inertiajs/react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Save, X, Camera, Trash2, Upload, User, Mail, Phone } from 'lucide-react';
+import { Save, X, Camera, Trash2, Upload, User, Mail, Phone, CheckCircle, AlertCircle } from 'lucide-react';
 import EmailChangeModal from '@/components/shared/profile/change-email-modal';
 import PhoneChangeModal from '@/components/shared/profile/change-phone-modal';
 import { getDisplayEmail } from '@/lib/utils';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 interface User {
     id: number;
@@ -80,11 +81,34 @@ export default function ProfileEditModal({ isOpen, onClose, user }: ProfileEditM
     };
 
     const routes = getProfileRoutes();
+    const pageProps = usePage<any>().props;
     const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
     const [selectedAvatar, setSelectedAvatar] = useState<File | null>(null);
     const [isEmailChangeModalOpen, setIsEmailChangeModalOpen] = useState(false);
     const [isPhoneChangeModalOpen, setIsPhoneChangeModalOpen] = useState(false);
+    const [flashMessage, setFlashMessage] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
     const avatarInputRef = useRef<HTMLInputElement>(null);
+    
+    // Get flash message from various possible locations
+    const getFlashMessage = () => {
+        // Check for success message
+        if (pageProps.success) {
+            return { type: 'success' as const, message: pageProps.success };
+        }
+        // Check for error message
+        if (pageProps.error) {
+            return { type: 'error' as const, message: pageProps.error };
+        }
+        // Check for flash.success
+        if (pageProps.flash?.success) {
+            return { type: 'success' as const, message: pageProps.flash.success };
+        }
+        // Check for flash.error
+        if (pageProps.flash?.error) {
+            return { type: 'error' as const, message: pageProps.flash.error };
+        }
+        return null;
+    };
 
     // Check if user is admin or staff (should see full phone number)
     const isAdminOrStaff = user?.type === 'admin' || user?.type === 'staff';
@@ -120,11 +144,25 @@ export default function ProfileEditModal({ isOpen, onClose, user }: ProfileEditM
             setIsPhoneChangeModalOpen(false);
             setSelectedAvatar(null);
             setAvatarPreview(null);
+            setFlashMessage(null);
             if (avatarInputRef.current) {
                 avatarInputRef.current.value = '';
             }
         }
     }, [isOpen]);
+
+    // Show flash message when page props change
+    useEffect(() => {
+        const flash = getFlashMessage();
+        if (flash && isOpen) {
+            setFlashMessage(flash);
+            // Auto-hide after 5 seconds
+            const timer = setTimeout(() => {
+                setFlashMessage(null);
+            }, 5000);
+            return () => clearTimeout(timer);
+        }
+    }, [pageProps, isOpen]);
 
     const handleClose = () => {
         // Only close if no sub-modals are open
@@ -179,14 +217,7 @@ export default function ProfileEditModal({ isOpen, onClose, user }: ProfileEditM
     };
 
     const handleNameSubmit = () => {
-        patchName(routes.profileName, {
-            onSuccess: () => {
-                alert('Name updated successfully!');
-            },
-            onError: () => {
-                alert('Failed to update name. Please try again.');
-            },
-        });
+        patchName(routes.profileName);
     };
 
     const handleAvatarSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -214,10 +245,6 @@ export default function ProfileEditModal({ isOpen, onClose, user }: ProfileEditM
                 if (avatarInputRef.current) {
                     avatarInputRef.current.value = '';
                 }
-                alert('Profile picture updated successfully!');
-            },
-            onError: () => {
-                alert('Failed to update profile picture. Please try again.');
             },
         });
     };
@@ -232,14 +259,7 @@ export default function ProfileEditModal({ isOpen, onClose, user }: ProfileEditM
 
     const handleAvatarDelete = () => {
         if (confirm('Are you sure you want to remove your profile picture?')) {
-            router.delete(routes.avatarDelete, {
-                onSuccess: () => {
-                    alert('Profile picture removed successfully!');
-                },
-                onError: () => {
-                    alert('Failed to remove profile picture. Please try again.');
-                },
-            });
+            router.delete(routes.avatarDelete);
         }
     };
 
@@ -259,7 +279,24 @@ export default function ProfileEditModal({ isOpen, onClose, user }: ProfileEditM
         <>
             <Dialog open={showProfileModal} onOpenChange={handleClose}>
                 <DialogContent 
-                    className={`sm:max-w-lg max-h-[85vh] overflow-y-auto ${isCustomer ? 'border-2 border-green-200 dark:border-green-700' : ''}`}
+                    className={`sm:max-w-lg max-h-[85vh] overflow-y-auto ${isCustomer ? 'border-2 border-green-200 dark:border-green-700' : ''} 
+                    [&::-webkit-scrollbar]:w-2 
+                    [&::-webkit-scrollbar-track]:bg-gray-100 
+                    [&::-webkit-scrollbar-track]:rounded-full
+                    [&::-webkit-scrollbar-thumb]:bg-gray-300 
+                    [&::-webkit-scrollbar-thumb]:rounded-full
+                    [&::-webkit-scrollbar-thumb]:hover:bg-gray-400
+                    dark:[&::-webkit-scrollbar-track]:bg-gray-800
+                    dark:[&::-webkit-scrollbar-thumb]:bg-gray-600
+                    dark:[&::-webkit-scrollbar-thumb]:hover:bg-gray-500
+                    ${isCustomer ? `
+                    [&::-webkit-scrollbar-track]:bg-green-50
+                    [&::-webkit-scrollbar-thumb]:bg-green-300
+                    [&::-webkit-scrollbar-thumb]:hover:bg-green-400
+                    dark:[&::-webkit-scrollbar-track]:bg-green-950
+                    dark:[&::-webkit-scrollbar-thumb]:bg-green-700
+                    dark:[&::-webkit-scrollbar-thumb]:hover:bg-green-600
+                    ` : ''}`}
                     onPointerDownOutside={(e) => e.preventDefault()}
                     onEscapeKeyDown={handleClose}
                 >
@@ -274,6 +311,20 @@ export default function ProfileEditModal({ isOpen, onClose, user }: ProfileEditM
                             Update your profile information and settings.
                         </DialogDescription>
                     </DialogHeader>
+
+                    {/* Flash Messages */}
+                    {flashMessage && (
+                        <Alert className={`${flashMessage.type === 'success' ? 'border-green-500 bg-green-50 dark:bg-green-900/20' : 'border-red-500 bg-red-50 dark:bg-red-900/20'}`}>
+                            {flashMessage.type === 'success' ? (
+                                <CheckCircle className="h-4 w-4 text-green-600 dark:text-green-400" />
+                            ) : (
+                                <AlertCircle className="h-4 w-4 text-red-600 dark:text-red-400" />
+                            )}
+                            <AlertDescription className={flashMessage.type === 'success' ? 'text-green-800 dark:text-green-200' : 'text-red-800 dark:text-red-200'}>
+                                {flashMessage.message}
+                            </AlertDescription>
+                        </Alert>
+                    )}
 
                     <div className="space-y-4">
                         {/* Profile Picture Section */}

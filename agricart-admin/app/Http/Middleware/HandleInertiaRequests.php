@@ -47,23 +47,27 @@ class HandleInertiaRequests extends Middleware
             'quote' => ['message' => trim($message), 'author' => trim($author)],
             'auth' => [
                 'user' => $request->user(),
-            ], 
+            ],
             // Dynamically generate permissions based on the current user
-            'permissions' => collect(Permission::all()->pluck('name'))->mapWithKeys(function ($permission) use ($request) { 
+            'permissions' => collect(Permission::all()->pluck('name'))->mapWithKeys(function ($permission) use ($request) {
                 $key = lcfirst(str_replace(' ', '', ucwords($permission))); // Convert permission name to camelCase
                 $user = $request->user();
                 $canPermission = $user ? $user->can($permission) : false;
                 return [$key => $canPermission]; // Check if the user has the permission
             }),
-            'flash' => fn() => $request->session()->get('flash') ?: [
-                'message' => $request->session()->get('message')
+            'flash' => fn() => [
+                'success' => $request->session()->get('success'),
+                'error' => $request->session()->get('error'),
+                'message' => $request->session()->get('message'),
             ],
+            'success' => fn() => $request->session()->get('success'),
+            'error' => fn() => $request->session()->get('error'),
             'ziggy' => fn(): array => [
                 ...(new Ziggy)->toArray(),
                 'location' => $request->url(),
             ],
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
-            
+
             // Share translations for guests (will be overridden for authenticated users)
             'translations' => TranslationService::getAllTranslations(app()->getLocale()),
             'locale' => app()->getLocale(),
@@ -72,20 +76,20 @@ class HandleInertiaRequests extends Middleware
         // Share notifications for authenticated users based on their type
         if ($request->user()) {
             $user = $request->user();
-            
+
             // Share user's appearance settings (using built-in cookie-based approach)
             $shared['userTheme'] = $user->appearance ?? 'system';
-            
+
             // Share user's language preference and current locale
             $currentLocale = app()->getLocale();
             $shared['userLanguage'] = $user->language ?? 'en';
             $shared['locale'] = $currentLocale;
-            
+
             // Share all translations for the current locale
             $shared['translations'] = TranslationService::getAllTranslations($currentLocale);
-            
+
             $notificationTypes = [];
-            
+
             switch ($user->type) {
                 case 'customer':
                     $notificationTypes = [
@@ -125,7 +129,7 @@ class HandleInertiaRequests extends Middleware
             if (!empty($notificationTypes)) {
                 // Get user's language preference
                 $locale = $user->language ?? app()->getLocale();
-                
+
                 // Share notifications for the notification bell in header (exclude hidden ones)
                 $shared['notifications'] = $user->notifications()
                     ->whereIn('type', $notificationTypes)
