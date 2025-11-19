@@ -408,11 +408,13 @@ export default function SalesIndex({ sales, summary, memberSales, filters }: Sal
             <div className="bg-gradient-to-br from-card to-[color-mix(in_srgb,var(--card)_95%,var(--primary)_5%)] border border-border rounded-xl p-5 shadow-lg flex flex-col gap-3">
               <div className="flex flex-col gap-3 mb-2 md:flex-row md:items-center md:justify-between">
                 <div className="flex-1">
-                  <div className="flex items-center gap-3">
-                    <DollarSign className="h-10 w-10 text-primary bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] p-2.5 rounded-lg" />
+                  <div className="flex items-center gap-4">
+                    <div className="bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] text-primary p-3 rounded-lg flex items-center justify-center">
+                      <DollarSign className="h-6 w-6" />
+                    </div>
                     <div>
-                      <h1 className="text-2xl font-bold text-foreground m-0 leading-tight">{t('admin.sales_management_page_title')}</h1>
-                      <p className="text-sm text-muted-foreground mt-1 mb-0 leading-snug">
+                      <h1 className="text-2xl font-bold text-foreground m-0">{t('admin.sales_management_page_title')}</h1>
+                      <p className="text-sm text-muted-foreground mt-1 mb-0">
                         {t('admin.sales_management_description')}
                       </p>
                     </div>
@@ -553,11 +555,13 @@ export default function SalesIndex({ sales, summary, memberSales, filters }: Sal
                   <CardHeader>
                     <div className="pb-3 border-b border-border">
                       <div className="flex items-center justify-between gap-2">
-                        <div className="flex items-center gap-3 min-w-0 flex-1">
-                          <ShoppingCart className="bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] text-primary p-2 rounded-lg flex items-center justify-center flex-shrink-0" />
+                        <div className="flex items-center gap-4 min-w-0 flex-1">
+                          <div className="bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] text-primary p-3 rounded-lg flex items-center justify-center">
+                            <ShoppingCart className="h-6 w-6" />
+                          </div>
                           <div className="min-w-0">
-                            <h2 className="text-xl font-semibold text-foreground m-0 mb-1 leading-tight">{t('admin.all_sales')}</h2>
-                            <p className="text-sm text-muted-foreground m-0 leading-snug hidden sm:block">
+                            <h2 className="text-2xl font-semibold text-foreground m-0 mb-1">{t('admin.all_sales')}</h2>
+                            <p className="text-sm text-muted-foreground m-0 hidden sm:block">
                               {t('admin.sales_with_sorting_and_pagination')}
                             </p>
                           </div>
@@ -729,11 +733,13 @@ export default function SalesIndex({ sales, summary, memberSales, filters }: Sal
                   <CardHeader>
                     <div className="pb-3 border-b border-border">
                       <div className="flex items-center justify-between gap-2 flex-wrap">
-                        <div className="flex items-center gap-3 min-w-0 flex-1">
-                          <Users className="bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] text-primary p-2 rounded-lg flex items-center justify-center flex-shrink-0" />
+                        <div className="flex items-center gap-4 min-w-0 flex-1">
+                          <div className="bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] text-primary p-3 rounded-lg flex items-center justify-center">
+                            <Users className="h-6 w-6" />
+                          </div>
                           <div className="min-w-0">
-                            <h2 className="text-xl font-semibold text-foreground m-0 mb-1 leading-tight">{t('admin.member_sales_tab')}</h2>
-                            <p className="text-sm text-muted-foreground m-0 leading-snug hidden sm:block">
+                            <h2 className="text-2xl font-semibold text-foreground m-0 mb-1">{t('admin.member_sales_tab')}</h2>
+                            <p className="text-sm text-muted-foreground m-0 hidden sm:block">
                               {t('admin.member_sales_description')}
                             </p>
                           </div>
