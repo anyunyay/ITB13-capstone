@@ -147,7 +147,7 @@ export function generateBreadcrumbs(page: any): BreadcrumbItem[] {
 
     // Orders
     if (url.startsWith('/admin/orders')) {
-        crumbs.push({ title: 'Order Management', href: '/admin/orders' });
+        crumbs.push({ title: 'Orders', href: '/admin/orders' });
 
         // Order Report
         if (url === '/admin/orders/report') {
