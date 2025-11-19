@@ -36,8 +36,8 @@ export function generateBreadcrumbs(page: any): BreadcrumbItem[] {
             return crumbs;
         }
 
-        // Product detail/edit
-        if (params.product) {
+        // Product detail/edit - only show if we have product data AND we're on a detail/edit page
+        if (params.product && url !== '/admin/inventory') {
             crumbs.push({
                 title: params.product.name || `Product #${params.product.id}`,
                 href: '', // Not clickable
@@ -78,8 +78,8 @@ export function generateBreadcrumbs(page: any): BreadcrumbItem[] {
             return crumbs;
         }
 
-        // Member detail/edit
-        if (params.member) {
+        // Member detail/edit - only show if we have member data AND we're on a detail/edit page
+        if (params.member && url !== '/admin/membership') {
             crumbs.push({
                 title: params.member.name || `Member #${params.member.id}`,
                 href: '',
@@ -110,8 +110,8 @@ export function generateBreadcrumbs(page: any): BreadcrumbItem[] {
             return crumbs;
         }
 
-        // Logistic detail/edit
-        if (params.logistic) {
+        // Logistic detail/edit - only show if we have logistic data AND we're on a detail/edit page
+        if (params.logistic && url !== '/admin/logistics') {
             crumbs.push({
                 title: params.logistic.name || `Logistic #${params.logistic.id}`,
                 href: '',
@@ -155,8 +155,8 @@ export function generateBreadcrumbs(page: any): BreadcrumbItem[] {
             return crumbs;
         }
 
-        // Order detail/edit
-        if (params.order) {
+        // Order detail/edit - only show if we have order data AND we're on a detail/edit page
+        if (params.order && url !== '/admin/orders') {
             crumbs.push({
                 title: `Order #${params.order.id}`,
                 href: '',
@@ -190,8 +190,8 @@ export function generateBreadcrumbs(page: any): BreadcrumbItem[] {
             return crumbs;
         }
 
-        // Staff detail/edit
-        if (params.staff) {
+        // Staff detail/edit - only show if we have staff data AND we're on a detail/edit page
+        if (params.staff && url !== '/admin/staff') {
             crumbs.push({
                 title: params.staff.name || `Staff #${params.staff.id}`,
                 href: '',
