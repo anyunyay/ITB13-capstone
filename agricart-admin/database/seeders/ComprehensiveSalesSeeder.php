@@ -17,6 +17,12 @@ class ComprehensiveSalesSeeder extends Seeder
 {
     /**
      * Run the database seeds.
+     * 
+     * This seeder creates comprehensive sales data with proper stock management:
+     * - Respects locked stocks (quantity = 0, sold_quantity > 0)
+     * - Automatically creates Stock Trail entries when stocks reach zero
+     * - Avoids modifying removed or locked stocks
+     * - Maintains data integrity with the new stock locking mechanism
      */
     public function run(): void
     {
@@ -48,11 +54,13 @@ class ComprehensiveSalesSeeder extends Seeder
             return;
         }
 
-        // Get products with available stock from any member
+        // Get products with available stock from any member (excluding locked stocks)
         $products = Product::with(['stocks' => function($query) {
-            $query->where('quantity', '>', 0);
+            $query->where('quantity', '>', 0)
+                  ->whereNull('removed_at'); // Exclude removed stocks
         }])->whereHas('stocks', function($query) {
-            $query->where('quantity', '>', 0);
+            $query->where('quantity', '>', 0)
+                  ->whereNull('removed_at'); // Exclude removed stocks
         })->get();
 
         if ($products->isEmpty()) {
@@ -180,14 +188,20 @@ class ComprehensiveSalesSeeder extends Seeder
 
         // Calculate order items and totals from available stocks across all members
         foreach ($selectedProducts as $product) {
-            $availableStocks = $product->stocks->where('quantity', '>', 0);
+            // Only get stocks that are available and not locked (quantity > 0 and not removed)
+            $availableStocks = $product->stocks->filter(function($stock) {
+                return $this->isStockAvailable($stock);
+            });
             
             if ($availableStocks->isEmpty()) continue;
 
             // Randomly select a stock from available ones (could be from any member)
             $stock = $availableStocks->random();
             
-            $maxQuantity = min(5, (int)$stock->quantity); // Don't order more than available
+            // Don't order more than available, and leave at least 1 unit to avoid locking during seeding
+            $maxQuantity = min(5, max(1, (int)$stock->quantity - 1));
+            if ($maxQuantity < 1) continue; // Skip if stock is too low
+            
             $quantity = rand(1, $maxQuantity);
             
             $price = $this->getProductPrice($product, $stock->category);
@@ -257,10 +271,33 @@ class ComprehensiveSalesSeeder extends Seeder
                 'updated_at' => $createdAt,
             ]);
 
-            // Update stock quantities to reflect the sale
+            // Update stock quantities to reflect the sale (only for approved orders)
             if ($order->status === 'approved') {
-                $item['stock']->decrement('quantity', $item['quantity']);
-                $item['stock']->increment('sold_quantity', $item['quantity']);
+                // Refresh stock to get latest data
+                $item['stock']->refresh();
+                
+                // Only update if stock is not locked
+                if (!$item['stock']->isLocked()) {
+                    $item['stock']->decrement('quantity', $item['quantity']);
+                    $item['stock']->increment('sold_quantity', $item['quantity']);
+                    
+                    // If stock reaches zero after this sale, create Stock Trail entry
+                    $item['stock']->refresh();
+                    if ($item['stock']->quantity == 0 && $item['stock']->sold_quantity > 0) {
+                        \App\Models\StockTrail::record(
+                            stockId: $item['stock']->id,
+                            productId: $item['stock']->product_id,
+                            actionType: 'completed',
+                            oldQuantity: $item['quantity'],
+                            newQuantity: 0,
+                            memberId: $item['stock']->member_id,
+                            category: $item['stock']->category,
+                            notes: "Stock fully sold during seeding (Order #{$order->id}). Total sold: {$item['stock']->sold_quantity}",
+                            performedBy: $order->admin_id,
+                            performedByType: 'admin'
+                        );
+                    }
+                }
             }
         }
 
@@ -339,5 +376,15 @@ class ComprehensiveSalesSeeder extends Seeder
         ];
 
         return $feedbacks[array_rand($feedbacks)];
+    }
+
+    /**
+     * Check if a stock is available for seeding (not locked, not removed, has quantity)
+     */
+    private function isStockAvailable($stock)
+    {
+        return $stock->quantity > 0 
+            && is_null($stock->removed_at)
+            && !($stock->quantity == 0 && $stock->sold_quantity > 0); // Not locked
     }
 }

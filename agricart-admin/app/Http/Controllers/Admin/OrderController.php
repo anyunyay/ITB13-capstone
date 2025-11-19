@@ -452,6 +452,28 @@ class OrderController extends Controller
                             'available_stock_after_sale' => $availableStockAfterSale
                         ]
                     );
+
+                    // Automatically move stock to Stock Trail when quantity reaches zero
+                    StockTrail::record(
+                        stockId: $trail->stock->id,
+                        productId: $trail->stock->product_id,
+                        actionType: 'completed',
+                        oldQuantity: $trail->quantity,
+                        newQuantity: 0,
+                        memberId: $trail->stock->member_id,
+                        category: $trail->stock->category,
+                        notes: "Stock fully sold and moved to Stock Trail (Order #{$order->id}). Total sold: {$trail->stock->sold_quantity}",
+                        performedBy: $request->user()->id,
+                        performedByType: $request->user()->type
+                    );
+
+                    Log::info('Stock automatically moved to Stock Trail', [
+                        'stock_id' => $trail->stock->id,
+                        'product_id' => $trail->stock->product_id,
+                        'member_id' => $trail->stock->member_id,
+                        'total_sold' => $trail->stock->sold_quantity,
+                        'order_id' => $order->id
+                    ]);
                 } else {
                     // Log partial sale
                     SystemLogger::logStockUpdate(

@@ -124,6 +124,15 @@ class InventoryStockController extends Controller
 
     public function editStock(Product $product, Stock $stock)
     {
+        // Prevent editing stocks that have reached zero quantity
+        if ($stock->isLocked()) {
+            return redirect()->route('inventory.index')
+                ->with('flash', [
+                    'type' => 'error',
+                    'message' => 'Cannot edit stock that has been fully sold. This stock has been moved to Stock Trail and is locked from modifications.'
+                ]);
+        }
+
         $members = User::where('type', 'member')->get(['id', 'name']);
         
         // Get available categories based on product pricing
@@ -142,6 +151,15 @@ class InventoryStockController extends Controller
 
     public function updateStock(Request $request, Product $product, Stock $stock)
     {
+        // Prevent updating stocks that have reached zero quantity
+        if ($stock->isLocked()) {
+            return redirect()->route('inventory.index')
+                ->with('flash', [
+                    'type' => 'error',
+                    'message' => 'Cannot update stock that has been fully sold. This stock has been moved to Stock Trail and is locked from modifications.'
+                ]);
+        }
+
         // Get available categories for this product
         $availableCategories = [];
         if ($product->price_kilo) $availableCategories[] = 'Kilo';
@@ -230,6 +248,15 @@ class InventoryStockController extends Controller
         // Verify the stock belongs to this product
         if ($stock->product_id !== $product->id) {
             return redirect()->back()->withErrors(['stock_id' => 'Invalid stock selected.']);
+        }
+
+        // Prevent removing stocks that have reached zero quantity
+        if ($stock->isLocked()) {
+            return redirect()->route('inventory.index')
+                ->with('flash', [
+                    'type' => 'error',
+                    'message' => 'Cannot remove stock that has been fully sold. This stock has been moved to Stock Trail and is locked from modifications.'
+                ]);
         }
 
         $oldQuantity = $stock->quantity;

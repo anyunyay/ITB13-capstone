@@ -207,6 +207,9 @@ return [
     'sold_items' => 'Sold Items',
     'out_of_stock_items' => 'Sold Out Items',
     'remove' => 'Remove',
+    'locked' => 'Locked',
+    'stock_fully_sold_locked' => 'This stock has been fully sold and is locked from modifications. It has been moved to Stock Trail.',
+    'total_sold' => 'Total Sold',
 
     // Recent Activity
     'recent_activity' => 'Recent Activity',

@@ -29,6 +29,8 @@ class Stock extends Model
         'sold_quantity' => 'decimal:2',
         'initial_quantity' => 'decimal:2',
     ];
+
+    protected $appends = ['is_locked', 'can_be_edited', 'can_be_removed'];
     
     public function product()
     {
@@ -211,5 +213,53 @@ class Stock extends Model
             'removed_at' => null,
             'notes' => null,
         ]);
+    }
+
+    /**
+     * Check if stock is locked from modifications (quantity is zero and fully sold)
+     */
+    public function isLocked()
+    {
+        return $this->quantity == 0 && $this->sold_quantity > 0;
+    }
+
+    /**
+     * Check if stock can be edited
+     */
+    public function canBeEdited()
+    {
+        return !$this->isLocked() && !$this->isRemoved();
+    }
+
+    /**
+     * Check if stock can be removed
+     */
+    public function canBeRemoved()
+    {
+        return !$this->isLocked() && !$this->isRemoved();
+    }
+
+    /**
+     * Accessor for is_locked attribute
+     */
+    public function getIsLockedAttribute()
+    {
+        return $this->isLocked();
+    }
+
+    /**
+     * Accessor for can_be_edited attribute
+     */
+    public function getCanBeEditedAttribute()
+    {
+        return $this->canBeEdited();
+    }
+
+    /**
+     * Accessor for can_be_removed attribute
+     */
+    public function getCanBeRemovedAttribute()
+    {
+        return $this->canBeRemoved();
     }
 }

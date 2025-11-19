@@ -848,7 +848,7 @@ export const StockManagement = ({
                                 <SelectItem value="all">{t('admin.all_status')}</SelectItem>
                                 <SelectItem value="available">{t('admin.available')}</SelectItem>
                                 <SelectItem value="low">{t('admin.low_stock')}</SelectItem>
-                                <SelectItem value="out">{t('admin.out_of_stock')}</SelectItem>
+                                {/* "Out of Stock" removed - zero-quantity stocks are now in Stock Trail */}
                             </SelectContent>
                         </Select>
                         <Select value={selectedStockCategory} onValueChange={setSelectedStockCategory}>

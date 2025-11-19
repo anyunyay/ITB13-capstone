@@ -205,6 +205,9 @@ return [
     'sold_items' => 'Mga Naibentang Produkto',
     'out_of_stock_items' => 'Mga Naubos na Stock',
     'remove' => 'Tanggalin',
+    'locked' => 'Nakakandado',
+    'stock_fully_sold_locked' => 'Ang stock na ito ay ganap na naibenta at nakakandado mula sa mga pagbabago. Ito ay inilipat na sa Stock Trail.',
+    'total_sold' => 'Kabuuang Naibenta',
 
     // Recent Activity
     'recent_activity' => 'Kamakailang Aktibidad',

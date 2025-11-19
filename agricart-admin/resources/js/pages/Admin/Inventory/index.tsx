@@ -215,6 +215,9 @@ export default function InventoryIndex() {
         if (!stocks || !Array.isArray(stocks)) return [];
         
         const filtered = stocks.filter(stock => {
+            // Exclude stocks with zero quantity (locked stocks) - they're in Stock Trail now
+            if (stock.quantity === 0 || Number(stock.quantity) === 0) return false;
+            
             // Search filter
             const matchesSearch = !stockSearchTerm || 
                 stock.product?.name?.toLowerCase().includes(stockSearchTerm.toLowerCase()) ||
@@ -228,11 +231,10 @@ export default function InventoryIndex() {
             const matchesCategory = selectedStockCategory === 'all' || stock.category === selectedStockCategory;
             if (!matchesCategory) return false;
             
-            // Status filter
-            if (status === 'all') return true; // Show all stocks including out of stock
+            // Status filter - removed 'out' status since zero stocks are now excluded
+            if (status === 'all') return true; // Show all stocks with quantity > 0
             if (status === 'available') return stock.quantity > 10;
             if (status === 'low') return stock.quantity > 0 && stock.quantity <= 10;
-            if (status === 'out') return Number(stock.quantity) === 0 || stock.quantity === 0;
             // Legacy category filtering (for backward compatibility)
             if (status === 'Kilo') return stock.category === 'Kilo';
             if (status === 'Pc') return stock.category === 'Pc';
@@ -545,13 +547,13 @@ export default function InventoryIndex() {
         });
     };
 
-    // Calculate stock statistics
+    // Calculate stock statistics (excluding zero-quantity stocks as they're in Stock Trail)
     const stockStats = {
         totalProducts: products?.length || 0,
-        totalStocks: stocks?.length || 0,
-        availableStocks: stocks?.filter(stock => stock.quantity > 0).length || 0,
+        totalStocks: stocks?.filter(stock => stock.quantity > 0).length || 0, // Only count stocks with quantity > 0
+        availableStocks: stocks?.filter(stock => stock.quantity > 10).length || 0, // High stock items
         lowStockItems: stocks?.filter(stock => stock.quantity > 0 && stock.quantity <= 10).length || 0,
-        outOfStockItems: stocks?.filter(stock => stock.quantity === 0).length || 0,
+        outOfStockItems: 0, // Zero-quantity stocks are now in Stock Trail, not shown in Current Stocks
     };
 
     return (

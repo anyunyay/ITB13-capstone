@@ -18,11 +18,15 @@ export interface Stock {
     id: number;
     product_id: number;
     quantity: number;
+    sold_quantity?: number;
     category: string;
     status: string;
     member_id?: number;
     removed_at?: string;
     notes?: string;
+    is_locked?: boolean;
+    can_be_edited?: boolean;
+    can_be_removed?: boolean;
     created_at: string;
     updated_at: string;
     product?: {
