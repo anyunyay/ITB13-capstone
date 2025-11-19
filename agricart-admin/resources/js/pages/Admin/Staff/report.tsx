@@ -44,6 +44,11 @@ export default function StaffReport({ staff, summary, filters }: ReportPageProps
   const [localFilters, setLocalFilters] = useState<ReportFilters>(filters);
   const [filtersOpen, setFiltersOpen] = useState(false);
 
+  const breadcrumbs = [
+    { title: t('staff.staff'), href: route('staff.index') },
+    { title: t('staff.staff_report'), href: route('staff.report') },
+  ];
+
   // Sorting state
   const [sortBy, setSortBy] = useState('id');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
@@ -257,7 +262,7 @@ export default function StaffReport({ staff, summary, filters }: ReportPageProps
   }, [staff.length]);
 
   return (
-    <AppSidebarLayout>
+    <AppSidebarLayout breadcrumbs={breadcrumbs}>
       <Head title={t('staff.staff_report')} />
       <div className="min-h-screen bg-background">
         <div className="w-full px-4 py-4 flex flex-col gap-2 sm:px-6 lg:px-8">
