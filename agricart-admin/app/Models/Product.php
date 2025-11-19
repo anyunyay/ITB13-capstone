@@ -117,15 +117,15 @@ class Product extends Model
     public function getDeletionRestrictionReason()
     {
         if ($this->hasAvailableStock()) {
-            return 'Product has available stock that cannot be deleted.';
+            return __('admin.cannot_delete_product_has_stock');
         }
         
         if ($this->hasSalesData()) {
-            return 'Product has sales history and cannot be deleted.';
+            return __('admin.cannot_delete_product_has_sales');
         }
         
         if ($this->hasCartItems()) {
-            return 'Product has items in customer carts and cannot be deleted.';
+            return __('admin.cannot_delete_product_in_carts');
         }
         
         return null;

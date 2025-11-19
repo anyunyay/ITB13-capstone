@@ -389,15 +389,35 @@ export const ProductManagement = ({
                                                 )}
 
                                                 <PermissionGate permission={product.archived_at ? "delete archived products" : "delete products"}>
-                                                    <Button
-                                                        disabled={processing}
-                                                        onClick={() => handleDelete(product.id, product.name)}
-                                                        variant="destructive"
-                                                        className="py-2 px-2 text-sm font-medium rounded-lg transition-all duration-200 flex items-center justify-center gap-1 min-h-[2.625rem] w-full box-border overflow-hidden text-ellipsis whitespace-nowrap hover:-translate-y-0.5 hover:shadow-sm"
-                                                    >
-                                                        <Trash2 className="h-4 w-4 flex-shrink-0" />
-                                                        {t('ui.delete')}
-                                                    </Button>
+                                                    {!product.can_be_deleted ? (
+                                                        <Tooltip>
+                                                            <TooltipTrigger asChild>
+                                                                <span className="w-full block">
+                                                                    <Button
+                                                                        disabled={true}
+                                                                        variant="destructive"
+                                                                        className="py-2 px-2 text-sm font-medium rounded-lg transition-all duration-200 flex items-center justify-center gap-1 min-h-[2.625rem] w-full box-border overflow-hidden text-ellipsis whitespace-nowrap opacity-60 cursor-not-allowed"
+                                                                    >
+                                                                        <Trash2 className="h-4 w-4 flex-shrink-0" />
+                                                                        {t('ui.delete')}
+                                                                    </Button>
+                                                                </span>
+                                                            </TooltipTrigger>
+                                                            <TooltipContent side="bottom">
+                                                                <p>{product.deletion_reason || t('admin.cannot_delete_product')}</p>
+                                                            </TooltipContent>
+                                                        </Tooltip>
+                                                    ) : (
+                                                        <Button
+                                                            disabled={processing}
+                                                            onClick={() => handleDelete(product.id, product.name)}
+                                                            variant="destructive"
+                                                            className="py-2 px-2 text-sm font-medium rounded-lg transition-all duration-200 flex items-center justify-center gap-1 min-h-[2.625rem] w-full box-border overflow-hidden text-ellipsis whitespace-nowrap hover:-translate-y-0.5 hover:shadow-sm"
+                                                        >
+                                                            <Trash2 className="h-4 w-4 flex-shrink-0" />
+                                                            {t('ui.delete')}
+                                                        </Button>
+                                                    )}
                                                 </PermissionGate>
                                             </div>
                                         </CardFooter>

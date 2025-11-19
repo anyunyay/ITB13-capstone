@@ -10,6 +10,8 @@ export interface Product {
     image_url: string;
     archived_at?: string;
     has_stock?: boolean;
+    can_be_deleted?: boolean;
+    deletion_reason?: string | null;
 }
 
 export interface Stock {

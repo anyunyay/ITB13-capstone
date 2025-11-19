@@ -1372,4 +1372,10 @@ return [
     // Product Name Validation
     'checking_product_name' => 'Checking product name...',
     'product_name_exists' => 'This product name already exists. Please use a different name.',
+
+    // Product Deletion Restrictions
+    'cannot_delete_product' => 'Cannot delete this product',
+    'cannot_delete_product_has_stock' => 'Product has available stock that cannot be deleted.',
+    'cannot_delete_product_has_sales' => 'Product has sales history and cannot be deleted.',
+    'cannot_delete_product_in_carts' => 'Product has items in customer carts and cannot be deleted.',
 ];

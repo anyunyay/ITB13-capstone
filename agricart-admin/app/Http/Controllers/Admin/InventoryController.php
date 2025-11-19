@@ -31,13 +31,32 @@ class InventoryController extends Controller
                 $product->has_stock = cache()->remember("product_stock_{$product->id}", 300, function () use ($product) {
                     return $product->hasAvailableStock();
                 });
+                // Check if product can be deleted
+                $product->can_be_deleted = cache()->remember("product_can_delete_{$product->id}", 300, function () use ($product) {
+                    return $product->canBeDeleted();
+                });
+                // Get deletion restriction reason
+                $product->deletion_reason = cache()->remember("product_deletion_reason_{$product->id}", 300, function () use ($product) {
+                    return $product->getDeletionRestrictionReason();
+                });
                 return $product;
             });
 
         $archivedProducts = Product::archived()
             ->select('id', 'name', 'price_kilo', 'price_pc', 'price_tali', 'description', 'image', 'produce_type', 'created_at')
             ->orderBy('name')
-            ->get();
+            ->get()
+            ->map(function ($product) {
+                // Check if product can be deleted
+                $product->can_be_deleted = cache()->remember("product_can_delete_{$product->id}", 300, function () use ($product) {
+                    return $product->canBeDeleted();
+                });
+                // Get deletion restriction reason
+                $product->deletion_reason = cache()->remember("product_deletion_reason_{$product->id}", 300, function () use ($product) {
+                    return $product->getDeletionRestrictionReason();
+                });
+                return $product;
+            });
 
         // Optimize stock loading with selective fields and efficient relations
         $stocks = Stock::active()
