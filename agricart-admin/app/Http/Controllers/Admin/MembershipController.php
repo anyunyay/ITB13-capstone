@@ -349,7 +349,8 @@ class MembershipController extends Controller
         $paperSize = $request->get('paper_size', 'A4'); // A4, Letter, Legal, A3
         $orientation = $request->get('orientation', 'landscape'); // portrait, landscape
 
-        $query = User::where('type', 'member');
+        $query = User::where('type', 'member')
+            ->with('defaultAddress:id,user_id,street,barangay,city,province');
 
         // Filter by registration date range
         if ($startDate) {
@@ -377,7 +378,7 @@ class MembershipController extends Controller
                 'member_id' => $member->member_id,
                 'name' => $member->name,
                 'contact_number' => $member->contact_number,
-                'address' => $member->address,
+                'address' => $member->defaultAddress ? $member->defaultAddress->full_address : 'N/A',
                 'registration_date' => $member->registration_date,
                 'document' => $member->document,
                 'email_verified_at' => $member->email_verified_at,
