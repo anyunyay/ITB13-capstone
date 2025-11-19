@@ -10,7 +10,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import PasswordInput from '@/components/ui/password-input';
 import AuthLayout from '@/layouts/auth-layout';
-import LoginRestrictionPopup from '@/components/shared/auth/LoginRestrictionPopup';
 import CountdownTimer from '@/components/common/feedback/CountdownTimer';
 import { useLockoutStatus } from '@/hooks/useLockoutStatus';
 
@@ -23,13 +22,9 @@ type LogisticLoginForm = {
 interface LogisticLoginProps {
     status?: string;
     canResetPassword: boolean;
-    restrictionPopup?: {
-        userType: string;
-        targetPortal: string;
-    };
 }
 
-export default function LogisticLogin({ status, canResetPassword, restrictionPopup }: LogisticLoginProps) {
+export default function LogisticLogin({ status, canResetPassword }: LogisticLoginProps) {
     const { data, setData, post, processing, errors, reset } = useForm<Required<LogisticLoginForm>>({
         email: '',
         password: '',
@@ -37,20 +32,12 @@ export default function LogisticLogin({ status, canResetPassword, restrictionPop
     });
 
     const { props } = usePage<{ auth?: { user?: { type?: string } } }>();
-    const [showRestrictionPopup, setShowRestrictionPopup] = useState(false);
 
     // Lockout status management
     const { lockoutStatus, refreshLockoutStatus } = useLockoutStatus({
         identifier: data.email,
         userType: 'logistic',
     });
-
-    // Show restriction popup if needed
-    useEffect(() => {
-        if (restrictionPopup) {
-            setShowRestrictionPopup(true);
-        }
-    }, [restrictionPopup]);
 
     // If user is already authenticated and navigates back to login, redirect them
     useEffect(() => {
@@ -193,14 +180,6 @@ export default function LogisticLogin({ status, canResetPassword, restrictionPop
                     </div>
                 )}
             </AuthLayout>
-
-            {restrictionPopup && (
-                <LoginRestrictionPopup
-                    isOpen={showRestrictionPopup}
-                    userType={restrictionPopup.userType}
-                    targetPortal={restrictionPopup.targetPortal}
-                />
-            )}
         </>
     );
 }
