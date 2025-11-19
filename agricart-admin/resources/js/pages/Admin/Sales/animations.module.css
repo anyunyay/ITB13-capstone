@@ -1,0 +1,121 @@
+/* 
+ * Sales Animations & Advanced Styling
+ * 
+ * This module contains unique animations and advanced styling that Tailwind CSS
+ * cannot handle natively. Matches the Inventory animations for consistency.
+ */
+
+/* ==========================================================================
+   KEYFRAME ANIMATIONS
+   ========================================================================== */
+
+@keyframes tabSlideIn {
+  from {
+    opacity: 0;
+    transform: translateX(1rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes tabFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(1rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ==========================================================================
+   ANIMATION CLASSES
+   ========================================================================== */
+
+.tabSlideIn {
+  animation: tabSlideIn 0.3s ease-out;
+}
+
+.tabFadeIn {
+  animation: tabFadeIn 0.2s ease-in-out;
+}
+
+.fadeIn {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.slideIn {
+  animation: slideIn 0.3s ease-in-out;
+}
+
+/* Search toggle animations */
+.searchToggleContainer {
+  transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), 
+              opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              padding 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              margin 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              border 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+  will-change: max-height, opacity, padding, margin, border;
+}
+
+.searchToggleContainer.collapsed {
+  max-height: 0;
+  opacity: 0;
+  padding: 0;
+  margin: 0;
+  border: none;
+}
+
+.searchToggleContainer.expanded {
+  max-height: 450px;
+  opacity: 1;
+  padding: 1rem;
+  border: 1px solid var(--border);
+}
+
+/* ==========================================================================
+   ACCESSIBILITY ENHANCEMENTS
+   ========================================================================== */
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .tabSlideIn,
+  .tabFadeIn,
+  .fadeIn,
+  .slideIn {
+    animation: none;
+  }
+  
+  .searchToggleContainer {
+    transition: none;
+  }
+}
+
+/* Responsive search button */
+@media (max-width: 640px) {
+  .searchToggleContainer.expanded {
+    padding: 0.75rem;
+  }
+}
