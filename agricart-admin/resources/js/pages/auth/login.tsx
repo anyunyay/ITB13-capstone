@@ -12,6 +12,7 @@ import PasswordInput from '@/components/ui/password-input';
 import AuthLayout from '@/layouts/auth-layout';
 import CountdownTimer from '@/components/common/feedback/CountdownTimer';
 import { useLockoutStatus } from '@/hooks/useLockoutStatus';
+import DeactivatedAccountModal from '@/components/shared/auth/DeactivatedAccountModal';
 
 type LoginForm = {
     email: string;
@@ -33,6 +34,7 @@ export default function Login({ status, canResetPassword }: LoginProps) {
     });
 
     const { props } = usePage<{ auth?: { user?: { type?: string } } }>();
+    const [showDeactivatedModal, setShowDeactivatedModal] = useState(false);
     
     // Lockout status management
     const { lockoutStatus, refreshLockoutStatus } = useLockoutStatus({
@@ -63,6 +65,13 @@ export default function Login({ status, canResetPassword }: LoginProps) {
         }
     }, [errors.email, errors.lockout, refreshLockoutStatus]);
 
+    // Check for deactivated account error and show modal
+    useEffect(() => {
+        if (errors.email && errors.email.includes('deactivated')) {
+            setShowDeactivatedModal(true);
+        }
+    }, [errors.email]);
+
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
         post(route('login'), {
@@ -83,23 +92,23 @@ export default function Login({ status, canResetPassword }: LoginProps) {
             >
                 <Head title="Login" />
 
-                <form className="flex flex-col gap-4 sm:gap-6" onSubmit={submit}>
-                    <div className="grid gap-4 sm:gap-6">
-                        <div className="grid gap-2">
-                            <Label htmlFor="email">Email address</Label>
-                            <Input
-                                id="email"
-                                type="email"
-                                required
-                                autoFocus
-                                tabIndex={1}
-                                autoComplete="email"
-                                value={data.email}
-                                onChange={(e) => setData('email', e.target.value)}
-                                placeholder="email@example.com"
-                            />
-                            <InputError message={errors.email} />
-                        </div>
+            <form className="flex flex-col gap-4 sm:gap-6" onSubmit={submit}>
+                <div className="grid gap-4 sm:gap-6">
+                    <div className="grid gap-2">
+                        <Label htmlFor="email">Email address</Label>
+                        <Input
+                            id="email"
+                            type="email"
+                            required
+                            autoFocus
+                            tabIndex={1}
+                            autoComplete="email"
+                            value={data.email}
+                            onChange={(e) => setData('email', e.target.value)}
+                            placeholder="email@example.com"
+                        />
+                        <InputError message={errors.email && !errors.email.includes('deactivated') ? errors.email : undefined} />
+                    </div>
 
                         <div className="grid gap-2">
                             <div className="flex items-center">
@@ -181,6 +190,14 @@ export default function Login({ status, canResetPassword }: LoginProps) {
                     </div>
                 )}
             </AuthLayout>
+
+            <DeactivatedAccountModal 
+                isOpen={showDeactivatedModal} 
+                onClose={() => {
+                    setShowDeactivatedModal(false);
+                    setData('password', '');
+                }} 
+            />
         </>
     );
 }
