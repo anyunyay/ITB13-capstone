@@ -18,11 +18,13 @@ class CheckSingleSession
     public function handle(Request $request, Closure $next): Response
     {
         // Skip single session check for logout routes, single session routes, API routes, and email verification routes
-        if ($request->routeIs('logout') || 
-            $request->routeIs('single-session.*') || 
+        if (
+            $request->routeIs('logout') ||
+            $request->routeIs('single-session.*') ||
             $request->routeIs('api.*') ||
             $request->routeIs('verification.*') ||
-            $request->routeIs('email.verification.*')) {
+            $request->routeIs('email.verification.*')
+        ) {
             return $next($request);
         }
 
@@ -36,8 +38,13 @@ class CheckSingleSession
             $user = Auth::user();
             $currentSessionId = Session::getId();
 
+            // If user has no active session set, set the current one
+            // This handles cases where session was cleared but user is still authenticated
+            if (!$user->hasActiveSession()) {
+                $user->update(['current_session_id' => $currentSessionId]);
+            }
             // Check if the current session is the user's active session
-            if (!$user->isCurrentSession($currentSessionId)) {
+            elseif (!$user->isCurrentSession($currentSessionId)) {
                 // This session is not the current active session
                 // Redirect to single session restriction page
                 return redirect()->route('single-session.restricted');
