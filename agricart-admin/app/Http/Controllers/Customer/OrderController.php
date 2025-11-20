@@ -17,6 +17,10 @@ class OrderController extends Controller
         $user = $request->user();
         $status = $request->get('status', 'all');
         $deliveryStatus = $request->get('delivery_status', 'all');
+        
+        // Lazy loading parameters
+        $offset = $request->get('offset', 0);
+        $limit = $request->get('limit', 4);
 
         // Get all orders from both tables but prioritize sales table for delivered orders
         $allOrders = collect();
@@ -190,21 +194,20 @@ class OrderController extends Controller
 
         $allOrdersCount = $pendingOrders + $outForDeliveryOrders + $deliveredOrders;
 
-        // Pagination: 5 items per page
-        $page = $request->get('page', 1);
-        $perPage = 5;
+        // Apply lazy loading with offset and limit
         $total = $allOrders->count();
-        $paginatedOrders = $allOrders->forPage($page, $perPage)->values();
+        $paginatedOrders = $allOrders->slice($offset, $limit)->values();
+        $hasMore = ($offset + $limit) < $total;
 
         return Inertia::render('Customer/OrderHistory/index', [
             'orders' => $paginatedOrders,
             'currentStatus' => $status,
             'currentDeliveryStatus' => $deliveryStatus,
             'pagination' => [
-                'current_page' => (int) $page,
-                'per_page' => $perPage,
+                'offset' => (int) $offset,
+                'limit' => (int) $limit,
                 'total' => $total,
-                'last_page' => (int) ceil($total / $perPage),
+                'has_more' => $hasMore,
             ],
             'counts' => [
                 'all' => $allOrdersCount,
@@ -214,6 +217,104 @@ class OrderController extends Controller
                 'delivered' => $deliveredOrders,
             ],
         ]);
+    }
+
+    /**
+     * Fetch a single order by ID for notification navigation
+     */
+    public function show(Request $request, $orderId)
+    {
+        $user = $request->user();
+        
+        // Try to find in sales_audit first
+        $order = $user->salesAudit()
+            ->with(['auditTrail.product', 'admin', 'logistic'])
+            ->find($orderId);
+        
+        if ($order) {
+            return response()->json([
+                'order' => [
+                    'id' => $order->id,
+                    'total_amount' => $order->total_amount,
+                    'status' => $order->status,
+                    'delivery_status' => $order->delivery_status,
+                    'created_at' => $order->created_at->toISOString(),
+                    'admin_notes' => $order->admin_notes,
+                    'logistic' => $order->logistic ? [
+                        'id' => $order->logistic->id,
+                        'name' => $order->logistic->name,
+                        'contact_number' => $order->logistic->contact_number,
+                    ] : null,
+                    'audit_trail' => $order->getAggregatedAuditTrail(),
+                    'source' => 'sales_audit',
+                ]
+            ]);
+        }
+        
+        // Try to find in sales table
+        $order = $user->sales()
+            ->with(['auditTrail.product', 'admin', 'logistic', 'salesAudit'])
+            ->find($orderId);
+        
+        if ($order) {
+            return response()->json([
+                'order' => [
+                    'id' => $order->id,
+                    'total_amount' => $order->total_amount,
+                    'status' => 'delivered',
+                    'delivery_status' => 'delivered',
+                    'created_at' => $order->created_at->toISOString(),
+                    'delivered_at' => $order->delivered_at?->toISOString(),
+                    'admin_notes' => $order->admin_notes,
+                    'logistic' => $order->logistic ? [
+                        'id' => $order->logistic->id,
+                        'name' => $order->logistic->name,
+                        'contact_number' => $order->logistic->contact_number,
+                    ] : null,
+                    'audit_trail' => $order->auditTrail->map(function ($trail) {
+                        $unitPrice = 0;
+                        switch ($trail->category) {
+                            case 'Kilo':
+                                $unitPrice = $trail->price_kilo ?? $trail->product->price_kilo ?? 0;
+                                break;
+                            case 'Pc':
+                                $unitPrice = $trail->price_pc ?? $trail->product->price_pc ?? 0;
+                                break;
+                            case 'Tali':
+                                $unitPrice = $trail->price_tali ?? $trail->product->price_tali ?? 0;
+                                break;
+                        }
+
+                        $subtotal = $trail->quantity * $unitPrice;
+                        $coopShare = $subtotal * 0.10;
+
+                        return [
+                            'id' => $trail->id,
+                            'product' => [
+                                'id' => $trail->product->id,
+                                'name' => $trail->product->name,
+                                'price_kilo' => $trail->price_kilo ?? $trail->product->price_kilo,
+                                'price_pc' => $trail->price_pc ?? $trail->product->price_pc,
+                                'price_tali' => $trail->price_tali ?? $trail->product->price_tali,
+                            ],
+                            'category' => $trail->category,
+                            'quantity' => $trail->quantity,
+                            'unit_price' => $unitPrice,
+                            'subtotal' => $subtotal,
+                            'coop_share' => $coopShare,
+                            'total_amount' => $subtotal + $coopShare,
+                        ];
+                    }),
+                    'customer_received' => $order->customer_received,
+                    'customer_rate' => $order->customer_rate,
+                    'customer_feedback' => $order->customer_feedback,
+                    'customer_confirmed_at' => $order->customer_confirmed_at?->toISOString(),
+                    'source' => 'sales',
+                ]
+            ]);
+        }
+        
+        return response()->json(['error' => 'Order not found'], 404);
     }
 
     public function generateReport(Request $request)

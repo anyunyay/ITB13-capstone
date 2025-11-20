@@ -276,6 +276,7 @@ Route::middleware(['auth', 'verified', 'password.change.required'])->group(funct
         Route::delete('/cart/remove/{cartItem}', [CartController::class, 'remove'])->name('cart.remove');
 
         Route::get('/orders/history', [CustomerOrderController::class, 'index'])->name('orders.history');
+        Route::get('/orders/{order}', [CustomerOrderController::class, 'show'])->whereNumber('order')->name('customer.orders.show');
         Route::get('/orders/report', [CustomerOrderController::class, 'generateReport'])->name('orders.report');
         Route::post('/orders/{order}/cancel', [CustomerOrderController::class, 'cancel'])->name('customer.orders.cancel');
         Route::post('/orders/{order}/confirm-received', [CustomerOrderController::class, 'confirmReceived'])->name('customer.orders.confirmReceived');
