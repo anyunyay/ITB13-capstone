@@ -3,6 +3,7 @@ import { Search, X, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ProductCard } from '@/components/customer/products/ProductCard';
+import { AddToCartModal } from '@/components/customer/cart/AddToCartModal';
 import { Card, CardContent } from '@/components/ui/card';
 import { router } from '@inertiajs/react';
 import { cn } from '@/lib/utils';
@@ -32,6 +33,8 @@ export function SearchBar({ className, isScrolled = false }: SearchBarProps) {
     const [results, setResults] = useState<Product[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [showResults, setShowResults] = useState(false);
+    const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+    const [modalOpen, setModalOpen] = useState(false);
     const searchRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
 
@@ -91,11 +94,10 @@ export function SearchBar({ className, isScrolled = false }: SearchBarProps) {
     };
 
     const handleProductClick = (product: Product) => {
-        // Navigate to product page
-        router.visit(`/customer/product/${product.id}`);
-        setIsExpanded(false);
+        // Open modal for the product
+        setSelectedProduct(product);
+        setModalOpen(true);
         setShowResults(false);
-        setQuery('');
     };
 
     const handleExpand = () => {
@@ -179,6 +181,7 @@ export function SearchBar({ className, isScrolled = false }: SearchBarProps) {
                                 variant="compact"
                                 showAddToCart={false}
                                 className="border-b last:border-b-0"
+                                onClick={() => handleProductClick(product)}
                             />
                         ))}
                     </CardContent>
@@ -192,6 +195,20 @@ export function SearchBar({ className, isScrolled = false }: SearchBarProps) {
                         No products found for "{query}"
                     </CardContent>
                 </Card>
+            )}
+
+            {/* Add to Cart Modal */}
+            {selectedProduct && (
+                <AddToCartModal
+                    product={selectedProduct}
+                    isOpen={modalOpen}
+                    onClose={() => {
+                        setModalOpen(false);
+                        setSelectedProduct(null);
+                        setIsExpanded(false);
+                        setQuery('');
+                    }}
+                />
             )}
         </div>
     );

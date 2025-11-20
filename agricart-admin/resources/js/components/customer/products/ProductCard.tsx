@@ -27,6 +27,7 @@ interface ProductCardProps {
   showAddToCart?: boolean;
   className?: string;
   onImageClick?: (imageUrl: string, productName: string) => void;
+  onClick?: () => void;
 }
 
 export function ProductCard({ 
@@ -35,7 +36,8 @@ export function ProductCard({
   variant = 'default',
   showAddToCart = true,
   className = '',
-  onImageClick
+  onImageClick,
+  onClick
 }: ProductCardProps) {
   const t = useTranslation();
   const [modalOpen, setModalOpen] = useState(false);
@@ -82,13 +84,17 @@ export function ProductCard({
   if (variant === 'compact') {
     return (
       <div 
-        className={`flex items-center space-x-2 p-2 hover:bg-green-50 dark:hover:bg-green-900/20 border-b last:border-b-0 transition-colors duration-200 ${className}`}
+        className={`flex items-center space-x-2 p-2 hover:bg-green-50 dark:hover:bg-green-900/20 border-b last:border-b-0 transition-colors duration-200 cursor-pointer ${className}`}
+        onClick={onClick}
       >
         <img
           src={product.image_url || product.image || '/storage/fallback-photo.png'}
           alt={product.name}
           className="w-12 h-12 object-cover rounded-lg cursor-pointer hover:opacity-80 transition-opacity"
-          onClick={handleImageClick}
+          onClick={(e) => {
+            e.stopPropagation();
+            handleImageClick(e);
+          }}
           onError={(e) => {
             const target = e.target as HTMLImageElement;
             target.src = '/storage/fallback-photo.png';
