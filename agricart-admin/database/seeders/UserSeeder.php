@@ -61,26 +61,6 @@ class UserSeeder extends Seeder
             'is_active' => true,
         ]);
 
-        $logisticUser2 = User::create([
-            'type' => 'logistic',
-            'name' => 'Juan Benedict',
-            'email' => 'juan@logistic.com',
-            'contact_number' => '09987654321',
-            'registration_date' => now()->subDays(25),
-            'password' => Hash::make('12345678'),
-            'email_verified_at' => now(),
-            'active' => true,
-        ]);
-
-        UserAddress::create([
-            'user_id' => $logisticUser2->id,
-            'street' => '789 Logistics Street',
-            'barangay' => 'Sala',
-            'city' => 'Cabuyao',
-            'province' => 'Laguna',
-            'is_active' => true,
-        ]);
-
         // Additional Logistics User - Elmo V. Republica
         $logisticUser3 = User::create([
             'type' => 'logistic',
