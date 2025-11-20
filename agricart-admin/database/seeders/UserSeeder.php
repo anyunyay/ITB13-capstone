@@ -82,37 +82,6 @@ class UserSeeder extends Seeder
             'is_active' => true,
         ]);
 
-        // Create Staff Users
-        $staffUsers = [
-            ['name' => 'Maria Santos', 'email' => 'maria.santos@staff.com'],
-            ['name' => 'John Reyes', 'email' => 'john.reyes@staff.com'],
-            ['name' => 'Ana Cruz', 'email' => 'ana.cruz@staff.com'],
-            ['name' => 'Pedro Garcia', 'email' => 'pedro.garcia@staff.com'],
-            ['name' => 'Lisa Mendoza', 'email' => 'lisa.mendoza@staff.com'],
-        ];
-
-        foreach ($staffUsers as $index => $staffData) {
-            $staff = User::create([
-                'type' => 'staff',
-                'name' => $staffData['name'],
-                'email' => $staffData['email'],
-                'contact_number' => '0920' . str_pad($index + 1, 7, '0', STR_PAD_LEFT),
-                'registration_date' => now()->subDays(45 - $index * 3),
-                'password' => Hash::make('12345678'),
-                'email_verified_at' => now(),
-                'active' => true,
-            ]);
-
-            UserAddress::create([
-                'user_id' => $staff->id,
-                'street' => 'Office ' . ($index + 1) . ', Staff Building',
-                'barangay' => 'Sala',
-                'city' => 'Cabuyao',
-                'province' => 'Laguna',
-                'is_active' => true,
-            ]);
-        }
-
         // Create Farmer Users
         $farmers = [
             ['name' => 'Sonia Canceran', 'email' => 'sonia.canceran@farmer.com'],
