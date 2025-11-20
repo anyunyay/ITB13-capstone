@@ -20,6 +20,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             RoleSeeder::class,
             UserSeeder::class,
+            StaffSeeder::class,
         ]);
 
         // Create the specific member user with ID 2411000 as requested
