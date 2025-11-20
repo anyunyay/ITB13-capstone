@@ -151,8 +151,26 @@ class UserSeeder extends Seeder
             ]);
         }
 
-        // Create one test customer
-        User::factory()->count(1)->customer()->create();
+        // Create specific customer user as requested
+        $customerUser = User::create([
+            'type' => 'customer',
+            'name' => 'Test Customer',
+            'email' => 'itb13capstoned@gmail.com',
+            'contact_number' => '09111222333',
+            'registration_date' => now()->subDays(15),
+            'password' => Hash::make('12345678'),
+            'email_verified_at' => now(),
+            'active' => true,
+        ]);
+
+        UserAddress::create([
+            'user_id' => $customerUser->id,
+            'street' => '321 Customer Avenue',
+            'barangay' => 'Sala',
+            'city' => 'Cabuyao',
+            'province' => 'Laguna',
+            'is_active' => true,
+        ]);
 
         // Note: Members will be created in DatabaseSeeder with specific member ID 2411000
         // as requested to exclude member seeding from this seeder
