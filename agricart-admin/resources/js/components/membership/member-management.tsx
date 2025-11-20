@@ -77,9 +77,8 @@ export const MemberManagement = ({
 
     // Create column definitions
     const memberColumns = useMemo(() => {
-        const startIndex = (currentPage - 1) * itemsPerPage;
-        return createMemberTableColumns(t, processing, onDeactivate, onReactivate, onDelete, startIndex);
-    }, [t, processing, onDeactivate, onReactivate, onDelete, currentPage, itemsPerPage]);
+        return createMemberTableColumns(t, processing, onDeactivate, onReactivate, onDelete);
+    }, [t, processing, onDeactivate, onReactivate, onDelete]);
 
     return (
         <div className="bg-card border border-border rounded-xl p-4 mb-4 shadow-sm">

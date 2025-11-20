@@ -14,21 +14,8 @@ export const createMemberTableColumns = (
   processing: boolean,
   onDeactivate: (member: Member) => void,
   onReactivate: (member: Member) => void,
-  onDelete: (member: Member) => void,
-  startIndex: number = 0
+  onDelete: (member: Member) => void
 ): BaseTableColumn<Member>[] => [
-  {
-    key: 'index',
-    label: t('admin.id_column'),
-    sortable: false,
-    align: 'center',
-    maxWidth: '80px',
-    render: (member, index) => (
-      <div className="flex justify-center">
-        <Badge variant="outline">#{startIndex + index + 1}</Badge>
-      </div>
-    ),
-  },
   {
     key: 'member_id',
     label: t('admin.member_id'),

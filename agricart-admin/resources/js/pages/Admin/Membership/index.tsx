@@ -46,8 +46,8 @@ export default function Index() {
     // View state
     const [showDeactivated, setShowDeactivated] = useState(false);
     
-    // Sort state
-    const [sortBy, setSortBy] = useState('name');
+    // Sort state - Default to Member ID ascending
+    const [sortBy, setSortBy] = useState('member_id');
     const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
     
     // Reset pagination when switching views
