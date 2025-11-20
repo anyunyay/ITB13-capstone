@@ -5,6 +5,7 @@ namespace App\Http\Middleware;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -25,6 +26,9 @@ class CheckSingleSession
             $request->routeIs('verification.*') ||
             $request->routeIs('email.verification.*') ||
             $request->routeIs('login') ||
+            $request->routeIs('admin.login') ||
+            $request->routeIs('member.login') ||
+            $request->routeIs('logistic.login') ||
             $request->routeIs('register') ||
             $request->routeIs('password.*')
         ) {
@@ -63,8 +67,24 @@ class CheckSingleSession
                     }
                 } else {
                     // This session is not the current active session and the stored session is valid
-                    // Redirect to single session restriction page
-                    return redirect()->route('single-session.restricted');
+                    // User has been kicked out by another session - log them out and redirect to appropriate login
+                    $userType = $user->type;
+
+                    // Clear the session
+                    Auth::guard('web')->logout();
+                    $request->session()->invalidate();
+                    $request->session()->regenerateToken();
+
+                    // Determine the correct login route based on user type
+                    $loginRoute = match ($userType) {
+                        'admin', 'staff' => 'admin.login',
+                        'member' => 'member.login',
+                        'logistic' => 'logistic.login',
+                        default => 'login', // customer
+                    };
+
+                    // Redirect to appropriate login page with a message
+                    return redirect()->route($loginRoute)->with('error', 'Your account is logged in from another device or browser. Please log in again.');
                 }
             }
         }
