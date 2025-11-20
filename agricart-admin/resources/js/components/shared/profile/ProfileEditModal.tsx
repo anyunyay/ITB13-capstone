@@ -10,6 +10,7 @@ import EmailChangeModal from '@/components/shared/profile/change-email-modal';
 import PhoneChangeModal from '@/components/shared/profile/change-phone-modal';
 import { getDisplayEmail } from '@/lib/utils';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import ConfirmDialog from '@/components/ui/confirm-dialog';
 
 interface User {
     id: number;
@@ -86,6 +87,7 @@ export default function ProfileEditModal({ isOpen, onClose, user }: ProfileEditM
     const [selectedAvatar, setSelectedAvatar] = useState<File | null>(null);
     const [isEmailChangeModalOpen, setIsEmailChangeModalOpen] = useState(false);
     const [isPhoneChangeModalOpen, setIsPhoneChangeModalOpen] = useState(false);
+    const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
     const [flashMessage, setFlashMessage] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
     const avatarInputRef = useRef<HTMLInputElement>(null);
     
@@ -258,9 +260,12 @@ export default function ProfileEditModal({ isOpen, onClose, user }: ProfileEditM
     };
 
     const handleAvatarDelete = () => {
-        if (confirm('Are you sure you want to remove your profile picture?')) {
-            router.delete(routes.avatarDelete);
-        }
+        setIsDeleteConfirmOpen(true);
+    };
+
+    const handleConfirmDelete = () => {
+        router.delete(routes.avatarDelete);
+        setIsDeleteConfirmOpen(false);
     };
 
     const getInitials = (name: string) => {
@@ -576,6 +581,18 @@ export default function ProfileEditModal({ isOpen, onClose, user }: ProfileEditM
                 onClose={handlePhoneChangeClose}
                 onSwitchToEmail={user?.type !== 'member' ? handleSwitchToEmail : undefined}
                 user={user}
+            />
+
+            {/* Delete Avatar Confirmation Modal */}
+            <ConfirmDialog
+                isOpen={isDeleteConfirmOpen}
+                onClose={() => setIsDeleteConfirmOpen(false)}
+                onConfirm={handleConfirmDelete}
+                title="Remove Profile Picture"
+                description="Are you sure you want to remove your profile picture? This action cannot be undone."
+                confirmText="Remove"
+                cancelText="Cancel"
+                variant="destructive"
             />
         </>
     );
