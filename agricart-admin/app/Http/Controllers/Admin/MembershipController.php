@@ -31,7 +31,7 @@ class MembershipController extends Controller
                 $hasActiveStocks = $member->hasActiveStocks();
                 $canBeDeactivated = $member->active && !$hasActiveStocks;
                 $deactivationReason = null;
-                
+
                 if ($member->active && $hasActiveStocks) {
                     $deactivationReason = 'Cannot deactivate: Member has active stocks in the inventory.';
                 }
@@ -50,7 +50,7 @@ class MembershipController extends Controller
                 $totalStocksCount = \DB::table('stocks')
                     ->where('member_id', $member->id)
                     ->count();
-                
+
                 if ($totalStocksCount > 0 && !$hasActiveStocks) {
                     $hasLinkedData = true;
                     $linkedDataReasons[] = "has {$totalStocksCount} stock record(s)";
@@ -60,7 +60,7 @@ class MembershipController extends Controller
                 $stockTrailCount = \DB::table('stock_trails')
                     ->where('member_id', $member->id)
                     ->count();
-                
+
                 if ($stockTrailCount > 0) {
                     $hasLinkedData = true;
                     $linkedDataReasons[] = "has {$stockTrailCount} stock trail record(s)";
@@ -70,17 +70,17 @@ class MembershipController extends Controller
                 $earningsCount = \DB::table('member_earnings')
                     ->where('member_id', $member->id)
                     ->count();
-                
+
                 if ($earningsCount > 0) {
                     $hasLinkedData = true;
                     $linkedDataReasons[] = "has {$earningsCount} earning record(s)";
                 }
-                
+
                 $canBeDeleted = !$hasLinkedData;
-                $deletionReason = $hasLinkedData 
+                $deletionReason = $hasLinkedData
                     ? 'Cannot delete: Member ' . implode(', ', $linkedDataReasons) . '.'
                     : null;
-                
+
                 return [
                     'id' => $member->id,
                     'name' => $member->name,
@@ -106,7 +106,7 @@ class MembershipController extends Controller
             });
 
         // Get pending password change requests (limit to recent ones)
-        $pendingPasswordRequests = PasswordChangeRequest::with(['member:id,name', 'approvedBy:id,name'])
+        $pendingPasswordRequests = PasswordChangeRequest::with(['member:id,name,member_id', 'approvedBy:id,name'])
             ->where('status', 'pending')
             ->orderBy('requested_at', 'desc')
             ->limit(20) // Limit to recent requests
@@ -127,13 +127,13 @@ class MembershipController extends Controller
     {
         $name = $request->input('name');
         $excludeId = $request->input('exclude_id');
-        
+
         $query = User::where('type', 'member')->where('name', $name);
-        
+
         if ($excludeId) {
             $query->where('id', '!=', $excludeId);
         }
-        
+
         $exists = $query->exists();
 
         return response()->json(['exists' => $exists]);
@@ -143,13 +143,13 @@ class MembershipController extends Controller
     {
         $contactNumber = $request->input('contact_number');
         $excludeId = $request->input('exclude_id');
-        
+
         $query = User::where('contact_number', $contactNumber);
-        
+
         if ($excludeId) {
             $query->where('id', '!=', $excludeId);
         }
-        
+
         $exists = $query->exists();
 
         return response()->json(['exists' => $exists]);
@@ -587,7 +587,7 @@ class MembershipController extends Controller
         ])->render();
 
         $pdf = Pdf::loadHTML($html);
-        
+
         // Set paper size and orientation (supports: A4, Letter, Legal, A3, etc.)
         $pdf->setPaper($paperSize, $orientation);
 
@@ -657,7 +657,7 @@ class MembershipController extends Controller
         $totalStocksCount = \DB::table('stocks')
             ->where('member_id', $member->id)
             ->count();
-        
+
         if ($totalStocksCount > 0 && !$member->hasActiveStocks()) {
             $hasLinkedData = true;
             $linkedDataReasons[] = "has {$totalStocksCount} stock record(s)";
@@ -667,7 +667,7 @@ class MembershipController extends Controller
         $stockTrailCount = \DB::table('stock_trails')
             ->where('member_id', $member->id)
             ->count();
-        
+
         if ($stockTrailCount > 0) {
             $hasLinkedData = true;
             $linkedDataReasons[] = "has {$stockTrailCount} stock trail record(s)";
@@ -677,7 +677,7 @@ class MembershipController extends Controller
         $earningsCount = \DB::table('member_earnings')
             ->where('member_id', $member->id)
             ->count();
-        
+
         if ($earningsCount > 0) {
             $hasLinkedData = true;
             $linkedDataReasons[] = "has {$earningsCount} earning record(s)";
