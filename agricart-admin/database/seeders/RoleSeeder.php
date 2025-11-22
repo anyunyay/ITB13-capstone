@@ -57,6 +57,7 @@ class RoleSeeder extends Seeder
             'mark orders urgent',
             'unmark orders urgent',
             'mark orders ready for pickup',
+            'merge orders',
             'view order receipts',
             'generate order report',
 

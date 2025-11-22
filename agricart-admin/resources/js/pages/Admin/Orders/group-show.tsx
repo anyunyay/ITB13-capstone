@@ -1,13 +1,18 @@
 import AppLayout from '@/layouts/app-layout';
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, router } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
 import { format } from 'date-fns';
-import { ArrowLeft, User, MapPin, Phone, Mail, Package, Clock, AlertTriangle } from 'lucide-react';
+import { ArrowLeft, User, MapPin, Phone, Mail, Package, Clock, AlertTriangle, Merge } from 'lucide-react';
 import { useTranslation } from '@/hooks/use-translation';
 import { Order } from '@/types/orders';
 import { PermissionGuard } from '@/components/common/permission-guard';
+import { PermissionGate } from '@/components/common/permission-gate';
+import { useState } from 'react';
 
 interface GroupShowProps {
     orders: Order[];
@@ -24,6 +29,28 @@ interface GroupShowProps {
 
 export default function GroupShow({ orders, groupInfo }: GroupShowProps) {
     const t = useTranslation();
+    const [showMergeDialog, setShowMergeDialog] = useState(false);
+    const [adminNotes, setAdminNotes] = useState('');
+    const [isMerging, setIsMerging] = useState(false);
+
+    const canMerge = orders.every(order => ['pending', 'delayed'].includes(order.status));
+
+    const handleMergeOrders = () => {
+        setIsMerging(true);
+        
+        router.post(route('admin.orders.merge-group'), {
+            order_ids: orders.map(o => o.id),
+            admin_notes: adminNotes,
+        }, {
+            onSuccess: () => {
+                setShowMergeDialog(false);
+                setIsMerging(false);
+            },
+            onError: () => {
+                setIsMerging(false);
+            }
+        });
+    };
 
     const getStatusBadge = (status: string) => {
         switch (status) {
@@ -37,6 +64,8 @@ export default function GroupShow({ orders, groupInfo }: GroupShowProps) {
                 return <Badge className="status-delayed">{t('admin.delayed')}</Badge>;
             case 'cancelled':
                 return <Badge className="status-cancelled">{t('admin.cancelled')}</Badge>;
+            case 'merged':
+                return <Badge className="bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400">Merged</Badge>;
             default:
                 return <Badge variant="outline">{status}</Badge>;
         }
@@ -65,7 +94,7 @@ export default function GroupShow({ orders, groupInfo }: GroupShowProps) {
             <PermissionGuard permission="view orders">
                 <div className="container mx-auto px-4 py-6 max-w-7xl">
                     {/* Header */}
-                    <div className="mb-6 flex items-center justify-between">
+                    <div className="mb-6 flex items-center justify-between flex-wrap gap-4">
                         <div className="flex items-center gap-4">
                             <div className="bg-red-100 dark:bg-red-900/20 text-red-600 dark:text-red-400 p-3 rounded-lg">
                                 <AlertTriangle className="h-6 w-6" />
@@ -79,12 +108,25 @@ export default function GroupShow({ orders, groupInfo }: GroupShowProps) {
                                 </p>
                             </div>
                         </div>
-                        <Link href={route('admin.orders.suspicious')}>
-                            <Button variant="outline">
-                                <ArrowLeft className="h-4 w-4 mr-2" />
-                                Back to Suspicious Orders
-                            </Button>
-                        </Link>
+                        <div className="flex gap-2">
+                            <PermissionGate permission="merge orders">
+                                {canMerge && (
+                                    <Button 
+                                        onClick={() => setShowMergeDialog(true)}
+                                        className="bg-blue-600 hover:bg-blue-700"
+                                    >
+                                        <Merge className="h-4 w-4 mr-2" />
+                                        Merge Orders
+                                    </Button>
+                                )}
+                            </PermissionGate>
+                            <Link href={route('admin.orders.suspicious')}>
+                                <Button variant="outline">
+                                    <ArrowLeft className="h-4 w-4 mr-2" />
+                                    Back to Suspicious Orders
+                                </Button>
+                            </Link>
+                        </div>
                     </div>
 
                     {/* Warning Banner */}
@@ -262,6 +304,103 @@ export default function GroupShow({ orders, groupInfo }: GroupShowProps) {
                             ))}
                         </div>
                     </div>
+
+                    {/* Merge Orders Dialog */}
+                    <Dialog open={showMergeDialog} onOpenChange={setShowMergeDialog}>
+                        <DialogContent className="max-w-2xl">
+                            <DialogHeader>
+                                <DialogTitle className="flex items-center gap-2">
+                                    <Merge className="h-5 w-5" />
+                                    Merge Orders into Single Order
+                                </DialogTitle>
+                                <DialogDescription>
+                                    This will permanently combine all {groupInfo.totalOrders} orders into a single order record.
+                                </DialogDescription>
+                            </DialogHeader>
+
+                            <div className="space-y-4 py-4">
+                                {/* Warning */}
+                                <div className="p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-300 dark:border-yellow-700 rounded-lg">
+                                    <div className="flex items-start gap-3">
+                                        <AlertTriangle className="h-5 w-5 text-yellow-600 dark:text-yellow-400 flex-shrink-0 mt-0.5" />
+                                        <div className="flex-1">
+                                            <h4 className="font-semibold text-yellow-800 dark:text-yellow-300 mb-1">
+                                                Important: This action cannot be undone
+                                            </h4>
+                                            <p className="text-sm text-yellow-700 dark:text-yellow-400">
+                                                All orders will be merged into Order #{orders[0].id}. The other orders will be marked as "merged" and their items will be combined.
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Merge Details */}
+                                <div className="space-y-3">
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <Label className="text-sm text-muted-foreground">Primary Order</Label>
+                                            <p className="font-semibold">Order #{orders[0].id}</p>
+                                        </div>
+                                        <div>
+                                            <Label className="text-sm text-muted-foreground">Orders to Merge</Label>
+                                            <p className="font-semibold">{orders.slice(1).map(o => `#${o.id}`).join(', ')}</p>
+                                        </div>
+                                        <div>
+                                            <Label className="text-sm text-muted-foreground">Current Total</Label>
+                                            <p className="font-semibold">₱{groupInfo.totalAmount.toFixed(2)}</p>
+                                        </div>
+                                        <div>
+                                            <Label className="text-sm text-muted-foreground">Total Items</Label>
+                                            <p className="font-semibold">
+                                                {orders.reduce((sum, order) => sum + (order.audit_trail?.length || 0), 0)} items
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    {/* What will happen */}
+                                    <div className="p-3 bg-muted/50 rounded-lg">
+                                        <h4 className="font-semibold text-sm mb-2">What will happen:</h4>
+                                        <ul className="text-sm space-y-1 list-disc list-inside text-muted-foreground">
+                                            <li>All items will be combined into Order #{orders[0].id}</li>
+                                            <li>Total amount will be updated to ₱{groupInfo.totalAmount.toFixed(2)}</li>
+                                            <li>Orders {orders.slice(1).map(o => `#${o.id}`).join(', ')} will be marked as "merged"</li>
+                                            <li>The merged order will retain the earliest order timestamp</li>
+                                            <li>All audit trails will be preserved</li>
+                                        </ul>
+                                    </div>
+
+                                    {/* Admin Notes */}
+                                    <div className="space-y-2">
+                                        <Label htmlFor="admin-notes">Admin Notes (Optional)</Label>
+                                        <Textarea
+                                            id="admin-notes"
+                                            placeholder="Add any notes about why these orders are being merged..."
+                                            value={adminNotes}
+                                            onChange={(e) => setAdminNotes(e.target.value)}
+                                            rows={3}
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <DialogFooter>
+                                <Button
+                                    variant="outline"
+                                    onClick={() => setShowMergeDialog(false)}
+                                    disabled={isMerging}
+                                >
+                                    Cancel
+                                </Button>
+                                <Button
+                                    onClick={handleMergeOrders}
+                                    disabled={isMerging}
+                                    className="bg-blue-600 hover:bg-blue-700"
+                                >
+                                    {isMerging ? 'Merging...' : `Merge ${groupInfo.totalOrders} Orders`}
+                                </Button>
+                            </DialogFooter>
+                        </DialogContent>
+                    </Dialog>
                 </div>
             </PermissionGuard>
         </AppLayout>

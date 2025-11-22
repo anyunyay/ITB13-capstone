@@ -7,6 +7,7 @@ use App\Helpers\SystemLogger;
 use App\Models\Sales;
 use App\Models\SalesAudit;
 use App\Models\StockTrail;
+use App\Models\AuditTrail;
 use App\Services\AuditTrailService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -318,6 +319,113 @@ class OrderController extends Controller
             'orders' => $processedOrders,
             'groupInfo' => $groupInfo,
         ]);
+    }
+
+    public function mergeGroup(Request $request)
+    {
+        $request->validate([
+            'order_ids' => 'required|array|min:2',
+            'order_ids.*' => 'required|integer|exists:sales_audit,id',
+            'admin_notes' => 'nullable|string|max:1000',
+        ]);
+
+        $orderIds = $request->input('order_ids');
+        
+        // Load all orders
+        $orders = SalesAudit::with(['auditTrail', 'customer'])
+            ->whereIn('id', $orderIds)
+            ->orderBy('created_at', 'asc')
+            ->get();
+
+        if ($orders->isEmpty() || $orders->count() < 2) {
+            return redirect()->back()->with('error', 'At least 2 orders are required to merge.');
+        }
+
+        // Verify all orders are from the same customer
+        $customerId = $orders->first()->customer_id;
+        if ($orders->pluck('customer_id')->unique()->count() > 1) {
+            return redirect()->back()->with('error', 'Cannot merge orders from different customers.');
+        }
+
+        // Verify all orders are in pending or delayed status
+        $invalidStatuses = $orders->whereNotIn('status', ['pending', 'delayed']);
+        if ($invalidStatuses->isNotEmpty()) {
+            return redirect()->back()->with('error', 'Can only merge orders with pending or delayed status.');
+        }
+
+        try {
+            \DB::beginTransaction();
+
+            // Use the first order as the primary order
+            $primaryOrder = $orders->first();
+            $secondaryOrders = $orders->slice(1);
+
+            // Calculate new totals
+            $newSubtotal = $orders->sum('subtotal');
+            $newCoopShare = $newSubtotal * 0.10;
+            $newMemberShare = $newSubtotal;
+            $newTotalAmount = $newSubtotal + $newCoopShare;
+
+            // Move all audit trails from secondary orders to primary order
+            foreach ($secondaryOrders as $secondaryOrder) {
+                AuditTrail::where('sale_id', $secondaryOrder->id)
+                    ->update(['sale_id' => $primaryOrder->id]);
+            }
+
+            // Update primary order with new totals
+            $mergedOrderIds = $orders->pluck('id')->toArray();
+            $mergeNote = "Merged from orders: " . implode(', ', $mergedOrderIds);
+            if ($request->input('admin_notes')) {
+                $mergeNote .= " | Admin notes: " . $request->input('admin_notes');
+            }
+
+            $primaryOrder->update([
+                'subtotal' => $newSubtotal,
+                'coop_share' => $newCoopShare,
+                'member_share' => $newMemberShare,
+                'total_amount' => $newTotalAmount,
+                'admin_notes' => $mergeNote,
+                'admin_id' => $request->user()->id,
+            ]);
+
+            // Mark secondary orders as merged (soft delete or status change)
+            foreach ($secondaryOrders as $secondaryOrder) {
+                $secondaryOrder->update([
+                    'status' => 'merged',
+                    'admin_notes' => "Merged into order #{$primaryOrder->id}",
+                    'admin_id' => $request->user()->id,
+                ]);
+            }
+
+            // Log the merge operation
+            SystemLogger::logOrderStatusChange(
+                $primaryOrder->id,
+                'pending',
+                'merged_primary',
+                $request->user()->id,
+                $request->user()->type,
+                [
+                    'merged_order_ids' => $mergedOrderIds,
+                    'new_total_amount' => $newTotalAmount,
+                    'total_orders_merged' => $orders->count(),
+                ]
+            );
+
+            \DB::commit();
+
+            return redirect()->route('admin.orders.show', $primaryOrder->id)
+                ->with('message', "Successfully merged {$orders->count()} orders into Order #{$primaryOrder->id}. New total: ₱{$newTotalAmount}");
+
+        } catch (\Exception $e) {
+            \DB::rollBack();
+            Log::error('Order merge failed', [
+                'order_ids' => $orderIds,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return redirect()->back()->with('error', 'Failed to merge orders. Please try again or contact support.');
+        }
     }
 
     public function show(Request $request, SalesAudit $order)
