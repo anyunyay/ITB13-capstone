@@ -226,9 +226,9 @@ export const GroupedOrderCard = ({ orders, highlight = false }: GroupedOrderCard
             <div className="p-5 pt-0 flex gap-2 flex-wrap flex-shrink-0 w-full box-border overflow-hidden border-t border-border bg-muted/20">
                 <PermissionGate permission="view orders">
                     <Button asChild variant="default" className="flex-1 min-w-[120px]">
-                        <Link href={route('admin.orders.show', orders[0].id)}>
+                        <Link href={route('admin.orders.group', { orders: orders.map(o => o.id).join(',') })}>
                             <Eye className="h-4 w-4 mr-2" />
-                            Review First Order
+                            View Group Details
                         </Link>
                     </Button>
                 </PermissionGate>

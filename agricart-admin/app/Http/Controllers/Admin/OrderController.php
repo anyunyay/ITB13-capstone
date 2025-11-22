@@ -237,6 +237,89 @@ class OrderController extends Controller
         ]);
     }
 
+    public function showGroup(Request $request)
+    {
+        // Get order IDs from query parameter (comma-separated)
+        $orderIds = explode(',', $request->get('orders', ''));
+        
+        if (empty($orderIds)) {
+            return redirect()->route('admin.orders.suspicious')->with('error', 'No orders specified for group view.');
+        }
+
+        // Load orders with relationships
+        $orders = SalesAudit::with([
+            'customer' => function ($query) {
+                $query->select('id', 'name', 'email', 'contact_number');
+            },
+            'customer.defaultAddress' => function ($query) {
+                $query->select('id', 'user_id', 'street', 'barangay', 'city', 'province');
+            },
+            'address' => function ($query) {
+                $query->select('id', 'street', 'barangay', 'city', 'province');
+            },
+            'admin' => function ($query) {
+                $query->select('id', 'name');
+            },
+            'logistic' => function ($query) {
+                $query->select('id', 'name', 'contact_number');
+            },
+            'auditTrail.product' => function ($query) {
+                $query->select('id', 'name', 'price_kilo', 'price_pc', 'price_tali');
+            }
+        ])
+            ->whereIn('id', $orderIds)
+            ->orderBy('created_at', 'asc')
+            ->get();
+
+        if ($orders->isEmpty()) {
+            return redirect()->route('admin.orders.suspicious')->with('error', 'Orders not found.');
+        }
+
+        // Process orders
+        $processedOrders = $orders->map(function ($order) {
+            return [
+                'id' => $order->id,
+                'customer' => [
+                    'name' => $order->customer->name ?? 'N/A',
+                    'email' => $order->customer->email ?? 'N/A',
+                    'contact_number' => $order->customer->contact_number ?? 'N/A',
+                ],
+                'delivery_address' => $order->address ?
+                    $order->address->street . ', ' . $order->address->barangay . ', ' . $order->address->city . ', ' . $order->address->province :
+                    ($order->customer->defaultAddress ?
+                        $order->customer->defaultAddress->street . ', ' . $order->customer->defaultAddress->barangay . ', ' . $order->customer->defaultAddress->city . ', ' . $order->customer->defaultAddress->province :
+                        null),
+                'total_amount' => $order->total_amount,
+                'status' => $order->status,
+                'delivery_status' => $order->delivery_status,
+                'created_at' => $order->created_at?->toISOString(),
+                'admin_notes' => $order->admin_notes,
+                'audit_trail' => $order->getAggregatedAuditTrail(),
+            ];
+        });
+
+        // Calculate group info
+        $firstOrder = $orders->first();
+        $lastOrder = $orders->last();
+        $totalAmount = $orders->sum('total_amount');
+        $timeSpan = round($firstOrder->created_at->diffInMinutes($lastOrder->created_at));
+
+        $groupInfo = [
+            'customerName' => $firstOrder->customer->name,
+            'customerEmail' => $firstOrder->customer->email,
+            'totalOrders' => $orders->count(),
+            'totalAmount' => $totalAmount,
+            'timeSpan' => $timeSpan,
+            'firstOrderTime' => $firstOrder->created_at->toISOString(),
+            'lastOrderTime' => $lastOrder->created_at->toISOString(),
+        ];
+
+        return Inertia::render('Admin/Orders/group-show', [
+            'orders' => $processedOrders,
+            'groupInfo' => $groupInfo,
+        ]);
+    }
+
     public function show(Request $request, SalesAudit $order)
     {
         $order->load(['customer.defaultAddress', 'address', 'admin', 'logistic', 'auditTrail.product', 'auditTrail.stock']);
