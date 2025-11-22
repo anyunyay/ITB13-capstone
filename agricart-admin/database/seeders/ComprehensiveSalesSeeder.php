@@ -32,10 +32,17 @@ class ComprehensiveSalesSeeder extends Seeder
             \Illuminate\Notifications\Events\NotificationSent::class,
         ]);
         
-        // Clear existing data to avoid conflicts
+        // Clear existing data in correct order to avoid foreign key violations
+        // IMPORTANT: Clear child tables BEFORE parent tables
+        // 1. First clear notifications (references sales_audit via order_id in data)
+        \Illuminate\Support\Facades\DB::table('notifications')->delete();
+        
+        // 2. Then clear sales and audit trails (reference sales_audit)
         Sales::query()->delete();
-        SalesAudit::query()->delete();
         AuditTrail::query()->delete();
+        
+        // 3. Finally clear sales_audit (parent table)
+        SalesAudit::query()->delete();
 
         // Get all necessary entities
         $admin = User::where('type', 'admin')->first();

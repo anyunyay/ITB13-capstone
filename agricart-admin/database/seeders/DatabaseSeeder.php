@@ -25,16 +25,19 @@ class DatabaseSeeder extends Seeder
         // 1. Products (catalog data)
         // 2. Stocks (member inventory)
         // 3. Price Trends (historical pricing)
-        // 4. Sales (orders and transactions)
+        // 4. Sales (orders and transactions) - MUST run before NotificationSeeder
         // 5. Member Earnings (calculated from sales)
         // 6. Notifications (created after all events have occurred)
+        //
+        // IMPORTANT: NotificationSeeder depends on orders from ComprehensiveSalesSeeder
+        // and must run AFTER it to avoid foreign key constraint violations
         $this->call([
             ProductSeeder::class,           // Creates product catalog
             StockSeeder::class,             // Creates member stocks
             PriceTrendSeeder::class,        // Creates price history
-            ComprehensiveSalesSeeder::class, // Creates orders and sales
+            ComprehensiveSalesSeeder::class, // Creates orders (SalesAudit) and sales
             MemberEarningsSeeder::class,    // Calculates member earnings
-            NotificationSeeder::class,      // Creates notifications for all events
+            NotificationSeeder::class,      // Creates notifications referencing orders
         ]);
     }
 }

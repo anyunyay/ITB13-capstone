@@ -53,9 +53,10 @@ class NotificationSeeder extends Seeder
         $this->command->info('💬 Using message_key system for multilingual support');
         $this->command->info('');
 
-        // Clear existing notifications
+        // Clear existing notifications ONLY (not parent tables)
+        // This prevents cascade deletes that would destroy orders
         DB::table('notifications')->delete();
-        $this->command->info('✅ Cleared existing notifications');
+        $this->command->info('✅ Cleared existing notifications (preserving orders)');
 
         // Get users - matching the real application user types
         $admin = User::where('type', 'admin')->first();
@@ -73,15 +74,24 @@ class NotificationSeeder extends Seeder
         $member = $members->first();
         $logistic = $logistics->first();
 
-        // Get sample data from seeded records
-        $orders = SalesAudit::with('customer')->limit(5)->get();
-        $stocks = Stock::with('member', 'product')->limit(5)->get();
-        $products = Product::limit(5)->get();
+        // Get ALL existing orders from ComprehensiveSalesSeeder
+        // This ensures notifications reference valid order IDs
+        $orders = SalesAudit::with('customer')->get();
+        $stocks = Stock::with('member', 'product')->get();
+        $products = Product::all();
 
-        if ($orders->isEmpty() || $stocks->isEmpty() || $products->isEmpty()) {
-            $this->command->warn('⚠️  Sample data not found. Some notifications may not be created.');
-            $this->command->warn('   Make sure to run: ProductSeeder, StockSeeder, ComprehensiveSalesSeeder first');
+        if ($orders->isEmpty()) {
+            $this->command->error('❌ No orders found! NotificationSeeder requires ComprehensiveSalesSeeder to run first.');
+            $this->command->error('   Please ensure DatabaseSeeder calls ComprehensiveSalesSeeder before NotificationSeeder.');
+            return;
         }
+
+        if ($stocks->isEmpty() || $products->isEmpty()) {
+            $this->command->warn('⚠️  Stock or product data not found. Some notifications may not be created.');
+            $this->command->warn('   Make sure to run: ProductSeeder, StockSeeder first');
+        }
+
+        $this->command->info("✅ Found {$orders->count()} orders to create notifications for");
 
         $order = $orders->first();
         $stock = $stocks->first();
@@ -95,15 +105,17 @@ class NotificationSeeder extends Seeder
         $this->command->info('📧 Creating Admin/Staff notifications...');
 
         // New Order Notifications - Create for multiple orders to simulate real usage
+        // Use real order IDs from ComprehensiveSalesSeeder
         if (!$orders->isEmpty() && $admin) {
-            foreach ($orders->take(3) as $orderItem) {
+            $pendingOrders = $orders->where('status', 'pending')->take(3);
+            foreach ($pendingOrders as $orderItem) {
                 $admin->notify(new NewOrderNotification($orderItem));
                 $notificationCount++;
             }
-            $this->command->info('  ✓ New Order notifications (3)');
+            $this->command->info("  ✓ New Order notifications ({$pendingOrders->count()}) - using real order IDs");
             
             // Also notify staff if exists
-            if ($staff) {
+            if ($staff && $order) {
                 $staff->notify(new NewOrderNotification($order));
                 $notificationCount++;
                 $this->command->info('  ✓ New Order notification (staff)');
@@ -152,41 +164,51 @@ class NotificationSeeder extends Seeder
         $this->command->info('📧 Creating Customer notifications...');
 
         if (!$orders->isEmpty() && $customer) {
-            // Create notifications for the first order (full lifecycle)
-            $firstOrder = $orders->first();
+            // Get the customer's actual orders from the seeded data
+            $customerOrders = $orders->where('customer_id', $customer->id);
             
-            // Order Confirmation
-            $customer->notify(new OrderConfirmationNotification($firstOrder));
+            if ($customerOrders->isEmpty()) {
+                // If no orders for this customer, use any order but notify the order's actual customer
+                $firstOrder = $orders->first();
+                $orderCustomer = $firstOrder->customer ?? $customer;
+            } else {
+                $firstOrder = $customerOrders->first();
+                $orderCustomer = $customer;
+            }
+            
+            // Order Confirmation - using real order ID
+            $orderCustomer->notify(new OrderConfirmationNotification($firstOrder));
             $notificationCount++;
             
-            // Order Status Updates
-            $customer->notify(new OrderStatusUpdate($firstOrder->id, 'approved', 'Your order has been approved and is being processed.'));
+            // Order Status Updates - using real order ID
+            $orderCustomer->notify(new OrderStatusUpdate($firstOrder->id, 'approved', 'Your order has been approved and is being processed.'));
             $notificationCount++;
             
-            $customer->notify(new OrderStatusUpdate($firstOrder->id, 'processing', 'Your order is being prepared for delivery.'));
+            $orderCustomer->notify(new OrderStatusUpdate($firstOrder->id, 'processing', 'Your order is being prepared for delivery.'));
             $notificationCount++;
             
-            // Order Ready for Pickup
-            $customer->notify(new OrderReadyForPickupNotification($firstOrder));
+            // Order Ready for Pickup - using real order
+            $orderCustomer->notify(new OrderReadyForPickupNotification($firstOrder));
             $notificationCount++;
             
-            // Order Picked Up
-            $customer->notify(new OrderPickedUpNotification($firstOrder));
+            // Order Picked Up - using real order
+            $orderCustomer->notify(new OrderPickedUpNotification($firstOrder));
             $notificationCount++;
             
-            // Delivery Status Updates
-            $customer->notify(new DeliveryStatusUpdate($firstOrder->id, 'out_for_delivery', 'Your order is out for delivery!'));
+            // Delivery Status Updates - using real order ID
+            $orderCustomer->notify(new DeliveryStatusUpdate($firstOrder->id, 'out_for_delivery', 'Your order is out for delivery!'));
             $notificationCount++;
             
-            $customer->notify(new DeliveryStatusUpdate($firstOrder->id, 'delivered', 'Your order has been delivered successfully!'));
+            $orderCustomer->notify(new DeliveryStatusUpdate($firstOrder->id, 'delivered', 'Your order has been delivered successfully!'));
             $notificationCount++;
             
             $this->command->info('  ✓ Order lifecycle notifications (7) for Order #' . $firstOrder->id);
             
-            // Create rejection notification for second order if exists
+            // Create rejection notification for another order if exists
             if ($orders->count() > 1) {
                 $secondOrder = $orders->skip(1)->first();
-                $customer->notify(new OrderRejectionNotification($secondOrder));
+                $secondOrderCustomer = $secondOrder->customer ?? $customer;
+                $secondOrderCustomer->notify(new OrderRejectionNotification($secondOrder));
                 $notificationCount++;
                 $this->command->info('  ✓ Order Rejection notification for Order #' . $secondOrder->id);
             }
@@ -204,10 +226,18 @@ class NotificationSeeder extends Seeder
             if ($memberStocks->isNotEmpty()) {
                 $memberStock = $memberStocks->first();
                 
-                // Product Sale Notification - if order exists
+                // Product Sale Notification - use real order that involves this member's stock
                 if (!$orders->isEmpty()) {
-                    $saleOrder = $orders->first();
-                    $memberItem->notify(new ProductSaleNotification($memberStock, $saleOrder, $customer));
+                    // Find an order that includes this member's products
+                    $memberOrder = $orders->filter(function($order) use ($memberItem) {
+                        return $order->auditTrail()->where('member_id', $memberItem->id)->exists();
+                    })->first();
+                    
+                    // If no order found for this member, use any approved order
+                    $saleOrder = $memberOrder ?? $orders->where('status', 'approved')->first() ?? $orders->first();
+                    $orderCustomer = $saleOrder->customer ?? $customer;
+                    
+                    $memberItem->notify(new ProductSaleNotification($memberStock, $saleOrder, $orderCustomer));
                     $notificationCount++;
                 }
                 
@@ -236,18 +266,23 @@ class NotificationSeeder extends Seeder
         // ============================================
         $this->command->info('📧 Creating Logistic notifications...');
 
-        // Create notifications for each logistic user
+        // Create notifications for each logistic user using real orders
         if (!$orders->isEmpty()) {
-            foreach ($logistics as $logisticUser) {
-                // Assign different orders to different logistics
-                $assignedOrders = $orders->take(2);
+            foreach ($logistics as $index => $logisticUser) {
+                // Get orders assigned to this logistic user, or use any orders
+                $assignedOrders = $orders->where('logistic_id', $logisticUser->id);
+                
+                if ($assignedOrders->isEmpty()) {
+                    // If no orders assigned to this logistic, use some orders for demo
+                    $assignedOrders = $orders->skip($index * 2)->take(2);
+                }
                 
                 foreach ($assignedOrders as $assignedOrder) {
-                    // Delivery Task Notification
+                    // Delivery Task Notification - using real order
                     $logisticUser->notify(new DeliveryTaskNotification($assignedOrder));
                     $notificationCount++;
                     
-                    // Order Status Update for Logistic
+                    // Order Status Update for Logistic - using real order ID
                     $logisticUser->notify(new OrderStatusUpdate($assignedOrder->id, 'ready_for_pickup', 'Order is ready for pickup.'));
                     $notificationCount++;
                 }
