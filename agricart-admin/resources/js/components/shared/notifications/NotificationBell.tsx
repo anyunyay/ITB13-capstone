@@ -61,7 +61,22 @@ export function NotificationBell({ notifications, userType, isScrolled = false }
         // For customer order-related notifications, navigate to order history with hash
         if (notification.data?.order_id && 
             ['order_confirmation', 'order_status_update', 'delivery_status_update'].includes(notification.type)) {
-          router.visit(`/customer/orders/history#order-${notification.data.order_id}`);
+          const targetUrl = `/customer/orders/history#order-${notification.data.order_id}`;
+          const currentPath = window.location.pathname;
+          
+          // Check if already on order history page to prevent glitching
+          if (currentPath === '/customer/orders/history') {
+            // Already on the page - just update hash smoothly without reload
+            window.location.hash = `order-${notification.data.order_id}`;
+            // Close the dropdown
+            setIsOpen(false);
+          } else {
+            // Not on the page - navigate with Inertia
+            router.visit(targetUrl, {
+              preserveScroll: false,
+              preserveState: false,
+            });
+          }
         } else if (notification.action_url) {
           router.visit(notification.action_url);
         }

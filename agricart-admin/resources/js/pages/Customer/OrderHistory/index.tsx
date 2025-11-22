@@ -192,38 +192,112 @@ export default function History({ orders: initialOrders, currentStatus, currentD
 
 
 
+  // Handle hash-based navigation with smooth, glitch-free scrolling
   useEffect(() => {
     const hash = window.location.hash;
-    if (hash && hash.startsWith('#order-')) {
-      const orderId = parseInt(hash.replace('#order-', ''));
-      const timer = setTimeout(() => {
-        const orderElement = document.getElementById(`order-${orderId}`);
-        if (orderElement) {
-          // Order is in the list, scroll to it
-          const elementPosition = orderElement.offsetTop;
-          const offsetPosition = elementPosition - 100;
-          
-          window.scrollTo({
-            top: offsetPosition,
-            behavior: 'smooth'
-          });
-          
-          orderElement.style.transition = 'box-shadow 0.3s ease';
-          orderElement.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.5)';
-          setTimeout(() => {
-            orderElement.style.boxShadow = '';
-          }, 2000);
-        } else {
-          // Order is not in the list, open modal instead
-          setSelectedOrderIdForDetails(orderId);
-          setDetailsModalOpen(true);
-          // Clear the hash after opening modal
-          window.history.replaceState(null, '', window.location.pathname + window.location.search);
-        }
-      }, 500);
+    if (!hash || !hash.startsWith('#order-')) return;
 
-      return () => clearTimeout(timer);
-    }
+    const orderId = parseInt(hash.replace('#order-', ''));
+    
+    // First, scroll to top instantly (only if coming from another page)
+    const currentScrollPosition = window.pageYOffset || document.documentElement.scrollTop;
+    const isComingFromAnotherPage = currentScrollPosition === 0; // If at top, likely just navigated
+    
+    // Use a longer delay to ensure DOM is fully rendered and avoid glitching
+    const timer = setTimeout(() => {
+      const orderElement = document.getElementById(`order-${orderId}`);
+      
+      if (orderElement) {
+        // Order found in the list - perform smooth scroll
+        
+        // Get accurate position after layout is stable
+        const rect = orderElement.getBoundingClientRect();
+        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+        const elementTop = rect.top + scrollTop;
+        const offsetPosition = elementTop - 100;
+        
+        // Check if order is already visible in viewport
+        const isVisible = rect.top >= 0 && rect.bottom <= window.innerHeight;
+        
+        if (isVisible && !isComingFromAnotherPage) {
+          // Order is already visible, just highlight it
+          requestAnimationFrame(() => {
+            orderElement.style.transition = 'all 0.3s ease';
+            orderElement.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.5)';
+            orderElement.style.transform = 'scale(1.01)';
+            
+            setTimeout(() => {
+              orderElement.style.boxShadow = '';
+              orderElement.style.transform = '';
+            }, 2000);
+          });
+        } else {
+          // Order is not visible or coming from another page - scroll to it
+          
+          // If coming from another page, ensure we start from top
+          if (isComingFromAnotherPage) {
+            // Instant scroll to top first
+            window.scrollTo({
+              top: 0,
+              behavior: 'auto'
+            });
+            
+            // Small delay to let the instant scroll complete
+            setTimeout(() => {
+              // Then smooth scroll to target
+              requestAnimationFrame(() => {
+                window.scrollTo({
+                  top: offsetPosition,
+                  behavior: 'smooth'
+                });
+                
+                // Wait for scroll to complete before highlighting
+                const scrollDuration = 800;
+                setTimeout(() => {
+                  orderElement.style.transition = 'all 0.3s ease';
+                  orderElement.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.5)';
+                  orderElement.style.transform = 'scale(1.01)';
+                  
+                  setTimeout(() => {
+                    orderElement.style.boxShadow = '';
+                    orderElement.style.transform = '';
+                  }, 2000);
+                }, scrollDuration);
+              });
+            }, 100);
+          } else {
+            // Already on page, just smooth scroll from current position
+            requestAnimationFrame(() => {
+              window.scrollTo({
+                top: offsetPosition,
+                behavior: 'smooth'
+              });
+              
+              const scrollDuration = 800;
+              setTimeout(() => {
+                orderElement.style.transition = 'all 0.3s ease';
+                orderElement.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.5)';
+                orderElement.style.transform = 'scale(1.01)';
+                
+                setTimeout(() => {
+                  orderElement.style.boxShadow = '';
+                  orderElement.style.transform = '';
+                }, 2000);
+              }, scrollDuration);
+            });
+          }
+        }
+        
+      } else {
+        // Order not in the list - open modal
+        setSelectedOrderIdForDetails(orderId);
+        setDetailsModalOpen(true);
+        // Clear the hash after opening modal
+        window.history.replaceState(null, '', window.location.pathname + window.location.search);
+      }
+    }, 600); // Increased delay to prevent glitching
+
+    return () => clearTimeout(timer);
   }, [displayedOrders]);
 
   const handleDeliveryStatusFilter = (deliveryStatus: string) => {

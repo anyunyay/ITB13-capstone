@@ -139,21 +139,23 @@ export default function OrderDetailsModal({ isOpen, onClose, orderId }: OrderDet
           {!isLoading && !error && order && (
             <div className="space-y-3 sm:space-y-4">
               {/* Order Header */}
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-3 p-3 sm:p-4 bg-muted rounded-lg">
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-1 sm:mb-2">
-                    <span className="text-xs sm:text-sm font-semibold">{t('customer.order_id_label')}</span>
+              <div className="p-3 sm:p-4 bg-muted rounded-lg">
+                {/* Mobile: Order ID and Status on same row */}
+                <div className="flex items-center justify-between gap-2 mb-2">
+                  <div className="flex items-center gap-2 min-w-0 flex-1">
+                    <span className="text-xs sm:text-sm font-semibold whitespace-nowrap">{t('customer.order_id_label')}</span>
                     <span className="text-xs sm:text-sm font-bold text-primary">#{order.id}</span>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <CalendarIcon className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground flex-shrink-0" />
-                    <time className="text-[10px] sm:text-xs text-muted-foreground">
-                      {format(new Date(order.created_at), 'MMM dd, yyyy HH:mm')}
-                    </time>
+                  <div className="flex-shrink-0">
+                    {getStatusBadge(order.status)}
                   </div>
                 </div>
-                <div className="flex-shrink-0">
-                  {getStatusBadge(order.status)}
+                {/* Date on separate row */}
+                <div className="flex items-center gap-2">
+                  <CalendarIcon className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground flex-shrink-0" />
+                  <time className="text-[10px] sm:text-xs text-muted-foreground">
+                    {format(new Date(order.created_at), 'MMM dd, yyyy HH:mm')}
+                  </time>
                 </div>
               </div>
 
