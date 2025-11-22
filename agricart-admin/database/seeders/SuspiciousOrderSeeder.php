@@ -46,12 +46,12 @@ class SuspiciousOrderSeeder extends Seeder
             return;
         }
 
-        // Get products with available stocks
+        // Get products with available stocks - be more flexible with quantity
         $products = Product::with(['stocks' => function($query) use ($member) {
-            $query->where('member_id', $member->id)->where('quantity', '>', 10);
+            $query->where('member_id', $member->id)->where('quantity', '>', 0);
         }])->whereHas('stocks', function($query) use ($member) {
-            $query->where('member_id', $member->id)->where('quantity', '>', 10);
-        })->take(10)->get();
+            $query->where('member_id', $member->id)->where('quantity', '>', 0);
+        })->take(20)->get();
         
         if ($products->isEmpty()) {
             $this->command->error('No products with available stock found. Please seed products and stocks first.');
@@ -163,21 +163,35 @@ class SuspiciousOrderSeeder extends Seeder
 
             $quantity = rand(1, min(5, (int)$stock->quantity)); // Order 1-5 units
             
-            // Determine price based on available categories
+            // Determine price and category - use stock's category and match with product price
             $price = 0;
-            $category = '';
-            if ($stock->category === 'kilo' && $product->price_kilo) {
+            $category = $stock->category;
+            
+            // Try to get price based on stock category
+            if ($category === 'kilo' && $product->price_kilo > 0) {
                 $price = $product->price_kilo;
-                $category = 'kilo';
-            } elseif ($stock->category === 'pc' && $product->price_pc) {
+            } elseif ($category === 'pc' && $product->price_pc > 0) {
                 $price = $product->price_pc;
-                $category = 'pc';
-            } elseif ($stock->category === 'tali' && $product->price_tali) {
+            } elseif ($category === 'tali' && $product->price_tali > 0) {
                 $price = $product->price_tali;
-                $category = 'tali';
+            } else {
+                // Fallback: use any available price
+                if ($product->price_kilo > 0) {
+                    $price = $product->price_kilo;
+                    $category = 'kilo';
+                } elseif ($product->price_pc > 0) {
+                    $price = $product->price_pc;
+                    $category = 'pc';
+                } elseif ($product->price_tali > 0) {
+                    $price = $product->price_tali;
+                    $category = 'tali';
+                }
             }
 
-            if ($price <= 0) continue;
+            if ($price <= 0) {
+                $this->command->warn("  ⚠️  Product {$product->name} has no valid price for category {$category}");
+                continue;
+            }
 
             $itemTotal = $price * $quantity;
             $subtotal += $itemTotal;
