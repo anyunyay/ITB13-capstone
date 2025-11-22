@@ -626,4 +626,107 @@ class OrderController extends Controller
 
         return redirect()->back()->with('success', 'Order confirmed as received successfully!');
     }
+
+    public function show(Request $request, $orderId)
+    {
+        $user = $request->user();
+
+        // Try to find the order in sales table first
+        $salesOrder = $user->sales()
+            ->with(['auditTrail.product', 'admin', 'logistic', 'salesAudit'])
+            ->find($orderId);
+
+        if ($salesOrder) {
+            $order = [
+                'id' => $salesOrder->id,
+                'total_amount' => $salesOrder->total_amount,
+                'status' => 'delivered',
+                'delivery_status' => 'delivered',
+                'created_at' => $salesOrder->created_at->toISOString(),
+                'delivered_at' => $salesOrder->delivered_at?->toISOString(),
+                'admin_notes' => $salesOrder->admin_notes,
+                'logistic' => $salesOrder->logistic ? [
+                    'id' => $salesOrder->logistic->id,
+                    'name' => $salesOrder->logistic->name,
+                    'contact_number' => $salesOrder->logistic->contact_number,
+                ] : null,
+                'audit_trail' => $salesOrder->auditTrail->map(function ($trail) {
+                    $unitPrice = 0;
+                    switch ($trail->category) {
+                        case 'Kilo':
+                            $unitPrice = $trail->price_kilo ?? $trail->product->price_kilo ?? 0;
+                            break;
+                        case 'Pc':
+                            $unitPrice = $trail->price_pc ?? $trail->product->price_pc ?? 0;
+                            break;
+                        case 'Tali':
+                            $unitPrice = $trail->price_tali ?? $trail->product->price_tali ?? 0;
+                            break;
+                    }
+
+                    $subtotal = $trail->quantity * $unitPrice;
+                    $coopShare = $subtotal * 0.10;
+                    $totalAmount = $subtotal + $coopShare;
+
+                    return [
+                        'id' => $trail->id,
+                        'product' => [
+                            'id' => $trail->product->id,
+                            'name' => $trail->product->name,
+                            'price_kilo' => $trail->price_kilo ?? $trail->product->price_kilo,
+                            'price_pc' => $trail->price_pc ?? $trail->product->price_pc,
+                            'price_tali' => $trail->price_tali ?? $trail->product->price_tali,
+                        ],
+                        'category' => $trail->category,
+                        'quantity' => $trail->quantity,
+                        'unit_price' => $unitPrice,
+                        'subtotal' => $subtotal,
+                        'coop_share' => $coopShare,
+                        'total_amount' => $totalAmount,
+                    ];
+                }),
+                'customer_received' => $salesOrder->customer_received,
+                'customer_rate' => $salesOrder->customer_rate,
+                'customer_feedback' => $salesOrder->customer_feedback,
+                'customer_confirmed_at' => $salesOrder->customer_confirmed_at?->toISOString(),
+                'source' => 'sales',
+            ];
+
+            return response()->json(['order' => $order]);
+        }
+
+        // Try to find in sales_audit table
+        $salesAuditOrder = $user->salesAudit()
+            ->with(['auditTrail.product', 'admin', 'logistic'])
+            ->find($orderId);
+
+        if ($salesAuditOrder) {
+            // Check if order should be marked as delayed
+            $orderAge = $salesAuditOrder->created_at->diffInHours(now());
+            if ($salesAuditOrder->status === 'pending' && $orderAge > 24) {
+                $salesAuditOrder->update(['status' => 'delayed']);
+                $salesAuditOrder->status = 'delayed';
+            }
+
+            $order = [
+                'id' => $salesAuditOrder->id,
+                'total_amount' => $salesAuditOrder->total_amount,
+                'status' => $salesAuditOrder->status,
+                'delivery_status' => $salesAuditOrder->delivery_status,
+                'created_at' => $salesAuditOrder->created_at->toISOString(),
+                'admin_notes' => $salesAuditOrder->admin_notes,
+                'logistic' => $salesAuditOrder->logistic ? [
+                    'id' => $salesAuditOrder->logistic->id,
+                    'name' => $salesAuditOrder->logistic->name,
+                    'contact_number' => $salesAuditOrder->logistic->contact_number,
+                ] : null,
+                'audit_trail' => $salesAuditOrder->getAggregatedAuditTrail(),
+                'source' => 'sales_audit',
+            ];
+
+            return response()->json(['order' => $order]);
+        }
+
+        return response()->json(['error' => 'Order not found'], 404);
+    }
 }

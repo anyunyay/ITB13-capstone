@@ -265,4 +265,21 @@ return [
     'contact_link' => 'Makipag-ugnayan',
     'privacy_policy' => 'Patakaran sa Privacy',
     'terms_of_service' => 'Mga Tuntunin ng Serbisyo',
+    
+    // Receipt
+    'view_receipt' => 'Tingnan ang Resibo',
+    'receipt_preview' => 'Preview ng Resibo',
+    'print' => 'I-print',
+    
+    // Order Details Modal
+    'order_details' => 'Mga Detalye ng Order',
+    'close' => 'Isara',
+    'view_in_history' => 'Tingnan sa Kasaysayan',
+    'loading' => 'Naglo-load',
+    'loading_order_details' => 'Naglo-load ng mga detalye ng order...',
+    'failed_to_load_order' => 'Nabigo ang pag-load ng mga detalye ng order. Subukan muli.',
+    'order_not_found' => 'Hindi nahanap ang order',
+    'retry' => 'Subukan Muli',
+    'showing_all_orders' => 'Ipinapakita ang lahat ng :count orders',
+    'show_more' => 'Magpakita Pa',
 ];

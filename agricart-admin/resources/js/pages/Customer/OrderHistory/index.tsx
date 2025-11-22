@@ -15,6 +15,7 @@ import { CalendarIcon, Download, FileText, X, Package, CheckCircle, ChevronLeft 
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import OrderReceivedConfirmationModal from '@/components/customer/orders/OrderReceivedConfirmationModal';
 import OrderReceiptPreview from '@/components/customer/orders/OrderReceiptPreview';
+import OrderDetailsModal from '@/components/customer/orders/OrderDetailsModal';
 import StarRating from '@/components/customer/products/StarRating';
 import { useTranslation } from '@/hooks/use-translation';
 
@@ -115,6 +116,8 @@ export default function History({ orders: initialOrders, currentStatus, currentD
   const [selectedOrderForConfirmation, setSelectedOrderForConfirmation] = useState<{ id: number; total: number } | null>(null);
   const [receiptModalOpen, setReceiptModalOpen] = useState<{ [key: number]: boolean }>({});
   const [selectedOrderForReceipt, setSelectedOrderForReceipt] = useState<Order | null>(null);
+  const [detailsModalOpen, setDetailsModalOpen] = useState(false);
+  const [selectedOrderIdForDetails, setSelectedOrderIdForDetails] = useState<number | null>(null);
   
   // Show More state
   const [displayedOrders, setDisplayedOrders] = useState<Order[]>(initialOrders);
@@ -192,10 +195,11 @@ export default function History({ orders: initialOrders, currentStatus, currentD
   useEffect(() => {
     const hash = window.location.hash;
     if (hash && hash.startsWith('#order-')) {
-      const orderId = hash.replace('#order-', '');
+      const orderId = parseInt(hash.replace('#order-', ''));
       const timer = setTimeout(() => {
         const orderElement = document.getElementById(`order-${orderId}`);
         if (orderElement) {
+          // Order is in the list, scroll to it
           const elementPosition = orderElement.offsetTop;
           const offsetPosition = elementPosition - 100;
           
@@ -209,6 +213,12 @@ export default function History({ orders: initialOrders, currentStatus, currentD
           setTimeout(() => {
             orderElement.style.boxShadow = '';
           }, 2000);
+        } else {
+          // Order is not in the list, open modal instead
+          setSelectedOrderIdForDetails(orderId);
+          setDetailsModalOpen(true);
+          // Clear the hash after opening modal
+          window.history.replaceState(null, '', window.location.pathname + window.location.search);
         }
       }, 500);
 
@@ -849,6 +859,18 @@ export default function History({ orders: initialOrders, currentStatus, currentD
             onClose={() => handleCloseConfirmationModal(selectedOrderForConfirmation.id)}
             orderId={selectedOrderForConfirmation.id}
             orderTotal={selectedOrderForConfirmation.total}
+          />
+        )}
+
+        {/* Order Details Modal for orders not in current list */}
+        {selectedOrderIdForDetails && (
+          <OrderDetailsModal
+            isOpen={detailsModalOpen}
+            onClose={() => {
+              setDetailsModalOpen(false);
+              setSelectedOrderIdForDetails(null);
+            }}
+            orderId={selectedOrderIdForDetails}
           />
         )}
 

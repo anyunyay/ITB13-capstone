@@ -268,5 +268,17 @@ return [
     'view_receipt' => 'View Receipt',
     'receipt_preview' => 'Receipt Preview',
     'print' => 'Print',
+    
+    // Order Details Modal
+    'order_details' => 'Order Details',
+    'close' => 'Close',
+    'view_in_history' => 'View in History',
+    'loading' => 'Loading',
+    'loading_order_details' => 'Loading order details...',
+    'failed_to_load_order' => 'Failed to load order details. Please try again.',
+    'order_not_found' => 'Order not found',
+    'retry' => 'Retry',
+    'showing_all_orders' => 'Showing all :count orders',
+    'show_more' => 'Show More',
 ];
 
