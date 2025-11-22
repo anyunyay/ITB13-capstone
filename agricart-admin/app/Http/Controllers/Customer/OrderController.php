@@ -190,22 +190,18 @@ class OrderController extends Controller
 
         $allOrdersCount = $pendingOrders + $outForDeliveryOrders + $deliveredOrders;
 
-        // Pagination: 5 items per page
-        $page = $request->get('page', 1);
-        $perPage = 5;
-        $total = $allOrders->count();
-        $paginatedOrders = $allOrders->forPage($page, $perPage)->values();
+        // Pagination: Load 4 orders at a time
+        $offset = $request->get('offset', 0);
+        $limit = 4;
+        $paginatedOrders = $allOrders->slice($offset, $limit)->values();
+        $hasMore = $allOrders->count() > ($offset + $limit);
 
         return Inertia::render('Customer/OrderHistory/index', [
             'orders' => $paginatedOrders,
             'currentStatus' => $status,
             'currentDeliveryStatus' => $deliveryStatus,
-            'pagination' => [
-                'current_page' => (int) $page,
-                'per_page' => $perPage,
-                'total' => $total,
-                'last_page' => (int) ceil($total / $perPage),
-            ],
+            'hasMore' => $hasMore,
+            'totalOrders' => $allOrders->count(),
             'counts' => [
                 'all' => $allOrdersCount,
                 'pending' => $pendingOrders,
@@ -213,6 +209,161 @@ class OrderController extends Controller
                 'rejected' => 0, // Not used for delivery status tabs
                 'delivered' => $deliveredOrders,
             ],
+        ]);
+    }
+
+    public function loadMore(Request $request)
+    {
+        $user = $request->user();
+        $status = $request->get('status', 'all');
+        $deliveryStatus = $request->get('delivery_status', 'all');
+        $offset = $request->get('offset', 0);
+        $limit = 4;
+
+        // Get all orders from both tables (same logic as index)
+        $allOrders = collect();
+
+        // First, get delivered orders from sales table
+        if ($deliveryStatus === 'all' || $deliveryStatus === 'delivered') {
+            $salesQuery = $user->sales()
+                ->with(['auditTrail.product', 'admin', 'logistic', 'salesAudit']);
+
+            $salesOrders = $salesQuery->orderBy('delivered_at', 'desc')
+                ->get()
+                ->map(function ($sale) {
+                    return [
+                        'id' => $sale->id,
+                        'total_amount' => $sale->total_amount,
+                        'status' => 'delivered',
+                        'delivery_status' => 'delivered',
+                        'created_at' => $sale->created_at->toISOString(),
+                        'delivered_at' => $sale->delivered_at?->toISOString(),
+                        'admin_notes' => $sale->admin_notes,
+                        'logistic' => $sale->logistic ? [
+                            'id' => $sale->logistic->id,
+                            'name' => $sale->logistic->name,
+                            'contact_number' => $sale->logistic->contact_number,
+                        ] : null,
+                        'audit_trail' => $sale->auditTrail->map(function ($trail) {
+                            $unitPrice = 0;
+                            switch ($trail->category) {
+                                case 'Kilo':
+                                    $unitPrice = $trail->price_kilo ?? $trail->product->price_kilo ?? 0;
+                                    break;
+                                case 'Pc':
+                                    $unitPrice = $trail->price_pc ?? $trail->product->price_pc ?? 0;
+                                    break;
+                                case 'Tali':
+                                    $unitPrice = $trail->price_tali ?? $trail->product->price_tali ?? 0;
+                                    break;
+                            }
+
+                            $subtotal = $trail->quantity * $unitPrice;
+                            $coopShare = $subtotal * 0.10;
+                            $totalAmount = $subtotal + $coopShare;
+
+                            return [
+                                'id' => $trail->id,
+                                'product' => [
+                                    'id' => $trail->product->id,
+                                    'name' => $trail->product->name,
+                                    'price_kilo' => $trail->price_kilo ?? $trail->product->price_kilo,
+                                    'price_pc' => $trail->price_pc ?? $trail->product->price_pc,
+                                    'price_tali' => $trail->price_tali ?? $trail->product->price_tali,
+                                ],
+                                'category' => $trail->category,
+                                'quantity' => $trail->quantity,
+                                'unit_price' => $unitPrice,
+                                'subtotal' => $subtotal,
+                                'coop_share' => $coopShare,
+                                'total_amount' => $totalAmount,
+                            ];
+                        }),
+                        'customer_received' => $sale->customer_received,
+                        'customer_rate' => $sale->customer_rate,
+                        'customer_feedback' => $sale->customer_feedback,
+                        'customer_confirmed_at' => $sale->customer_confirmed_at?->toISOString(),
+                        'source' => 'sales',
+                    ];
+                });
+
+            $allOrders = $allOrders->concat($salesOrders);
+        }
+
+        // Get orders from sales_audit
+        $salesAuditQuery = $user->salesAudit()
+            ->with(['auditTrail.product', 'admin', 'logistic']);
+
+        // Filter by delivery status
+        if ($deliveryStatus !== 'all') {
+            if ($deliveryStatus === 'pending') {
+                $salesAuditQuery->where(function ($query) {
+                    $query->whereIn('status', ['pending', 'delayed'])
+                        ->orWhere(function ($subQuery) {
+                            $subQuery->where('status', 'approved')
+                                ->where('delivery_status', 'pending');
+                        });
+                });
+            } elseif ($deliveryStatus === 'out_for_delivery') {
+                $salesAuditQuery->where('status', 'approved')
+                    ->whereIn('delivery_status', ['ready_to_pickup', 'out_for_delivery']);
+            } elseif ($deliveryStatus === 'delivered') {
+                $salesAuditQuery->where('status', 'approved')
+                    ->where('delivery_status', 'delivered');
+            }
+        }
+
+        // Filter by status
+        if ($status !== 'all') {
+            $salesAuditQuery->where('status', $status);
+        }
+
+        // Exclude orders that already exist in sales table
+        if ($deliveryStatus === 'all' || $deliveryStatus === 'delivered') {
+            $existingSalesIds = $user->sales()->pluck('sales_audit_id')->filter();
+            if ($existingSalesIds->isNotEmpty()) {
+                $salesAuditQuery->whereNotIn('id', $existingSalesIds);
+            }
+        }
+
+        $salesAuditOrders = $salesAuditQuery->orderBy('created_at', 'desc')
+            ->get()
+            ->map(function ($sale) {
+                $orderAge = $sale->created_at->diffInHours(now());
+                if ($sale->status === 'pending' && $orderAge > 24) {
+                    $sale->update(['status' => 'delayed']);
+                    $sale->status = 'delayed';
+                }
+
+                return [
+                    'id' => $sale->id,
+                    'total_amount' => $sale->total_amount,
+                    'status' => $sale->status,
+                    'delivery_status' => $sale->delivery_status,
+                    'created_at' => $sale->created_at->toISOString(),
+                    'admin_notes' => $sale->admin_notes,
+                    'logistic' => $sale->logistic ? [
+                        'id' => $sale->logistic->id,
+                        'name' => $sale->logistic->name,
+                        'contact_number' => $sale->logistic->contact_number,
+                    ] : null,
+                    'audit_trail' => $sale->getAggregatedAuditTrail(),
+                    'source' => 'sales_audit',
+                ];
+            });
+
+        // Combine and sort
+        $allOrders = $allOrders->concat($salesAuditOrders)
+            ->sortByDesc('created_at')
+            ->values();
+
+        // Get the next batch
+        $nextBatch = $allOrders->slice($offset, $limit)->values();
+        $hasMore = $allOrders->count() > ($offset + $limit);
+
+        return response()->json([
+            'orders' => $nextBatch,
+            'hasMore' => $hasMore,
         ]);
     }
 

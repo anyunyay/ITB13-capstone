@@ -11,7 +11,7 @@ import { Calendar } from '@/components/ui/calendar';
 import { format } from 'date-fns';
 import { useEffect, useState, useRef } from 'react';
 import { router, usePage } from '@inertiajs/react';
-import { CalendarIcon, Download, FileText, X, Package, CheckCircle, ChevronLeft, ChevronRight } from 'lucide-react';
+import { CalendarIcon, Download, FileText, X, Package, CheckCircle, ChevronLeft } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import OrderReceivedConfirmationModal from '@/components/customer/orders/OrderReceivedConfirmationModal';
 import OrderReceiptPreview from '@/components/customer/orders/OrderReceiptPreview';
@@ -60,12 +60,8 @@ interface HistoryProps {
   orders: Order[];
   currentStatus: string;
   currentDeliveryStatus: string;
-  pagination: {
-    current_page: number;
-    per_page: number;
-    total: number;
-    last_page: number;
-  };
+  hasMore: boolean;
+  totalOrders: number;
   counts: {
     all: number;
     pending: number;
@@ -75,7 +71,7 @@ interface HistoryProps {
   };
 }
 
-export default function History({ orders, currentStatus, currentDeliveryStatus, pagination, counts }: HistoryProps) {
+export default function History({ orders: initialOrders, currentStatus, currentDeliveryStatus, hasMore: initialHasMore, totalOrders, counts }: HistoryProps) {
   const t = useTranslation();
   const page = usePage<{ 
     notifications?: Array<any>;
@@ -120,16 +116,16 @@ export default function History({ orders, currentStatus, currentDeliveryStatus, 
   const [receiptModalOpen, setReceiptModalOpen] = useState<{ [key: number]: boolean }>({});
   const [selectedOrderForReceipt, setSelectedOrderForReceipt] = useState<Order | null>(null);
   
-  // Backend returns 5 items per page, display all of them
-  const paginatedOrders = orders;
+  // Show More state
+  const [displayedOrders, setDisplayedOrders] = useState<Order[]>(initialOrders);
+  const [hasMore, setHasMore] = useState(initialHasMore);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
 
-  // Calculate total pages based on actual total from backend
-  const totalPages = pagination?.last_page || 1;
-  const currentPage = pagination?.current_page || 1;
-  
-  // Check if we're on the last page
-  // Disable Next if: on last page OR no more orders available
-  const isLastPage = currentPage >= totalPages || orders.length < (pagination?.per_page || 5);
+  // Reset displayed orders when initial orders change (filter change)
+  useEffect(() => {
+    setDisplayedOrders(initialOrders);
+    setHasMore(initialHasMore);
+  }, [initialOrders, initialHasMore]);
 
   // Close export modal smoothly when user starts scrolling
   useEffect(() => {
@@ -218,36 +214,56 @@ export default function History({ orders, currentStatus, currentDeliveryStatus, 
 
       return () => clearTimeout(timer);
     }
-  }, [orders]);
+  }, [displayedOrders]);
 
   const handleDeliveryStatusFilter = (deliveryStatus: string) => {
     const params = new URLSearchParams();
     if (deliveryStatus !== 'all') {
       params.append('delivery_status', deliveryStatus);
     }
-    params.append('page', '1');
     router.get('/customer/orders/history', Object.fromEntries(params), {
-      preserveScroll: true,
+      preserveScroll: false,
       preserveState: true,
-      only: ['orders', 'counts', 'pagination', 'currentDeliveryStatus'], // Only fetch necessary data
-    });
-  };
-
-  const handlePageChange = (newPage: number) => {
-    const params = new URLSearchParams();
-    if (currentDeliveryStatus !== 'all') {
-      params.append('delivery_status', currentDeliveryStatus);
-    }
-    params.append('page', newPage.toString());
-    
-    router.get('/customer/orders/history', Object.fromEntries(params), {
-      preserveScroll: true,
-      preserveState: true,
-      only: ['orders', 'pagination'], // Only fetch orders and pagination data
+      only: ['orders', 'counts', 'currentDeliveryStatus', 'hasMore', 'totalOrders'],
       onSuccess: () => {
         window.scrollTo({ top: 0, behavior: 'smooth' });
       },
     });
+  };
+
+  const handleLoadMore = async () => {
+    if (isLoadingMore || !hasMore) return;
+
+    setIsLoadingMore(true);
+
+    try {
+      const params = new URLSearchParams();
+      params.append('offset', displayedOrders.length.toString());
+      if (currentDeliveryStatus !== 'all') {
+        params.append('delivery_status', currentDeliveryStatus);
+      }
+      if (currentStatus !== 'all') {
+        params.append('status', currentStatus);
+      }
+
+      const response = await fetch(`/customer/orders/load-more?${params.toString()}`, {
+        headers: {
+          'Accept': 'application/json',
+          'X-Requested-With': 'XMLHttpRequest',
+        },
+      });
+
+      if (!response.ok) throw new Error('Failed to load more orders');
+
+      const data = await response.json();
+      
+      setDisplayedOrders(prev => [...prev, ...data.orders]);
+      setHasMore(data.hasMore);
+    } catch (error) {
+      console.error('Error loading more orders:', error);
+    } finally {
+      setIsLoadingMore(false);
+    }
   };
 
   const generateReport = () => {
@@ -273,7 +289,7 @@ export default function History({ orders, currentStatus, currentDeliveryStatus, 
   const handleCancelOrder = (orderId: number) => {
     router.post(`/customer/orders/${orderId}/cancel`, {}, {
       preserveState: true,
-      only: ['orders', 'counts', 'notifications'], // Only refresh necessary data
+      only: ['orders', 'counts', 'notifications', 'hasMore', 'totalOrders'],
       onSuccess: () => {
         setCancelDialogOpen(prev => ({ ...prev, [orderId]: false }));
       },
@@ -485,7 +501,7 @@ export default function History({ orders, currentStatus, currentDeliveryStatus, 
           </div>
 
           <TabsContent value={currentDeliveryStatus} className="mt-0">
-            {orders.length === 0 ? (
+            {displayedOrders.length === 0 ? (
               <Card className="p-6 sm:p-8 md:p-10 lg:p-12 text-center bg-muted rounded-2xl">
                 <section className="flex flex-col items-center gap-3 sm:gap-4">
                   <Package className="h-12 sm:h-16 md:h-20 w-12 sm:w-16 md:w-20 text-muted-foreground" aria-hidden="true" />
@@ -496,7 +512,7 @@ export default function History({ orders, currentStatus, currentDeliveryStatus, 
             ) : (
               <>
                 <section className="space-y-4 sm:space-y-5 md:space-y-6">
-                  {paginatedOrders.map((order: Order) => (
+                  {displayedOrders.map((order: Order) => (
                   <article key={order.id} id={`order-${order.id}`} className="p-4 sm:p-5 md:p-6 lg:p-8 bg-card border border-border rounded-2xl hover:shadow-xl transition-all duration-300 overflow-hidden">
                     <div className="relative mb-3 sm:mb-4 md:mb-5">
                       {/* Mobile Layout */}
@@ -794,33 +810,33 @@ export default function History({ orders, currentStatus, currentDeliveryStatus, 
                 ))}
               </section>
 
-              {/* Pagination Controls */}
-              {(totalPages > 1 || currentPage > 1) && (
-                <nav className="flex items-center justify-center gap-3 sm:gap-4 md:gap-6 mt-6 sm:mt-8 lg:mt-10 pt-4 sm:pt-6 border-t border-border" aria-label="Pagination">
+              {/* Show More Button */}
+              {hasMore && (
+                <div className="flex items-center justify-center py-6 sm:py-8">
                   <Button
+                    onClick={handleLoadMore}
+                    disabled={isLoadingMore}
                     variant="outline"
-                    size="sm"
-                    onClick={() => handlePageChange(currentPage - 1)}
-                    disabled={currentPage <= 1}
-                    className="flex items-center gap-1 sm:gap-2 px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base"
+                    size="lg"
+                    className="px-8 py-3 text-base sm:text-lg font-medium"
                   >
-                    <ChevronLeft className="h-4 w-4 sm:h-5 sm:w-5" />
-                    <span className="hidden sm:inline">{t('customer.previous') || 'Previous'}</span>
+                    {isLoadingMore ? (
+                      <>
+                        <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-primary mr-2"></div>
+                        {t('customer.loading') || 'Loading...'}
+                      </>
+                    ) : (
+                      t('customer.show_more') || 'Show More'
+                    )}
                   </Button>
-                  <div className="text-sm sm:text-base md:text-lg text-muted-foreground px-2 sm:px-3">
-                    {t('customer.page')} {currentPage} {t('customer.of')} {totalPages}
-                  </div>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handlePageChange(currentPage + 1)}
-                    disabled={isLastPage}
-                    className="flex items-center gap-1 sm:gap-2 px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base"
-                  >
-                    <span className="hidden sm:inline">{t('customer.next') || 'Next'}</span>
-                    <ChevronRight className="h-4 w-4 sm:h-5 sm:w-5" />
-                  </Button>
-                </nav>
+                </div>
+              )}
+
+              {/* Show total count when all loaded */}
+              {!hasMore && displayedOrders.length > 0 && (
+                <div className="text-center py-6 text-sm sm:text-base text-muted-foreground">
+                  {t('customer.showing_all_orders') || `Showing all ${displayedOrders.length} orders`}
+                </div>
               )}
             </>
           )}
