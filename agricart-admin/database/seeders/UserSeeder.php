@@ -124,7 +124,7 @@ class UserSeeder extends Seeder
         $customerUser = User::create([
             'type' => 'customer',
             'name' => 'Test Customer',
-            'email' => 'customer@customer.com',
+            'email' => 'itb13capstoned@gmail.com',
             'contact_number' => '09111222333',
             'registration_date' => now()->subDays(15),
             'password' => Hash::make('12345678'),

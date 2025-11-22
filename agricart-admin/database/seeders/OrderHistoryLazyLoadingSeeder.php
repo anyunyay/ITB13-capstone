@@ -12,11 +12,6 @@ use App\Models\Product;
 use App\Models\Stock;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
-use App\Notifications\OrderConfirmationNotification;
-use App\Notifications\OrderStatusUpdate;
-use App\Notifications\DeliveryStatusUpdate;
-use App\Notifications\OrderRejectionNotification;
-use App\Notifications\NewOrderNotification;
 
 class OrderHistoryLazyLoadingSeeder extends Seeder
 {
@@ -34,11 +29,11 @@ class OrderHistoryLazyLoadingSeeder extends Seeder
     {
         $this->command->info('🚀 Seeding Order History for Lazy Loading System...');
 
-        // Don't fake notification events - we want them to be created
-        // \Illuminate\Support\Facades\Event::fake([
-        //     \Illuminate\Notifications\Events\NotificationSending::class,
-        //     \Illuminate\Notifications\Events\NotificationSent::class,
-        // ]);
+        // Disable notification events during seeding
+        \Illuminate\Support\Facades\Event::fake([
+            \Illuminate\Notifications\Events\NotificationSending::class,
+            \Illuminate\Notifications\Events\NotificationSent::class,
+        ]);
 
         // Get required entities
         $admin = User::where('type', 'admin')->first();
@@ -372,9 +367,6 @@ class OrderHistoryLazyLoadingSeeder extends Seeder
 
         $order = SalesAudit::create($orderData);
 
-        // Create notifications for this order
-        $this->createOrderNotifications($order, $customer, $admin);
-
         // Create audit trail entries
         foreach ($orderItems as $item) {
             AuditTrail::create([
@@ -476,45 +468,5 @@ class OrderHistoryLazyLoadingSeeder extends Seeder
         ];
 
         return $feedbacks[array_rand($feedbacks)];
-    }
-
-    /**
-     * Create notifications for an order based on its status
-     */
-    private function createOrderNotifications($order, $customer, $admin)
-    {
-        // Always create order confirmation for customer
-        $customer->notify(new OrderConfirmationNotification($order));
-        
-        // Create new order notification for admin
-        $admin->notify(new NewOrderNotification($order));
-        
-        // Create status-specific notifications
-        switch ($order->status) {
-            case 'approved':
-                $customer->notify(new OrderStatusUpdate($order->id, 'approved', 'Your order has been approved and is being processed.'));
-                
-                // Add delivery status notifications if applicable
-                if ($order->delivery_status === 'ready_to_pickup') {
-                    $customer->notify(new DeliveryStatusUpdate($order->id, 'ready_to_pickup', 'Your order is ready for pickup!'));
-                } elseif ($order->delivery_status === 'out_for_delivery') {
-                    $customer->notify(new DeliveryStatusUpdate($order->id, 'out_for_delivery', 'Your order is out for delivery!'));
-                } elseif ($order->delivery_status === 'delivered') {
-                    $customer->notify(new DeliveryStatusUpdate($order->id, 'delivered', 'Your order has been delivered successfully!'));
-                }
-                break;
-                
-            case 'rejected':
-                $customer->notify(new OrderRejectionNotification($order));
-                break;
-                
-            case 'cancelled':
-                $customer->notify(new OrderStatusUpdate($order->id, 'cancelled', 'Your order has been cancelled.'));
-                break;
-                
-            case 'delayed':
-                $customer->notify(new OrderStatusUpdate($order->id, 'delayed', 'Your order is taking longer than expected. We apologize for the delay.'));
-                break;
-        }
     }
 }
