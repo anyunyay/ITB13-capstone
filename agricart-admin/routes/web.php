@@ -151,6 +151,7 @@ Route::middleware(['auth', 'verified', 'password.change.required'])->group(funct
         // Order Management routes
         Route::middleware(['can:view orders'])->group(function () {
             Route::get('/orders', [OrderController::class, 'index'])->name('admin.orders.index');
+            Route::get('/orders/suspicious', [OrderController::class, 'suspicious'])->name('admin.orders.suspicious');
             Route::post('/orders/notify-suspicious', [SuspiciousOrderNotificationController::class, 'notifySuspicious'])->name('admin.orders.notify-suspicious');
         });
         Route::middleware(['can:view orders'])->group(function () {

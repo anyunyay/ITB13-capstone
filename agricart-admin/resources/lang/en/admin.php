@@ -233,6 +233,10 @@ return [
     // Orders
     'order_management' => 'Order Management',
     'order_management_description' => 'Monitor and manage customer orders, track delivery status, and process order requests efficiently',
+    'suspicious_orders' => 'Suspicious Orders',
+    'suspicious_orders_description' => 'Review and manage orders flagged as potentially suspicious due to unusual patterns',
+    'no_suspicious_orders' => 'No Suspicious Orders Found',
+    'no_suspicious_orders_description' => 'There are currently no orders flagged as suspicious. All orders appear normal.',
     'all_orders' => 'All Orders',
     'search_orders' => 'Search orders',
     'filter_by_status' => 'Filter by status',

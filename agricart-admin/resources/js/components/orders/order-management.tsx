@@ -2,8 +2,6 @@ import { Button } from '@/components/ui/button';
 import { Package, Search, Eye } from 'lucide-react';
 import { PaginationControls } from './pagination-controls';
 import { OrderCard } from './order-card';
-import { GroupedOrderCard } from './grouped-order-card';
-import { SuspiciousOrdersModal } from './suspicious-orders-modal';
 import { BaseTable } from '@/components/common/base-table';
 import { createOrderTableColumns, OrderMobileCard } from './order-table-columns';
 import { SearchFilter } from './search-filter';
@@ -66,12 +64,16 @@ export const OrderManagement = ({
     setSortOrder
 }: OrderManagementProps) => {
     const t = useTranslation();
-    const [showSuspiciousModal, setShowSuspiciousModal] = useState(false);
     
     // Group orders for suspicious pattern detection (frontend only)
     const orderGroups = useMemo(() => {
         return groupSuspiciousOrders(paginatedOrders, 10); // 10 minute window
     }, [paginatedOrders]);
+
+    // Filter out suspicious groups - they should only appear on the dedicated suspicious orders page
+    const nonSuspiciousGroups = useMemo(() => {
+        return orderGroups.filter(g => !g.isSuspicious);
+    }, [orderGroups]);
 
     // Get suspicious order statistics
     const suspiciousStats = useMemo(() => {
@@ -111,7 +113,7 @@ export const OrderManagement = ({
             <>
                 {currentView === 'cards' ? (
                     <>
-                        {/* Show suspicious order alert if any found */}
+                        {/* Show suspicious order alert if any found - with link to dedicated page */}
                         {suspiciousStats.suspiciousGroups > 0 && (
                             <div className="mb-4 p-4 bg-red-50 dark:bg-red-900/20 border-2 border-red-300 dark:border-red-700 rounded-lg">
                                 <div className="flex items-center justify-between gap-4">
@@ -128,33 +130,25 @@ export const OrderManagement = ({
                                         </p>
                                     </div>
                                     <Button
-                                        onClick={() => setShowSuspiciousModal(true)}
+                                        onClick={() => window.location.href = route('admin.orders.suspicious')}
                                         variant="default"
                                         className="bg-red-600 hover:bg-red-700 text-white flex-shrink-0"
                                     >
                                         <Eye className="h-4 w-4 mr-2" />
-                                        View Details
+                                        View Suspicious Orders
                                     </Button>
                                 </div>
                             </div>
                         )}
                         
                         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-2">
-                            {orderGroups.map((group, index) => (
-                                group.isSuspicious ? (
-                                    <GroupedOrderCard
-                                        key={`group-${group.orders.map(o => o.id).join('-')}`}
-                                        orders={group.orders}
-                                        highlight={group.orders.some(o => highlightOrderId === o.id.toString())}
-                                    />
-                                ) : (
-                                    <OrderCard 
-                                        key={group.orders[0].id} 
-                                        order={group.orders[0]} 
-                                        highlight={highlightOrderId === group.orders[0].id.toString()}
-                                        isUrgent={urgentOrders.some(urgent => urgent.id === group.orders[0].id) || group.orders[0].is_urgent}
-                                    />
-                                )
+                            {nonSuspiciousGroups.map((group, index) => (
+                                <OrderCard 
+                                    key={group.orders[0].id} 
+                                    order={group.orders[0]} 
+                                    highlight={highlightOrderId === group.orders[0].id.toString()}
+                                    isUrgent={urgentOrders.some(urgent => urgent.id === group.orders[0].id) || group.orders[0].is_urgent}
+                                />
                             ))}
                         </div>
                     </>
@@ -233,13 +227,6 @@ export const OrderManagement = ({
 
                 {renderOrders()}
             </div>
-
-            {/* Suspicious Orders Modal */}
-            <SuspiciousOrdersModal
-                isOpen={showSuspiciousModal}
-                onClose={() => setShowSuspiciousModal(false)}
-                suspiciousGroups={orderGroups.filter(g => g.isSuspicious)}
-            />
         </div>
     );
 };

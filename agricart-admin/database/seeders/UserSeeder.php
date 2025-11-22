@@ -120,26 +120,73 @@ class UserSeeder extends Seeder
             ]);
         }
 
-        // Create specific customer user as requested
-        $customerUser = User::create([
-            'type' => 'customer',
-            'name' => 'Test Customer',
-            'email' => 'customer@customer.com',
-            'contact_number' => '09111222333',
-            'registration_date' => now()->subDays(15),
-            'password' => Hash::make('12345678'),
-            'email_verified_at' => now(),
-            'active' => true,
-        ]);
+        // Create customer users
+        $customers = [
+            [
+                'name' => 'Test Customer',
+                'email' => 'customer@customer.com',
+                'contact_number' => '09111222333',
+                'street' => '321 Customer Avenue',
+                'barangay' => 'Sala',
+                'city' => 'Cabuyao',
+                'province' => 'Laguna',
+            ],
+            [
+                'name' => 'John Doe',
+                'email' => 'john.doe@customer.com',
+                'contact_number' => '09123456789',
+                'street' => '456 Main Street',
+                'barangay' => 'Pulo',
+                'city' => 'Cabuyao',
+                'province' => 'Laguna',
+            ],
+            [
+                'name' => 'Jane Smith',
+                'email' => 'jane.smith@customer.com',
+                'contact_number' => '09234567890',
+                'street' => '789 Oak Avenue',
+                'barangay' => 'Banlic',
+                'city' => 'Cabuyao',
+                'province' => 'Laguna',
+            ],
+            [
+                'name' => 'Bob Johnson',
+                'email' => 'bob.johnson@customer.com',
+                'contact_number' => '09345678901',
+                'street' => '101 Pine Road',
+                'barangay' => 'Mamatid',
+                'city' => 'Cabuyao',
+                'province' => 'Laguna',
+            ],
+        ];
 
-        UserAddress::create([
-            'user_id' => $customerUser->id,
-            'street' => '321 Customer Avenue',
-            'barangay' => 'Sala',
-            'city' => 'Cabuyao',
-            'province' => 'Laguna',
-            'is_active' => true,
-        ]);
+        foreach ($customers as $index => $customerData) {
+            $customer = User::create([
+                'type' => 'customer',
+                'name' => $customerData['name'],
+                'email' => $customerData['email'],
+                'contact_number' => $customerData['contact_number'],
+                'registration_date' => now()->subDays(15 + $index * 5),
+                'password' => Hash::make('12345678'),
+                'email_verified_at' => now(),
+                'active' => true,
+            ]);
+
+            UserAddress::create([
+                'user_id' => $customer->id,
+                'street' => $customerData['street'],
+                'barangay' => $customerData['barangay'],
+                'city' => $customerData['city'],
+                'province' => $customerData['province'],
+                'is_active' => true,
+            ]);
+        }
+
+        $this->command->info('✅ Created users:');
+        $this->command->info('   - 1 Admin (Samuel Salazar)');
+        $this->command->info('   - 2 Logistics (Judel Macasinag, Elmo V. Republica)');
+        $this->command->info('   - 12 Members (Farmers)');
+        $this->command->info('   - 4 Customers (Test Customer, John Doe, Jane Smith, Bob Johnson)');
 
         // Note: Members will be created in DatabaseSeeder with specific member ID 2411000
         // as requested to exclude member seeding from this seeder

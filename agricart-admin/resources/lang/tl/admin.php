@@ -228,6 +228,10 @@ return [
     // Orders
     'order_management' => 'Pamamahala ng Order',
     'order_management_description' => 'Subaybayan at pamahalaan ang mga order ng customer, subaybayan ang katayuan ng paghahatid, at mahusay na iproseso ang mga kahilingan sa order',
+    'suspicious_orders' => 'Mga Kahina-hinalang Order',
+    'suspicious_orders_description' => 'Suriin at pamahalaan ang mga order na minarkahan bilang posibleng kahina-hinala dahil sa hindi pangkaraniwang pattern',
+    'no_suspicious_orders' => 'Walang Natagpuang Kahina-hinalang Order',
+    'no_suspicious_orders_description' => 'Kasalukuyang walang mga order na minarkahan bilang kahina-hinala. Lahat ng order ay mukhang normal.',
     'all_orders' => 'Lahat ng Order',
     'search_orders' => 'Maghanap ng order',
     'filter_by_status' => 'I-filter ayon sa katayuan', // DITO KA LOKO

@@ -151,6 +151,92 @@ class OrderController extends Controller
         ]);
     }
 
+    public function suspicious(Request $request)
+    {
+        // Optimize: Load only recent orders with essential data
+        $allOrders = SalesAudit::with([
+            'customer' => function ($query) {
+                $query->select('id', 'name', 'email', 'contact_number');
+            },
+            'customer.defaultAddress' => function ($query) {
+                $query->select('id', 'user_id', 'street', 'barangay', 'city', 'province');
+            },
+            'address' => function ($query) {
+                $query->select('id', 'street', 'barangay', 'city', 'province');
+            },
+            'admin' => function ($query) {
+                $query->select('id', 'name');
+            },
+            'logistic' => function ($query) {
+                $query->select('id', 'name', 'contact_number');
+            },
+            'auditTrail.product' => function ($query) {
+                $query->select('id', 'name', 'price_kilo', 'price_pc', 'price_tali');
+            },
+            'auditTrail.product.stocks' => function ($query) {
+                $query->where('quantity', '>', 0)->whereNull('removed_at');
+            }
+        ])
+            ->select('id', 'customer_id', 'address_id', 'admin_id', 'logistic_id', 'total_amount', 'status', 'delivery_status', 'delivery_packed_time', 'delivered_time', 'created_at', 'admin_notes', 'is_urgent', 'is_suspicious', 'suspicious_reason')
+            ->orderBy('created_at', 'desc')
+            ->limit(500) // Increased limit to catch more potential suspicious patterns
+            ->get()
+            ->values();
+
+        // Process orders
+        $processedOrders = $allOrders->map(function ($order) {
+            return [
+                'id' => $order->id,
+                'customer' => [
+                    'name' => $order->customer->name ?? 'N/A',
+                    'email' => $order->customer->email ?? 'N/A',
+                    'contact_number' => $order->customer->contact_number ?? 'N/A',
+                    'address' => $order->customer->defaultAddress?->street ?? 'N/A',
+                    'barangay' => $order->customer->defaultAddress?->barangay ?? 'N/A',
+                    'city' => $order->customer->defaultAddress?->city ?? 'N/A',
+                    'province' => $order->customer->defaultAddress?->province ?? 'N/A',
+                ],
+                'delivery_address' => $order->address ?
+                    $order->address->street . ', ' . $order->address->barangay . ', ' . $order->address->city . ', ' . $order->address->province :
+                    null,
+                'order_address' => $order->address ? [
+                    'street' => $order->address->street,
+                    'barangay' => $order->address->barangay,
+                    'city' => $order->address->city,
+                    'province' => $order->address->province,
+                ] : null,
+                'total_amount' => $order->total_amount,
+                'status' => $order->status,
+                'delivery_status' => $order->delivery_status,
+                'delivery_packed_time' => $order->delivery_packed_time?->toISOString(),
+                'delivered_time' => $order->delivered_time?->toISOString(),
+                'delivery_timeline' => null,
+                'created_at' => $order->created_at?->toISOString(),
+                'admin' => $order->admin ? [
+                    'name' => $order->admin->name,
+                ] : null,
+                'admin_notes' => $order->admin_notes,
+                'logistic' => $order->logistic ? [
+                    'id' => $order->logistic->id,
+                    'name' => $order->logistic->name,
+                    'contact_number' => $order->logistic->contact_number,
+                ] : null,
+                'audit_trail' => $order->getAggregatedAuditTrail(),
+                'is_urgent' => $order->is_urgent,
+                'is_suspicious' => $order->is_suspicious,
+                'suspicious_reason' => $order->suspicious_reason,
+            ];
+        });
+
+        // Get available logistics for assignment
+        $logistics = User::where('type', 'logistic')->where('active', true)->get(['id', 'name', 'contact_number']);
+
+        return Inertia::render('Admin/Orders/suspicious', [
+            'orders' => $processedOrders,
+            'logistics' => $logistics,
+        ]);
+    }
+
     public function show(Request $request, SalesAudit $order)
     {
         $order->load(['customer.defaultAddress', 'address', 'admin', 'logistic', 'auditTrail.product', 'auditTrail.stock']);
