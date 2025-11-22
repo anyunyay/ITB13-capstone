@@ -25,16 +25,16 @@ class DatabaseSeeder extends Seeder
         // 1. Products (catalog data)
         // 2. Stocks (member inventory)
         // 3. Price Trends (historical pricing)
-        // 4. Sales (orders and transactions) - Use OrderHistoryLazyLoadingSeeder for testing
+        // 4. Sales (orders and transactions)
         // 5. Member Earnings (calculated from sales)
         // 6. Notifications (created after all events have occurred)
         $this->call([
-            ProductSeeder::class,                   // Creates product catalog
-            StockSeeder::class,                     // Creates member stocks
-            PriceTrendSeeder::class,                // Creates price history
-            OrderHistoryLazyLoadingSeeder::class,   // Creates 20+ orders for lazy loading testing
-            MemberEarningsSeeder::class,            // Calculates member earnings
-            NotificationSeeder::class,              // Creates notifications for all events
+            ProductSeeder::class,           // Creates product catalog
+            StockSeeder::class,             // Creates member stocks
+            PriceTrendSeeder::class,        // Creates price history
+            ComprehensiveSalesSeeder::class, // Creates orders and sales
+            MemberEarningsSeeder::class,    // Calculates member earnings
+            NotificationSeeder::class,      // Creates notifications for all events
         ]);
     }
 }
