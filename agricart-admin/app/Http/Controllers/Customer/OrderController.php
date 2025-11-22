@@ -26,7 +26,7 @@ class OrderController extends Controller
             $salesQuery = $user->sales()
                 ->with(['auditTrail.product', 'admin', 'logistic', 'salesAudit']);
 
-            $salesOrders = $salesQuery->orderBy('delivered_at', 'desc')
+            $salesOrders = $salesQuery->orderBy('updated_at', 'desc')
                 ->get()
                 ->map(function ($sale) {
                     return [
@@ -35,6 +35,7 @@ class OrderController extends Controller
                         'status' => 'delivered', // All sales table orders are delivered
                         'delivery_status' => 'delivered',
                         'created_at' => $sale->created_at->toISOString(),
+                        'updated_at' => $sale->updated_at->toISOString(),
                         'delivered_at' => $sale->delivered_at?->toISOString(),
                         'admin_notes' => $sale->admin_notes,
                         'logistic' => $sale->logistic ? [
@@ -128,7 +129,7 @@ class OrderController extends Controller
             }
         }
 
-        $salesAuditOrders = $salesAuditQuery->orderBy('created_at', 'desc')
+        $salesAuditOrders = $salesAuditQuery->orderBy('updated_at', 'desc')
             ->get()
             ->map(function ($sale) {
                 // Check if order should be marked as delayed (over 24 hours and still pending)
@@ -144,6 +145,7 @@ class OrderController extends Controller
                     'status' => $sale->status,
                     'delivery_status' => $sale->delivery_status,
                     'created_at' => $sale->created_at->toISOString(),
+                    'updated_at' => $sale->updated_at->toISOString(),
                     'admin_notes' => $sale->admin_notes,
                     'logistic' => $sale->logistic ? [
                         'id' => $sale->logistic->id,
@@ -155,9 +157,9 @@ class OrderController extends Controller
                 ];
             });
 
-        // Combine orders and sort by creation date
+        // Combine orders and sort by most recently updated (delivery status changes)
         $allOrders = $allOrders->concat($salesAuditOrders)
-            ->sortByDesc('created_at')
+            ->sortByDesc('updated_at')
             ->values();
 
         // Get counts for delivery status tabs (avoid double counting)
@@ -228,7 +230,7 @@ class OrderController extends Controller
             $salesQuery = $user->sales()
                 ->with(['auditTrail.product', 'admin', 'logistic', 'salesAudit']);
 
-            $salesOrders = $salesQuery->orderBy('delivered_at', 'desc')
+            $salesOrders = $salesQuery->orderBy('updated_at', 'desc')
                 ->get()
                 ->map(function ($sale) {
                     return [
@@ -237,6 +239,7 @@ class OrderController extends Controller
                         'status' => 'delivered',
                         'delivery_status' => 'delivered',
                         'created_at' => $sale->created_at->toISOString(),
+                        'updated_at' => $sale->updated_at->toISOString(),
                         'delivered_at' => $sale->delivered_at?->toISOString(),
                         'admin_notes' => $sale->admin_notes,
                         'logistic' => $sale->logistic ? [
@@ -326,7 +329,7 @@ class OrderController extends Controller
             }
         }
 
-        $salesAuditOrders = $salesAuditQuery->orderBy('created_at', 'desc')
+        $salesAuditOrders = $salesAuditQuery->orderBy('updated_at', 'desc')
             ->get()
             ->map(function ($sale) {
                 $orderAge = $sale->created_at->diffInHours(now());
@@ -341,6 +344,7 @@ class OrderController extends Controller
                     'status' => $sale->status,
                     'delivery_status' => $sale->delivery_status,
                     'created_at' => $sale->created_at->toISOString(),
+                    'updated_at' => $sale->updated_at->toISOString(),
                     'admin_notes' => $sale->admin_notes,
                     'logistic' => $sale->logistic ? [
                         'id' => $sale->logistic->id,
@@ -352,9 +356,9 @@ class OrderController extends Controller
                 ];
             });
 
-        // Combine and sort
+        // Combine and sort by most recently updated
         $allOrders = $allOrders->concat($salesAuditOrders)
-            ->sortByDesc('created_at')
+            ->sortByDesc('updated_at')
             ->values();
 
         // Get the next batch
@@ -394,7 +398,7 @@ class OrderController extends Controller
                 $salesQuery->whereDate('created_at', '<=', $endDate);
             }
 
-            $salesOrders = $salesQuery->orderBy('created_at', 'desc')
+            $salesOrders = $salesQuery->orderBy('updated_at', 'desc')
                 ->get()
                 ->map(function ($sale) {
                     return [
@@ -403,6 +407,7 @@ class OrderController extends Controller
                         'status' => 'delivered',
                         'delivery_status' => 'delivered',
                         'created_at' => $sale->created_at,
+                        'updated_at' => $sale->updated_at,
                         'admin_notes' => $sale->admin_notes,
                         'logistic' => $sale->logistic,
                         'audit_trail' => $sale->auditTrail->map(function ($trail) {
@@ -490,7 +495,7 @@ class OrderController extends Controller
             $salesAuditQuery->where('status', $status);
         }
 
-        $salesAuditOrders = $salesAuditQuery->orderBy('created_at', 'desc')
+        $salesAuditOrders = $salesAuditQuery->orderBy('updated_at', 'desc')
             ->get()
             ->map(function ($sale) {
                 return [
@@ -499,6 +504,7 @@ class OrderController extends Controller
                     'status' => $sale->status,
                     'delivery_status' => $sale->delivery_status,
                     'created_at' => $sale->created_at,
+                    'updated_at' => $sale->updated_at,
                     'admin_notes' => $sale->admin_notes,
                     'logistic' => $sale->logistic,
                     'audit_trail' => $sale->auditTrail->map(function ($trail) {
