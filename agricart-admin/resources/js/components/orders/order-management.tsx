@@ -1,14 +1,18 @@
 import { Button } from '@/components/ui/button';
-import { Package, Search } from 'lucide-react';
+import { Package, Search, Eye } from 'lucide-react';
 import { PaginationControls } from './pagination-controls';
 import { OrderCard } from './order-card';
+import { GroupedOrderCard } from './grouped-order-card';
+import { SuspiciousOrdersModal } from './suspicious-orders-modal';
 import { BaseTable } from '@/components/common/base-table';
 import { createOrderTableColumns, OrderMobileCard } from './order-table-columns';
 import { SearchFilter } from './search-filter';
 import { ViewToggle } from './view-toggle';
 import { Order } from '@/types/orders';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useTranslation } from '@/hooks/use-translation';
+import { groupSuspiciousOrders, getSuspiciousOrderStats } from '@/utils/order-grouping';
+import { useSuspiciousOrderNotification } from '@/hooks/use-suspicious-order-notification';
 
 interface OrderManagementProps {
     allOrders: Order[];
@@ -62,6 +66,20 @@ export const OrderManagement = ({
     setSortOrder
 }: OrderManagementProps) => {
     const t = useTranslation();
+    const [showSuspiciousModal, setShowSuspiciousModal] = useState(false);
+    
+    // Group orders for suspicious pattern detection (frontend only)
+    const orderGroups = useMemo(() => {
+        return groupSuspiciousOrders(paginatedOrders, 10); // 10 minute window
+    }, [paginatedOrders]);
+
+    // Get suspicious order statistics
+    const suspiciousStats = useMemo(() => {
+        return getSuspiciousOrderStats(orderGroups);
+    }, [orderGroups]);
+
+    // Send notifications for suspicious patterns (frontend-triggered)
+    useSuspiciousOrderNotification(orderGroups);
     
     // Create column definitions
     const columns = useMemo(() => createOrderTableColumns(t), [t]);
@@ -92,16 +110,54 @@ export const OrderManagement = ({
         return (
             <>
                 {currentView === 'cards' ? (
-                    <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-2">
-                        {paginatedOrders.map((order) => (
-                            <OrderCard 
-                                key={order.id} 
-                                order={order} 
-                                highlight={highlightOrderId === order.id.toString()}
-                                isUrgent={urgentOrders.some(urgent => urgent.id === order.id) || order.is_urgent}
-                            />
-                        ))}
-                    </div>
+                    <>
+                        {/* Show suspicious order alert if any found */}
+                        {suspiciousStats.suspiciousGroups > 0 && (
+                            <div className="mb-4 p-4 bg-red-50 dark:bg-red-900/20 border-2 border-red-300 dark:border-red-700 rounded-lg">
+                                <div className="flex items-center justify-between gap-4">
+                                    <div className="flex-1">
+                                        <div className="flex items-center gap-2 mb-2">
+                                            <span className="text-2xl">⚠️</span>
+                                            <h3 className="text-lg font-semibold text-red-800 dark:text-red-300 m-0">
+                                                Suspicious Order Patterns Detected
+                                            </h3>
+                                        </div>
+                                        <p className="text-sm text-red-700 dark:text-red-400 m-0">
+                                            Found {suspiciousStats.suspiciousGroups} suspicious order group(s) with {suspiciousStats.totalSuspiciousOrders} orders 
+                                            (Total: ₱{suspiciousStats.totalSuspiciousAmount.toFixed(2)})
+                                        </p>
+                                    </div>
+                                    <Button
+                                        onClick={() => setShowSuspiciousModal(true)}
+                                        variant="default"
+                                        className="bg-red-600 hover:bg-red-700 text-white flex-shrink-0"
+                                    >
+                                        <Eye className="h-4 w-4 mr-2" />
+                                        View Details
+                                    </Button>
+                                </div>
+                            </div>
+                        )}
+                        
+                        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-2">
+                            {orderGroups.map((group, index) => (
+                                group.isSuspicious ? (
+                                    <GroupedOrderCard
+                                        key={`group-${group.orders.map(o => o.id).join('-')}`}
+                                        orders={group.orders}
+                                        highlight={group.orders.some(o => highlightOrderId === o.id.toString())}
+                                    />
+                                ) : (
+                                    <OrderCard 
+                                        key={group.orders[0].id} 
+                                        order={group.orders[0]} 
+                                        highlight={highlightOrderId === group.orders[0].id.toString()}
+                                        isUrgent={urgentOrders.some(urgent => urgent.id === group.orders[0].id) || group.orders[0].is_urgent}
+                                    />
+                                )
+                            ))}
+                        </div>
+                    </>
                 ) : (
                     <BaseTable
                         data={paginatedOrders}
@@ -177,6 +233,13 @@ export const OrderManagement = ({
 
                 {renderOrders()}
             </div>
+
+            {/* Suspicious Orders Modal */}
+            <SuspiciousOrdersModal
+                isOpen={showSuspiciousModal}
+                onClose={() => setShowSuspiciousModal(false)}
+                suspiciousGroups={orderGroups.filter(g => g.isSuspicious)}
+            />
         </div>
     );
 };

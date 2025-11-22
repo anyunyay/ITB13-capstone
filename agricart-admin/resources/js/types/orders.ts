@@ -45,6 +45,8 @@ export interface Order {
         };
     }>;
     is_urgent?: boolean;
+    is_suspicious?: boolean;
+    suspicious_reason?: string;
     delivery_address?: string;
     order_address?: {
         street: string;

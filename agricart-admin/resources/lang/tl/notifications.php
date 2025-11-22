@@ -44,4 +44,5 @@ return [
     'order_delayed_sub' => 'Makipag-ugnayan sa amin sa :contact_email kung mayroon kang mga alalahanin',
     'order_receipt' => 'Naipadala ang resibo ng order para sa order #:order_id',
     'password_change_request_cancelled' => 'Kinansela ang kahilingan sa pagpalit ng password ni :member_name (ID: :member_identifier)',
+    'suspicious_order_detected' => '⚠️ Kahina-hinalang Order: Si :customer_name ay gumawa ng :order_count orders sa loob ng 10 minuto (Order #:order_id)',
 ];

@@ -12,6 +12,8 @@ use App\Http\Controllers\Admin\TrendAnalysisController;
 use App\Http\Controllers\Admin\MembershipController;
 use App\Http\Controllers\Admin\LogisticController as AdminLogisticController;
 use App\Http\Controllers\Admin\OrderController;
+use App\Http\Controllers\Admin\SuspiciousOrderNotificationController;
+use App\Http\Controllers\Admin\GroupVerdictController;
 use App\Http\Controllers\Admin\SalesController;
 use App\Http\Controllers\Admin\StaffController;
 use App\Http\Controllers\Admin\SystemLogsController;
@@ -149,6 +151,7 @@ Route::middleware(['auth', 'verified', 'password.change.required'])->group(funct
         // Order Management routes
         Route::middleware(['can:view orders'])->group(function () {
             Route::get('/orders', [OrderController::class, 'index'])->name('admin.orders.index');
+            Route::post('/orders/notify-suspicious', [SuspiciousOrderNotificationController::class, 'notifySuspicious'])->name('admin.orders.notify-suspicious');
         });
         Route::middleware(['can:view orders'])->group(function () {
             Route::get('/orders/{order}', [OrderController::class, 'show'])->whereNumber('order')->name('admin.orders.show');
@@ -158,6 +161,7 @@ Route::middleware(['auth', 'verified', 'password.change.required'])->group(funct
         Route::middleware(['can:manage orders'])->group(function () {
             Route::post('/orders/{order}/approve', [OrderController::class, 'approve'])->whereNumber('order')->name('admin.orders.approve');
             Route::post('/orders/{order}/reject', [OrderController::class, 'reject'])->whereNumber('order')->name('admin.orders.reject');
+            Route::post('/orders/group-verdict', [GroupVerdictController::class, 'applyGroupVerdict'])->name('admin.orders.group-verdict');
             Route::post('/orders/{order}/process', [OrderController::class, 'process'])->whereNumber('order')->name('admin.orders.process');
             Route::post('/orders/{order}/assign-logistic', [OrderController::class, 'assignLogistic'])->whereNumber('order')->name('admin.orders.assignLogistic');
             Route::post('/orders/{order}/mark-urgent', [OrderController::class, 'markUrgent'])->whereNumber('order')->name('admin.orders.markUrgent');

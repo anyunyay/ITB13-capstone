@@ -75,6 +75,11 @@ export const OrderCard = ({ order, highlight = false, isUrgent = false }: OrderC
                             {order.is_urgent ? 'Urgent (Manual)' : 'Urgent'}
                         </Badge>
                     )}
+                    {order.is_suspicious && (
+                        <Badge variant="destructive" className="bg-red-600 text-white animate-pulse">
+                            ⚠️ Suspicious
+                        </Badge>
+                    )}
                 </div>
             </div>
             
@@ -140,6 +145,13 @@ export const OrderCard = ({ order, highlight = false, isUrgent = false }: OrderC
                                 <p className="text-orange-600 dark:text-orange-400 text-sm m-0 leading-snug">
                                     <span className="font-medium">{t('admin.needs_logistic_assignment')}</span>
                                 </p>
+                            )}
+                            {order.is_suspicious && order.suspicious_reason && (
+                                <div className="mt-2 p-2 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded">
+                                    <p className="text-red-700 dark:text-red-400 text-xs font-semibold m-0 leading-snug">
+                                        ⚠️ {order.suspicious_reason}
+                                    </p>
+                                </div>
                             )}
                         </div>
                     </div>

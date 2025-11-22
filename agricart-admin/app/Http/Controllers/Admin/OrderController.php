@@ -55,7 +55,7 @@ class OrderController extends Controller
                 $query->where('quantity', '>', 0)->whereNull('removed_at');
             }
         ])
-            ->select('id', 'customer_id', 'address_id', 'admin_id', 'logistic_id', 'total_amount', 'status', 'delivery_status', 'delivery_packed_time', 'delivered_time', 'created_at', 'admin_notes', 'is_urgent')
+            ->select('id', 'customer_id', 'address_id', 'admin_id', 'logistic_id', 'total_amount', 'status', 'delivery_status', 'delivery_packed_time', 'delivered_time', 'created_at', 'admin_notes', 'is_urgent', 'is_suspicious', 'suspicious_reason')
             ->orderBy('created_at', 'desc')
             ->limit(200) // Reduced limit for better performance
             ->get()
@@ -115,6 +115,8 @@ class OrderController extends Controller
                 ] : null,
                 'audit_trail' => $order->getAggregatedAuditTrail(), // Load aggregated audit trail for order cards
                 'is_urgent' => $order->is_urgent,
+                'is_suspicious' => $order->is_suspicious,
+                'suspicious_reason' => $order->suspicious_reason,
             ];
         });
 
@@ -222,6 +224,8 @@ class OrderController extends Controller
             ] : null,
             'audit_trail' => $order->getAggregatedAuditTrail(),
             'is_urgent' => $order->is_urgent,
+            'is_suspicious' => $order->is_suspicious,
+            'suspicious_reason' => $order->suspicious_reason,
         ];
 
         return Inertia::render('Admin/Orders/show', [

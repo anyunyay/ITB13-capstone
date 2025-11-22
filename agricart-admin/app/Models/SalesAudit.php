@@ -29,6 +29,8 @@ class SalesAudit extends Model
         'admin_notes',
         'logistic_id',
         'is_urgent',
+        'is_suspicious',
+        'suspicious_reason',
     ];
 
     protected $casts = [
@@ -37,6 +39,7 @@ class SalesAudit extends Model
         'coop_share' => 'float',
         'member_share' => 'float',
         'is_urgent' => 'boolean',
+        'is_suspicious' => 'boolean',
         'delivery_confirmed' => 'boolean',
         'delivery_ready_time' => 'datetime',
         'delivery_packed_time' => 'datetime',

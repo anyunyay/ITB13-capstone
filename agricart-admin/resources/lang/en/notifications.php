@@ -44,4 +44,5 @@ return [
     'order_delayed_sub' => 'Contact us at :contact_email if you have concerns',
     'order_receipt' => 'Order receipt sent for order #:order_id',
     'password_change_request_cancelled' => 'Password change request cancelled by :member_name (ID: :member_identifier)',
+    'suspicious_order_detected' => '⚠️ Suspicious Order: :customer_name placed :order_count orders within 10 minutes (Order #:order_id)',
 ];

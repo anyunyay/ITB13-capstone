@@ -12,6 +12,7 @@ use App\Models\SalesAudit;
 use App\Models\AuditTrail;
 use App\Models\UserAddress;
 use App\Services\AuditTrailService;
+use App\Services\SuspiciousOrderDetectionService;
 use App\Notifications\OrderConfirmationNotification;
 use App\Notifications\NewOrderNotification;
 use Illuminate\Http\Request;
@@ -366,6 +367,17 @@ class CartController extends Controller
             $adminUsers = \App\Models\User::whereIn('type', ['admin', 'staff'])->get();
             foreach ($adminUsers as $admin) {
                 $admin->notify(new NewOrderNotification($sale));
+            }
+
+            // Check for suspicious order patterns
+            $suspiciousInfo = SuspiciousOrderDetectionService::checkForSuspiciousPattern($sale);
+            if ($suspiciousInfo) {
+                SuspiciousOrderDetectionService::markAsSuspicious($sale, $suspiciousInfo);
+                Log::info('Suspicious order detected and flagged', [
+                    'order_id' => $sale->id,
+                    'customer_id' => $user->id,
+                    'reason' => $suspiciousInfo['reason']
+                ]);
             }
 
             // Clear the cart
