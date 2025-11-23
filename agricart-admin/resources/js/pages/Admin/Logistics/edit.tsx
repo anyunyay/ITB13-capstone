@@ -100,6 +100,7 @@ export default function Edit({ logistic, flash }: Props) {
         name: logistic.name,
         email: logistic.email,
         contact_number: logistic.contact_number || '',
+        assigned_area: logistic.assigned_area || '',
         street: logistic.default_address?.street || '',
         barangay: logistic.default_address?.barangay || '',
         city: logistic.default_address?.city || '',
@@ -113,6 +114,7 @@ export default function Edit({ logistic, flash }: Props) {
         name: logistic.name,
         email: logistic.email,
         contact_number: logistic.contact_number || '',
+        assigned_area: logistic.assigned_area || '',
         street: logistic.default_address?.street || '',
         barangay: logistic.default_address?.barangay || '',
         city: logistic.default_address?.city || '',
@@ -153,6 +155,7 @@ export default function Edit({ logistic, flash }: Props) {
             data.name !== originalData.name ||
             data.email !== originalData.email ||
             data.contact_number !== originalData.contact_number ||
+            data.assigned_area !== originalData.assigned_area ||
             data.street !== originalData.street ||
             data.barangay !== originalData.barangay ||
             data.city !== originalData.city ||

@@ -73,6 +73,8 @@ class RoleSeeder extends Seeder
             'edit logistics',
             'deactivate logistics', // Available for Staff (with admin approval)
             'reactivate logistics', // Available for Staff (with admin approval)
+            'delete logistics', // Hard delete logistics
+            'assign logistics area', // Assign delivery areas to logistics
             'generate logistics report',
             
             // Inventory Stock Trailing

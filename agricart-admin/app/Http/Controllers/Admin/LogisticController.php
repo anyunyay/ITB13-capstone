@@ -17,7 +17,7 @@ class LogisticController extends Controller
         // Optimize: Load only essential logistic data (keep as collection for frontend compatibility)
         $logistics = User::where('type', 'logistic')
             ->with('defaultAddress:id,user_id,street,barangay,city,province')
-            ->select('id', 'name', 'email', 'contact_number', 'registration_date', 'type', 'active', 'created_at')
+            ->select('id', 'name', 'email', 'contact_number', 'registration_date', 'assigned_area', 'type', 'active', 'created_at')
             ->orderBy('name')
             ->limit(200) // Limit instead of paginate to maintain frontend compatibility
             ->get()
@@ -108,6 +108,7 @@ class LogisticController extends Controller
                     'email' => $logistic->email,
                     'contact_number' => $logistic->contact_number,
                     'registration_date' => $logistic->registration_date,
+                    'assigned_area' => $logistic->assigned_area,
                     'type' => $logistic->type,
                     'active' => $logistic->active,
                     'default_address' => $logistic->defaultAddress ? [
@@ -150,6 +151,7 @@ class LogisticController extends Controller
                 'regex:/^(\+639|09)\d{9}$/',
             ],
             'registration_date' => 'nullable|date',
+            'assigned_area' => 'nullable|string|max:255',
             'street' => 'required|string|max:255',
             'barangay' => 'required|string|max:255',
             'city' => 'required|string|max:255',
@@ -162,6 +164,7 @@ class LogisticController extends Controller
             'password' => bcrypt($request->input('password')),
             'contact_number' => $request->input('contact_number'),
             'registration_date' => $request->input('registration_date', now()),
+            'assigned_area' => $request->input('assigned_area'),
             'type' => 'logistic',
             'email_verified_at' => now(), // Automatically verify email
             'is_default' => true, // Require password change on first login
@@ -200,6 +203,7 @@ class LogisticController extends Controller
                 'regex:/^(\+639|09)\d{9}$/',
             ],
             'registration_date' => 'nullable|date',
+            'assigned_area' => 'nullable|string|max:255',
             'street' => 'required|string|max:255',
             'barangay' => 'required|string|max:255',
             'city' => 'required|string|max:255',
@@ -213,6 +217,7 @@ class LogisticController extends Controller
                 'email' => $request->input('email'),
                 'contact_number' => $request->input('contact_number'),
                 'registration_date' => $request->input('registration_date') ?? now(),
+                'assigned_area' => $request->input('assigned_area'),
             ]);
 
             // Update or create address
@@ -448,6 +453,24 @@ class LogisticController extends Controller
         $filename = 'logistics_report_' . date('Y-m-d_H-i-s') . '.pdf';
 
         return $display ? $pdf->stream($filename) : $pdf->download($filename);
+    }
+
+    /**
+     * Assign area to a logistic
+     */
+    public function assignArea(Request $request, $id)
+    {
+        $request->validate([
+            'assigned_area' => 'required|string|max:255',
+        ]);
+
+        $logistic = User::where('type', 'logistic')->findOrFail($id);
+        $logistic->update([
+            'assigned_area' => $request->input('assigned_area'),
+        ]);
+
+        return redirect()->route('logistics.index')
+            ->with('message', 'Area assigned successfully to ' . $logistic->name);
     }
 
     /**

@@ -238,6 +238,7 @@ Route::middleware(['auth', 'verified', 'password.change.required'])->group(funct
         Route::middleware(['can:edit logistics'])->group(function () {
             Route::get('/logistics/{logistic}/edit', [AdminLogisticController::class, 'edit'])->name('logistics.edit'); // Edit Logistic (GET)
             Route::put('/logistics/{logistic}', [AdminLogisticController::class, 'update'])->name('logistics.update'); // Edit Logistic (PUT)
+            Route::post('/logistics/{logistic}/assign-area', [AdminLogisticController::class, 'assignArea'])->name('logistics.assign-area'); // Assign Area to Logistic
         });
         Route::middleware(['can:generate logistics report'])->group(function () {
             Route::get('/logistics/report', [AdminLogisticController::class, 'generateReport'])->name('logistics.report'); // Export Logistic List (GET)

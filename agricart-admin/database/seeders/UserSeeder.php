@@ -40,47 +40,84 @@ class UserSeeder extends Seeder
             'is_active' => true,
         ]);
 
-        // Create specific logistics users as requested
-        $logisticUser1 = User::create([
-            'type' => 'logistic',
-            'name' => 'Judel Macasinag',
-            'email' => 'judel@logistic.com',
-            'contact_number' => '09123456789',
-            'registration_date' => now()->subDays(30),
-            'password' => Hash::make('12345678'),
-            'email_verified_at' => now(),
-            'active' => true,
-        ]);
+        // Cabuyao areas for assignment
+        $cabuyaoAreas = [
+            'Baclaran',
+            'Banay-Banay',
+            'Banlic',
+            'Butong',
+            'Bigaa',
+            'Casile',
+            'Gulod',
+            'Mamatid',
+            'Marinig',
+            'Niugan',
+            'Pittland',
+            'Pulo',
+            'Sala',
+            'San Isidro',
+            'Diezmo',
+            'Barangay Uno (Poblacion)',
+            'Barangay Dos (Poblacion)',
+            'Barangay Tres (Poblacion)',
+        ];
 
-        UserAddress::create([
-            'user_id' => $logisticUser1->id,
-            'street' => '456 Delivery Road',
-            'barangay' => 'Sala',
-            'city' => 'Cabuyao',
-            'province' => 'Laguna',
-            'is_active' => true,
-        ]);
+        // Create logistics users with assigned areas
+        $logisticsData = [
+            ['name' => 'Judel Macasinag', 'email' => 'judel@logistic.com', 'area' => 'Sala'],
+            ['name' => 'Elmo V. Republica', 'email' => 'elmo@logistic.com', 'area' => 'Pulo'],
+            ['name' => 'Maria Santos', 'email' => 'maria.santos@logistic.com', 'area' => 'Baclaran'],
+            ['name' => 'Juan Dela Cruz', 'email' => 'juan.delacruz@logistic.com', 'area' => 'Banay-Banay'],
+            ['name' => 'Pedro Reyes', 'email' => 'pedro.reyes@logistic.com', 'area' => 'Banlic'],
+            ['name' => 'Ana Garcia', 'email' => 'ana.garcia@logistic.com', 'area' => 'Butong'],
+            ['name' => 'Carlos Mendoza', 'email' => 'carlos.mendoza@logistic.com', 'area' => 'Bigaa'],
+            ['name' => 'Rosa Fernandez', 'email' => 'rosa.fernandez@logistic.com', 'area' => 'Casile'],
+            ['name' => 'Miguel Torres', 'email' => 'miguel.torres@logistic.com', 'area' => 'Gulod'],
+            ['name' => 'Sofia Ramirez', 'email' => 'sofia.ramirez@logistic.com', 'area' => 'Mamatid'],
+            ['name' => 'Diego Lopez', 'email' => 'diego.lopez@logistic.com', 'area' => 'Marinig'],
+            ['name' => 'Carmen Gonzales', 'email' => 'carmen.gonzales@logistic.com', 'area' => 'Niugan'],
+            ['name' => 'Ricardo Flores', 'email' => 'ricardo.flores@logistic.com', 'area' => 'Pittland'],
+            ['name' => 'Elena Cruz', 'email' => 'elena.cruz@logistic.com', 'area' => 'San Isidro'],
+            ['name' => 'Fernando Diaz', 'email' => 'fernando.diaz@logistic.com', 'area' => 'Diezmo'],
+            ['name' => 'Isabel Morales', 'email' => 'isabel.morales@logistic.com', 'area' => 'Barangay Uno (Poblacion)'],
+            ['name' => 'Antonio Ramos', 'email' => 'antonio.ramos@logistic.com', 'area' => 'Barangay Dos (Poblacion)'],
+            ['name' => 'Lucia Herrera', 'email' => 'lucia.herrera@logistic.com', 'area' => 'Barangay Tres (Poblacion)'],
+            ['name' => 'Roberto Silva', 'email' => 'roberto.silva@logistic.com', 'area' => 'Sala'],
+            ['name' => 'Patricia Vargas', 'email' => 'patricia.vargas@logistic.com', 'area' => 'Pulo'],
+            ['name' => 'Manuel Castro', 'email' => 'manuel.castro@logistic.com', 'area' => 'Baclaran'],
+            ['name' => 'Gloria Ortiz', 'email' => 'gloria.ortiz@logistic.com', 'area' => 'Banlic'],
+            ['name' => 'Alejandro Ruiz', 'email' => 'alejandro.ruiz@logistic.com', 'area' => 'Bigaa'],
+            ['name' => 'Teresa Jimenez', 'email' => 'teresa.jimenez@logistic.com', 'area' => null], // No area assigned
+            ['name' => 'Francisco Navarro', 'email' => 'francisco.navarro@logistic.com', 'area' => 'Casile'],
+            ['name' => 'Beatriz Romero', 'email' => 'beatriz.romero@logistic.com', 'area' => null], // No area assigned
+            ['name' => 'Javier Gutierrez', 'email' => 'javier.gutierrez@logistic.com', 'area' => 'Marinig'],
+        ];
 
-        // Additional Logistics User - Elmo V. Republica
-        $logisticUser3 = User::create([
-            'type' => 'logistic',
-            'name' => 'Elmo V. Republica',
-            'email' => 'elmo@logistic.com',
-            'contact_number' => '09111222333',
-            'registration_date' => now()->subDays(20),
-            'password' => Hash::make('12345678'),
-            'email_verified_at' => now(),
-            'active' => true,
-        ]);
+        foreach ($logisticsData as $index => $logisticData) {
+            $logistic = User::create([
+                'type' => 'logistic',
+                'name' => $logisticData['name'],
+                'email' => $logisticData['email'],
+                'contact_number' => '0912' . str_pad(3000 + $index, 7, '0', STR_PAD_LEFT),
+                'registration_date' => now()->subDays(90 - $index * 2),
+                'assigned_area' => $logisticData['area'],
+                'password' => Hash::make('12345678'),
+                'email_verified_at' => now(),
+                'active' => true,
+            ]);
 
-        UserAddress::create([
-            'user_id' => $logisticUser3->id,
-            'street' => '321 Transport Avenue',
-            'barangay' => 'Sala',
-            'city' => 'Cabuyao',
-            'province' => 'Laguna',
-            'is_active' => true,
-        ]);
+            // Use the assigned area as barangay if available, otherwise use Sala
+            $barangay = $logisticData['area'] ?? 'Sala';
+            
+            UserAddress::create([
+                'user_id' => $logistic->id,
+                'street' => ($index + 1) . ' Delivery Street',
+                'barangay' => $barangay,
+                'city' => 'Cabuyao',
+                'province' => 'Laguna',
+                'is_active' => true,
+            ]);
+        }
 
         // Create Farmer Users
         $farmers = [
@@ -184,7 +221,7 @@ class UserSeeder extends Seeder
 
         $this->command->info('✅ Created users:');
         $this->command->info('   - 1 Admin (Samuel Salazar)');
-        $this->command->info('   - 2 Logistics (Judel Macasinag, Elmo V. Republica)');
+        $this->command->info('   - ' . count($logisticsData) . ' Logistics personnel with assigned areas');
         $this->command->info('   - 12 Members (Farmers)');
         $this->command->info('   - 4 Customers (Test Customer, John Doe, Jane Smith, Bob Johnson)');
 

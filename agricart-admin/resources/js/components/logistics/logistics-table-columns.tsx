@@ -15,6 +15,7 @@ export const createLogisticsTableColumns = (
   onReactivate: (logistic: Logistic) => void,
   onDelete: (logistic: Logistic) => void,
   onViewFeedback: (logistic: Logistic) => void,
+  onAssignArea: (logistic: Logistic) => void,
   startIndex: number = 0
 ): BaseTableColumn<Logistic>[] => [
   {
@@ -72,6 +73,18 @@ export const createLogisticsTableColumns = (
         {logistic.default_address
           ? `${logistic.default_address.street}, ${logistic.default_address.barangay}, ${logistic.default_address.city}, ${logistic.default_address.province}`
           : t('admin.not_available')}
+      </div>
+    ),
+  },
+  {
+    key: 'assigned_area',
+    label: 'Assigned Area',
+    sortable: true,
+    align: 'center',
+    maxWidth: '180px',
+    render: (logistic) => (
+      <div className="text-sm text-foreground text-center">
+        {logistic.assigned_area || 'N/A'}
       </div>
     ),
   },
@@ -142,24 +155,82 @@ export const createLogisticsTableColumns = (
     label: t('admin.actions'),
     sortable: false,
     align: 'center',
-    maxWidth: '250px',
+    maxWidth: '320px',
     render: (logistic) => (
-      <div className="flex gap-2 justify-center">
-        <PermissionGate permission="edit logistics">
-          <Button
-            asChild
-            variant="outline"
-            size="sm"
-            className="transition-all duration-200 hover:shadow-lg hover:opacity-90"
-          >
-            <Link href={route('logistics.edit', logistic.id)}>
-              <Edit className="h-4 w-4" />
-              {t('ui.edit')}
-            </Link>
-          </Button>
-        </PermissionGate>
-        {logistic.active ? (
-          <PermissionGate permission="deactivate logistics">
+      <div className="flex flex-col gap-2 items-center">
+        {/* First Row: Edit and Assign Area */}
+        <div className="flex gap-2">
+          <PermissionGate permission="edit logistics">
+            <Button
+              asChild
+              variant="outline"
+              size="sm"
+              className="transition-all duration-200 hover:shadow-lg hover:opacity-90"
+            >
+              <Link href={route('logistics.edit', logistic.id)}>
+                <Edit className="h-4 w-4" />
+                {t('ui.edit')}
+              </Link>
+            </Button>
+          </PermissionGate>
+          <PermissionGate permissions={['edit logistics', 'assign logistics area']} requireAll={false}>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => onAssignArea(logistic)}
+              className="transition-all duration-200 hover:shadow-lg hover:opacity-90"
+            >
+              <MapPin className="h-4 w-4" />
+              Area
+            </Button>
+          </PermissionGate>
+        </div>
+        
+        {/* Second Row: Deactivate/Reactivate and Delete */}
+        <div className="flex gap-2">
+          {logistic.active ? (
+            <PermissionGate permission="deactivate logistics">
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div>
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        onClick={() => onDeactivate(logistic)}
+                        disabled={processing || !logistic.can_be_deactivated}
+                        className={`transition-all duration-200 hover:shadow-lg hover:opacity-90 ${
+                          !logistic.can_be_deactivated ? 'opacity-50 cursor-not-allowed' : ''
+                        }`}
+                      >
+                        <UserMinus className="h-4 w-4" />
+                        {t('admin.deactivate')}
+                      </Button>
+                    </div>
+                  </TooltipTrigger>
+                  {!logistic.can_be_deactivated && logistic.deactivation_reason && (
+                    <TooltipContent>
+                      <p className="max-w-xs text-center">{logistic.deactivation_reason}</p>
+                    </TooltipContent>
+                  )}
+                </Tooltip>
+              </TooltipProvider>
+            </PermissionGate>
+          ) : (
+            <PermissionGate permission="reactivate logistics">
+              <Button
+                variant="default"
+                size="sm"
+                onClick={() => onReactivate(logistic)}
+                disabled={processing}
+                className="bg-green-600 hover:bg-green-700 text-white transition-all duration-200 hover:shadow-lg hover:opacity-90"
+              >
+                <RotateCcw className="h-4 w-4" />
+                {t('admin.reactivate')}
+              </Button>
+            </PermissionGate>
+          )}
+          <PermissionGate permission="delete logistics">
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -167,66 +238,26 @@ export const createLogisticsTableColumns = (
                     <Button
                       variant="destructive"
                       size="sm"
-                      onClick={() => onDeactivate(logistic)}
-                      disabled={processing || !logistic.can_be_deactivated}
+                      onClick={() => onDelete(logistic)}
+                      disabled={processing || !logistic.can_be_deleted}
                       className={`transition-all duration-200 hover:shadow-lg hover:opacity-90 ${
-                        !logistic.can_be_deactivated ? 'opacity-50 cursor-not-allowed' : ''
+                        !logistic.can_be_deleted ? 'opacity-50 cursor-not-allowed' : ''
                       }`}
                     >
-                      <UserMinus className="h-4 w-4" />
-                      {t('admin.deactivate')}
+                      <Trash2 className="h-4 w-4" />
+                      {t('ui.delete')}
                     </Button>
                   </div>
                 </TooltipTrigger>
-                {!logistic.can_be_deactivated && logistic.deactivation_reason && (
+                {!logistic.can_be_deleted && logistic.deletion_reason && (
                   <TooltipContent>
-                    <p className="max-w-xs text-center">{logistic.deactivation_reason}</p>
+                    <p className="max-w-xs text-center">{logistic.deletion_reason}</p>
                   </TooltipContent>
                 )}
               </Tooltip>
             </TooltipProvider>
           </PermissionGate>
-        ) : (
-          <PermissionGate permission="reactivate logistics">
-            <Button
-              variant="default"
-              size="sm"
-              onClick={() => onReactivate(logistic)}
-              disabled={processing}
-              className="bg-green-600 hover:bg-green-700 text-white transition-all duration-200 hover:shadow-lg hover:opacity-90"
-            >
-              <RotateCcw className="h-4 w-4" />
-              {t('admin.reactivate')}
-            </Button>
-          </PermissionGate>
-        )}
-        <PermissionGate permission="delete logistics">
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <div>
-                  <Button
-                    variant="destructive"
-                    size="sm"
-                    onClick={() => onDelete(logistic)}
-                    disabled={processing || !logistic.can_be_deleted}
-                    className={`transition-all duration-200 hover:shadow-lg hover:opacity-90 ${
-                      !logistic.can_be_deleted ? 'opacity-50 cursor-not-allowed' : ''
-                    }`}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                    {t('ui.delete')}
-                  </Button>
-                </div>
-              </TooltipTrigger>
-              {!logistic.can_be_deleted && logistic.deletion_reason && (
-                <TooltipContent>
-                  <p className="max-w-xs text-center">{logistic.deletion_reason}</p>
-                </TooltipContent>
-              )}
-            </Tooltip>
-          </TooltipProvider>
-        </PermissionGate>
+        </div>
       </div>
     ),
   },
@@ -240,6 +271,7 @@ export const LogisticsMobileCard = ({
   onDeactivate,
   onReactivate,
   onDelete,
+  onAssignArea,
 }: {
   logistic: Logistic;
   t: (key: string) => string;
@@ -247,6 +279,7 @@ export const LogisticsMobileCard = ({
   onDeactivate: (logistic: Logistic) => void;
   onReactivate: (logistic: Logistic) => void;
   onDelete: (logistic: Logistic) => void;
+  onAssignArea: (logistic: Logistic) => void;
 }) => (
   <div className="bg-card border border-border rounded-lg p-4 shadow-sm">
     <div className="flex justify-between items-start mb-3">
@@ -278,6 +311,12 @@ export const LogisticsMobileCard = ({
           </span>
         </div>
       )}
+      <div className="flex items-center gap-2 bg-blue-50 dark:bg-blue-900/20 px-2 py-1 rounded">
+        <MapPin className="h-3 w-3 text-blue-500" />
+        <span className="text-xs font-medium">
+          Area: {logistic.assigned_area || 'Not assigned'}
+        </span>
+      </div>
       {logistic.registration_date && (
         <div className="flex items-center gap-2">
           <Calendar className="h-3 w-3 text-muted-foreground" />
@@ -298,6 +337,7 @@ export const LogisticsMobileCard = ({
     </div>
 
     <div className="flex flex-col gap-2">
+      {/* First Row: Edit and Assign Area */}
       <div className="flex gap-2">
         <PermissionGate permission="edit logistics">
           <Button
@@ -312,6 +352,21 @@ export const LogisticsMobileCard = ({
             </Link>
           </Button>
         </PermissionGate>
+        <PermissionGate permissions={['edit logistics', 'assign logistics area']} requireAll={false}>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => onAssignArea(logistic)}
+            className="flex-1"
+          >
+            <MapPin className="h-4 w-4 mr-1" />
+            Area
+          </Button>
+        </PermissionGate>
+      </div>
+      
+      {/* Second Row: Deactivate/Reactivate and Delete */}
+      <div className="flex gap-2">
         {logistic.active ? (
           <PermissionGate permission="deactivate logistics">
             <TooltipProvider>
@@ -354,34 +409,34 @@ export const LogisticsMobileCard = ({
             </Button>
           </PermissionGate>
         )}
+        <PermissionGate permission="delete logistics">
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div className="flex-1">
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={() => onDelete(logistic)}
+                    disabled={processing || !logistic.can_be_deleted}
+                    className={`w-full ${
+                      !logistic.can_be_deleted ? 'opacity-50 cursor-not-allowed' : ''
+                    }`}
+                  >
+                    <Trash2 className="h-4 w-4 mr-1" />
+                    {t('ui.delete')}
+                  </Button>
+                </div>
+              </TooltipTrigger>
+              {!logistic.can_be_deleted && logistic.deletion_reason && (
+                <TooltipContent>
+                  <p className="max-w-xs text-center">{logistic.deletion_reason}</p>
+                </TooltipContent>
+              )}
+            </Tooltip>
+          </TooltipProvider>
+        </PermissionGate>
       </div>
-      <PermissionGate permission="delete logistics">
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <div>
-                <Button
-                  variant="destructive"
-                  size="sm"
-                  onClick={() => onDelete(logistic)}
-                  disabled={processing || !logistic.can_be_deleted}
-                  className={`w-full ${
-                    !logistic.can_be_deleted ? 'opacity-50 cursor-not-allowed' : ''
-                  }`}
-                >
-                  <Trash2 className="h-4 w-4 mr-1" />
-                  {t('ui.delete')}
-                </Button>
-              </div>
-            </TooltipTrigger>
-            {!logistic.can_be_deleted && logistic.deletion_reason && (
-              <TooltipContent>
-                <p className="max-w-xs text-center">{logistic.deletion_reason}</p>
-              </TooltipContent>
-            )}
-          </Tooltip>
-        </TooltipProvider>
-      </PermissionGate>
     </div>
   </div>
 );

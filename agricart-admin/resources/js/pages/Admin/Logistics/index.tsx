@@ -13,6 +13,7 @@ import { DeactivationModal } from '@/components/logistics/deactivation-modal';
 import { ReactivationModal } from '@/components/logistics/reactivation-modal';
 import { LogisticDeletionModal } from '@/components/logistics/logistic-deletion-modal';
 import { FeedbackModal } from '@/components/logistics/feedback-modal';
+import { AreaAssignmentModal } from '@/components/logistics/area-assignment-modal';
 import { Logistic, LogisticStats } from '@/types/logistics';
 import { useTranslation } from '@/hooks/use-translation';
 
@@ -39,6 +40,7 @@ export default function Index() {
     const [showReactivationModal, setShowReactivationModal] = useState(false);
     const [showDeletionModal, setShowDeletionModal] = useState(false);
     const [showFeedbackModal, setShowFeedbackModal] = useState(false);
+    const [showAreaAssignmentModal, setShowAreaAssignmentModal] = useState(false);
     const [selectedLogistic, setSelectedLogistic] = useState<Logistic | null>(null);
     const [highlightLogisticId, setHighlightLogisticId] = useState<number | null>(null);
 
@@ -208,6 +210,17 @@ export default function Index() {
         setSelectedLogistic(null);
     };
 
+    // Handle assign area
+    const handleAssignArea = (logistic: Logistic) => {
+        setSelectedLogistic(logistic);
+        setShowAreaAssignmentModal(true);
+    };
+
+    const handleCloseAreaAssignment = () => {
+        setShowAreaAssignmentModal(false);
+        setSelectedLogistic(null);
+    };
+
     return (
         <PermissionGuard
             permissions={['view logistics', 'create logistics', 'edit logistics', 'deactivate logistics', 'reactivate logistics', 'generate logistics report']}
@@ -242,6 +255,7 @@ export default function Index() {
                             onReactivate={handleReactivate}
                             onDelete={handleDelete}
                             onViewFeedback={handleViewFeedback}
+                            onAssignArea={handleAssignArea}
                             highlightLogisticId={highlightLogisticId}
                             showDeactivated={showDeactivated}
                             setShowDeactivated={setShowDeactivated}
@@ -282,6 +296,13 @@ export default function Index() {
                         <FeedbackModal
                             isOpen={showFeedbackModal}
                             onClose={handleCloseFeedback}
+                            logistic={selectedLogistic}
+                        />
+
+                        {/* Area Assignment Modal */}
+                        <AreaAssignmentModal
+                            isOpen={showAreaAssignmentModal}
+                            onClose={handleCloseAreaAssignment}
                             logistic={selectedLogistic}
                         />
                     </div>

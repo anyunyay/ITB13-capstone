@@ -12,6 +12,7 @@ export interface Logistic {
     email: string;
     contact_number?: string;
     registration_date?: string;
+    assigned_area?: string;
     type: string;
     active: boolean;
     default_address?: {

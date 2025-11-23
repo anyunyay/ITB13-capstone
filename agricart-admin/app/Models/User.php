@@ -32,6 +32,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'contact_number',
         // Logistic fields
         'registration_date',
+        'assigned_area',
         // Member fields
         'member_id',
         'document',

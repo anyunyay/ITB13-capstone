@@ -95,6 +95,7 @@ export default function Index() {
         email: '',
         password: '',
         contact_number: '',
+        assigned_area: '',
         street: '',
         barangay: '',
         city: '',
