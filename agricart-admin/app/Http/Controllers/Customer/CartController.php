@@ -13,6 +13,7 @@ use App\Models\AuditTrail;
 use App\Models\UserAddress;
 use App\Services\AuditTrailService;
 use App\Services\SuspiciousOrderDetectionService;
+use App\Services\CheckoutRateLimiter;
 use App\Notifications\OrderConfirmationNotification;
 use App\Notifications\NewOrderNotification;
 use Illuminate\Http\Request;
@@ -102,7 +103,10 @@ class CartController extends Controller
             'error' => session('error'),
         ];
         
-        return Inertia::render('Customer/Cart/index', compact('cart', 'checkoutMessage', 'cartTotal', 'addresses', 'activeAddress', 'flash'));
+        // Get rate limit information for the user
+        $rateLimitInfo = CheckoutRateLimiter::canCheckout($user->id);
+        
+        return Inertia::render('Customer/Cart/index', compact('cart', 'checkoutMessage', 'cartTotal', 'addresses', 'activeAddress', 'flash', 'rateLimitInfo'));
     }
 
     public function store(Request $request)
@@ -161,6 +165,28 @@ class CartController extends Controller
     public function checkout(Request $request)
     {
         $user = $request->user();
+        
+        // Check rate limit before processing checkout
+        $rateLimitCheck = CheckoutRateLimiter::canCheckout($user->id);
+        
+        if (!$rateLimitCheck['allowed']) {
+            $message = CheckoutRateLimiter::getRateLimitMessage($rateLimitCheck['reset_at']);
+            
+            // Log rate limit hit
+            SystemLogger::logCheckout(
+                $user->id,
+                null,
+                0,
+                'rate_limited',
+                [
+                    'current_count' => $rateLimitCheck['current_count'],
+                    'reset_at' => $rateLimitCheck['reset_at']->toDateTimeString(),
+                ]
+            );
+            
+            return redirect()->route('cart.index')->with('checkoutMessage', $message);
+        }
+        
         $cart = Cart::where('user_id', $user->id)->first();
 
         if (!$cart || $cart->items->isEmpty()) {
@@ -347,6 +373,9 @@ class CartController extends Controller
                 'total_amount' => $totalWithCoopShare // Customer pays product + co-op share
             ]);
 
+            // Record successful checkout for rate limiting
+            CheckoutRateLimiter::recordCheckout($user->id);
+            
             // Log successful checkout
             SystemLogger::logCheckout(
                 $user->id,
@@ -356,7 +385,8 @@ class CartController extends Controller
                 [
                     'cart_items_count' => $cart->items->count(),
                     'minimum_order_met' => $totalPrice >= 75,
-                    'order_status' => 'pending'
+                    'order_status' => 'pending',
+                    'rate_limit_remaining' => CheckoutRateLimiter::canCheckout($user->id)['remaining']
                 ]
             );
 

@@ -434,6 +434,12 @@ return [
     'saving' => 'Saving...',
     'edit_quantity' => 'Edit Quantity',
 
+    // Rate Limiting
+    'checkout_limit_reached' => 'Checkout Limit Reached',
+    'checkout_limit_message' => 'You have reached the maximum of 3 checkouts within 10 minutes.',
+    'available_in' => 'Available in',
+    'checkout_available_in' => 'Checkout available in',
+
     // Order Status
     'pending_approval' => 'Pending Approval',
     'approved' => 'Approved',

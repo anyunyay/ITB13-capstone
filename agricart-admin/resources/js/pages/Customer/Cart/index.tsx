@@ -12,6 +12,13 @@ import { AddressConfirmationDialog } from './components/AddressConfirmationDialo
 import type { CartItem as CartItemType, Address } from './types';
 import { useTranslation } from '@/hooks/use-translation';
 
+interface RateLimitInfo {
+  allowed: boolean;
+  remaining: number;
+  reset_at: string | null;
+  current_count: number;
+}
+
 interface PageProps {
   [key: string]: any;
   auth?: SharedData['auth'];
@@ -20,6 +27,7 @@ interface PageProps {
   cartTotal?: number;
   addresses?: Address[];
   activeAddress?: Address;
+  rateLimitInfo?: RateLimitInfo;
   flash?: {
     success?: string;
     error?: string;
@@ -32,6 +40,7 @@ export default function CartPage() {
   const initialCart = page?.props?.cart || {};
   const addresses = page?.props?.addresses || [];
   const activeAddress = page?.props?.activeAddress;
+  const rateLimitInfo = page?.props?.rateLimitInfo;
   const t = useTranslation();
 
   const [cart, setCart] = useState<Record<string, CartItemType>>(initialCart);
@@ -42,6 +51,11 @@ export default function CartPage() {
   const [editingItems, setEditingItems] = useState<Set<number>>(new Set());
   const [cartTotal, setCartTotal] = useState<number>(page?.props?.cartTotal || 0);
   const [selectedAddressId, setSelectedAddressId] = useState<number | null>(null);
+
+  // Rate limit countdown state
+  const [isRateLimited, setIsRateLimited] = useState<boolean>(false);
+  const [countdownText, setCountdownText] = useState<string>('');
+  const [resetTime, setResetTime] = useState<Date | null>(null);
 
   // Address confirmation dialog state
   const [showAddressConfirmation, setShowAddressConfirmation] = useState(false);
@@ -114,6 +128,50 @@ export default function CartPage() {
       setCheckoutMessage(page.props.flash.error);
     }
   }, [page?.props?.flash]);
+
+  // Initialize rate limit state
+  useEffect(() => {
+    if (rateLimitInfo) {
+      setIsRateLimited(!rateLimitInfo.allowed);
+      if (rateLimitInfo.reset_at) {
+        setResetTime(new Date(rateLimitInfo.reset_at));
+      }
+    }
+  }, [rateLimitInfo]);
+
+  // Countdown timer effect
+  useEffect(() => {
+    if (!isRateLimited || !resetTime) {
+      setCountdownText('');
+      return;
+    }
+
+    const updateCountdown = () => {
+      const now = new Date();
+      const diff = resetTime.getTime() - now.getTime();
+
+      if (diff <= 0) {
+        setIsRateLimited(false);
+        setCountdownText('');
+        setResetTime(null);
+        return;
+      }
+
+      const minutes = Math.floor(diff / 60000);
+      const seconds = Math.floor((diff % 60000) / 1000);
+
+      if (minutes > 0) {
+        setCountdownText(`${minutes}:${seconds.toString().padStart(2, '0')}`);
+      } else {
+        setCountdownText(`${seconds}s`);
+      }
+    };
+
+    updateCountdown();
+    const interval = setInterval(updateCountdown, 1000);
+
+    return () => clearInterval(interval);
+  }, [isRateLimited, resetTime]);
 
   const removeItem = (cartItem: number) => {
     const itemToRemove = Object.values(cart).find(item => item.item_id === cartItem);
@@ -462,6 +520,8 @@ export default function CartPage() {
                   hasEditingItems={editingItems.size > 0}
                   hasAddress={!!(selectedAddressId || activeAddress)}
                   cartItemsCount={cartItems.length}
+                  isRateLimited={isRateLimited}
+                  countdownText={countdownText}
                   onCheckout={handleCheckout}
                 />
               </div>

@@ -9,6 +9,8 @@ interface CartSummaryProps {
   hasEditingItems: boolean;
   hasAddress: boolean;
   cartItemsCount: number;
+  isRateLimited?: boolean;
+  countdownText?: string;
   onCheckout: () => void;
 }
 
@@ -19,6 +21,8 @@ export function CartSummary({
   hasEditingItems,
   hasAddress,
   cartItemsCount,
+  isRateLimited = false,
+  countdownText = '',
   onCheckout,
 }: CartSummaryProps) {
   const t = useTranslation();
@@ -74,18 +78,50 @@ export function CartSummary({
         </div>
       </div>
       
+      {/* Rate Limit Warning */}
+      {isRateLimited && countdownText && (
+        <div className="mt-2 mb-3 p-3 bg-red-50 dark:bg-red-900/20 border-2 border-red-300 dark:border-red-700 rounded-lg">
+          <div className="flex items-start gap-2">
+            <AlertTriangle className="h-4 w-4 text-red-600 dark:text-red-400 mt-0.5 flex-shrink-0" />
+            <div className="flex-1">
+              <p className="text-xs font-semibold text-red-700 dark:text-red-300 mb-1">
+                {t('ui.checkout_limit_reached')}
+              </p>
+              <p className="text-xs text-red-600 dark:text-red-400">
+                {t('ui.checkout_limit_message')}
+              </p>
+              <div className="mt-2 flex items-center gap-2">
+                <span className="text-xs font-medium text-red-600 dark:text-red-400">
+                  {t('ui.available_in')}:
+                </span>
+                <span className="px-2 py-1 bg-red-100 dark:bg-red-900/40 border border-red-300 dark:border-red-600 rounded text-sm font-bold text-red-700 dark:text-red-300 tabular-nums">
+                  {countdownText}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Checkout Button */}
-      <div className="mt-4.5">
+      <div className="mt-2">
         <Button 
           onClick={onCheckout} 
-          disabled={cartItemsCount === 0 || hasEditingItems || !meetsMinimumOrder || !hasAddress}
+          disabled={cartItemsCount === 0 || hasEditingItems || !meetsMinimumOrder || !hasAddress || isRateLimited}
           className={`w-full py-2 text-sm font-semibold transition-all duration-300 rounded-lg shadow-md hover:shadow-lg ${
-            !meetsMinimumOrder || !hasAddress 
+            !meetsMinimumOrder || !hasAddress || isRateLimited
               ? 'opacity-50 cursor-not-allowed bg-gray-400 dark:bg-gray-600' 
               : 'bg-green-600 hover:bg-green-700 text-white'
           }`}
         >
-          {cartItemsCount === 0 ? t('ui.your_cart_is_empty') : t('ui.checkout')}
+          {isRateLimited && countdownText ? (
+            <span className="flex items-center justify-center gap-2">
+              <AlertTriangle className="h-4 w-4" />
+              {t('ui.checkout_available_in')} {countdownText}
+            </span>
+          ) : (
+            cartItemsCount === 0 ? t('ui.your_cart_is_empty') : t('ui.checkout')
+          )}
         </Button>
         
         {hasEditingItems && (

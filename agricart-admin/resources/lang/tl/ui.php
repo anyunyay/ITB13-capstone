@@ -433,6 +433,12 @@ return [
     'saving' => 'Nise-save...',
     'edit_quantity' => 'I-edit ang Dami',
 
+    // Rate Limiting
+    'checkout_limit_reached' => 'Naabot na ang Limitasyon sa Checkout',
+    'checkout_limit_message' => 'Naabot mo na ang maximum na 3 checkout sa loob ng 10 minuto.',
+    'available_in' => 'Available sa',
+    'checkout_available_in' => 'Checkout available sa',
+
     // Order Status
     'pending_approval' => 'Naghihintay ng Approval',
     'approved' => 'Na-approve',
