@@ -155,10 +155,10 @@ Order #103 - Status: Merged (is_suspicious: false)
 - Admins can focus on unreviewed suspicious patterns
 - Reduces false positives
 
-### 2. Audit Trail Preserved
-- `suspicious_reason` field is NOT cleared
-- Historical record of why order was flagged
-- Can be reviewed later if needed
+### 2. Complete Cleanup
+- Both `is_suspicious` and `suspicious_reason` are cleared
+- Orders completely removed from suspicious tracking
+- Clean slate for merged order
 
 ### 3. Automatic Cleanup
 - No manual intervention required
@@ -217,7 +217,7 @@ After merge:
 - [ ] Secondary orders flags cleared
 - [ ] Orders disappear from Suspicious Orders page
 - [ ] Orders appear on Main Orders page
-- [ ] suspicious_reason preserved for audit
+- [ ] suspicious_reason cleared (not preserved)
 - [ ] Merge failure doesn't clear flags
 - [ ] Transaction rollback works correctly
 - [ ] Admin notes include merge information

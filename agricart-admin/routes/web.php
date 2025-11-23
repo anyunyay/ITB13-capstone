@@ -164,6 +164,7 @@ Route::middleware(['auth', 'verified', 'password.change.required'])->group(funct
             Route::post('/orders/{order}/approve', [OrderController::class, 'approve'])->whereNumber('order')->name('admin.orders.approve');
             Route::post('/orders/{order}/reject', [OrderController::class, 'reject'])->whereNumber('order')->name('admin.orders.reject');
             Route::post('/orders/group-verdict', [GroupVerdictController::class, 'applyGroupVerdict'])->name('admin.orders.group-verdict');
+            Route::post('/orders/reject-group', [OrderController::class, 'rejectGroup'])->name('admin.orders.reject-group');
             Route::post('/orders/{order}/process', [OrderController::class, 'process'])->whereNumber('order')->name('admin.orders.process');
             Route::post('/orders/{order}/assign-logistic', [OrderController::class, 'assignLogistic'])->whereNumber('order')->name('admin.orders.assignLogistic');
             Route::post('/orders/{order}/mark-urgent', [OrderController::class, 'markUrgent'])->whereNumber('order')->name('admin.orders.markUrgent');

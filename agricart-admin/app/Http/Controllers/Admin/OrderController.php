@@ -182,7 +182,7 @@ class OrderController extends Controller
             }
         ])
             ->select('id', 'customer_id', 'address_id', 'admin_id', 'logistic_id', 'total_amount', 'status', 'delivery_status', 'delivery_packed_time', 'delivered_time', 'created_at', 'admin_notes', 'is_urgent', 'is_suspicious', 'suspicious_reason')
-            ->where('status', '!=', 'merged') // Exclude merged orders
+            ->whereNotIn('status', ['merged', 'rejected', 'cancelled']) // Exclude merged, rejected, and cancelled orders
             ->orderBy('created_at', 'desc')
             ->limit(500) // Increased limit to catch more potential suspicious patterns
             ->get()
@@ -323,6 +323,88 @@ class OrderController extends Controller
             'orders' => $processedOrders,
             'groupInfo' => $groupInfo,
         ]);
+    }
+
+    public function rejectGroup(Request $request)
+    {
+        $request->validate([
+            'order_ids' => 'required|array|min:1',
+            'order_ids.*' => 'required|integer|exists:sales_audit,id',
+            'rejection_reason' => 'nullable|string|max:1000',
+        ]);
+
+        $orderIds = $request->input('order_ids');
+        
+        // Load all orders
+        $orders = SalesAudit::with(['customer', 'auditTrail.stock'])
+            ->whereIn('id', $orderIds)
+            ->get();
+
+        if ($orders->isEmpty()) {
+            return redirect()->back()->with('error', 'No orders found to reject.');
+        }
+
+        // Verify all orders can be rejected (pending or delayed status)
+        $invalidStatuses = $orders->whereNotIn('status', ['pending', 'delayed']);
+        if ($invalidStatuses->isNotEmpty()) {
+            return redirect()->back()->with('error', 'Can only reject orders with pending or delayed status.');
+        }
+
+        try {
+            \DB::beginTransaction();
+
+            $rejectionReason = $request->input('rejection_reason', 'Rejected as part of suspicious order group');
+            $rejectedCount = 0;
+
+            foreach ($orders as $order) {
+                // Release pending stock quantities
+                foreach ($order->auditTrail as $auditItem) {
+                    if ($auditItem->stock) {
+                        $auditItem->stock->decrementPendingOrders($auditItem->quantity);
+                    }
+                }
+
+                // Update order status - each order is individually rejected
+                $order->update([
+                    'status' => 'rejected',
+                    'admin_notes' => $rejectionReason,
+                    'admin_id' => $request->user()->id,
+                    'is_suspicious' => false, // Clear suspicious flag
+                    'suspicious_reason' => null, // Clear suspicious reason
+                ]);
+
+                // Log the rejection
+                SystemLogger::logOrderStatusChange(
+                    $order->id,
+                    $order->status,
+                    'rejected',
+                    $request->user()->id,
+                    $request->user()->type,
+                    [
+                        'rejection_reason' => $rejectionReason,
+                        'rejected_as_group' => true,
+                        'group_order_ids' => $orderIds,
+                    ]
+                );
+
+                $rejectedCount++;
+            }
+
+            \DB::commit();
+
+            return redirect()->route('admin.orders.suspicious')
+                ->with('message', "Successfully rejected {$rejectedCount} order(s) from the suspicious group.");
+
+        } catch (\Exception $e) {
+            \DB::rollBack();
+            Log::error('Group order rejection failed', [
+                'order_ids' => $orderIds,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return redirect()->back()->with('error', 'Failed to reject orders. Please try again or contact support.');
+        }
     }
 
     public function mergeGroup(Request $request)

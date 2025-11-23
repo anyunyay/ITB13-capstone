@@ -7,7 +7,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { format } from 'date-fns';
-import { ArrowLeft, User, MapPin, Phone, Mail, Package, Clock, AlertTriangle, Merge } from 'lucide-react';
+import { ArrowLeft, User, MapPin, Phone, Mail, Package, Clock, AlertTriangle, Merge, XCircle } from 'lucide-react';
 import { useTranslation } from '@/hooks/use-translation';
 import { Order } from '@/types/orders';
 import { PermissionGuard } from '@/components/common/permission-guard';
@@ -30,10 +30,14 @@ interface GroupShowProps {
 export default function GroupShow({ orders, groupInfo }: GroupShowProps) {
     const t = useTranslation();
     const [showMergeDialog, setShowMergeDialog] = useState(false);
+    const [showRejectDialog, setShowRejectDialog] = useState(false);
     const [adminNotes, setAdminNotes] = useState('');
+    const [rejectionReason, setRejectionReason] = useState('');
     const [isMerging, setIsMerging] = useState(false);
+    const [isRejecting, setIsRejecting] = useState(false);
 
     const canMerge = orders.every(order => ['pending', 'delayed'].includes(order.status));
+    const canReject = orders.every(order => ['pending', 'delayed'].includes(order.status));
 
     const handleMergeOrders = () => {
         setIsMerging(true);
@@ -48,6 +52,23 @@ export default function GroupShow({ orders, groupInfo }: GroupShowProps) {
             },
             onError: () => {
                 setIsMerging(false);
+            }
+        });
+    };
+
+    const handleRejectAllOrders = () => {
+        setIsRejecting(true);
+        
+        router.post(route('admin.orders.reject-group'), {
+            order_ids: orders.map(o => o.id),
+            rejection_reason: rejectionReason || 'Rejected as part of suspicious order group',
+        }, {
+            onSuccess: () => {
+                setShowRejectDialog(false);
+                setIsRejecting(false);
+            },
+            onError: () => {
+                setIsRejecting(false);
             }
         });
     };
@@ -108,7 +129,7 @@ export default function GroupShow({ orders, groupInfo }: GroupShowProps) {
                                 </p>
                             </div>
                         </div>
-                        <div className="flex gap-2">
+                        <div className="flex gap-2 flex-wrap">
                             <PermissionGate permission="merge orders">
                                 {canMerge && (
                                     <Button 
@@ -117,6 +138,18 @@ export default function GroupShow({ orders, groupInfo }: GroupShowProps) {
                                     >
                                         <Merge className="h-4 w-4 mr-2" />
                                         Merge Orders
+                                    </Button>
+                                )}
+                            </PermissionGate>
+                            <PermissionGate permission="manage orders">
+                                {canReject && (
+                                    <Button 
+                                        onClick={() => setShowRejectDialog(true)}
+                                        variant="destructive"
+                                        className="bg-red-600 hover:bg-red-700"
+                                    >
+                                        <XCircle className="h-4 w-4 mr-2" />
+                                        Reject All Orders
                                     </Button>
                                 )}
                             </PermissionGate>
@@ -304,6 +337,107 @@ export default function GroupShow({ orders, groupInfo }: GroupShowProps) {
                             ))}
                         </div>
                     </div>
+
+                    {/* Reject All Orders Dialog */}
+                    <Dialog open={showRejectDialog} onOpenChange={setShowRejectDialog}>
+                        <DialogContent className="max-w-2xl">
+                            <DialogHeader>
+                                <DialogTitle className="flex items-center gap-2 text-red-600 dark:text-red-400">
+                                    <XCircle className="h-5 w-5" />
+                                    Reject All Orders in Group
+                                </DialogTitle>
+                                <DialogDescription>
+                                    This will reject all {groupInfo.totalOrders} orders in this suspicious group.
+                                </DialogDescription>
+                            </DialogHeader>
+
+                            <div className="space-y-4 py-4">
+                                {/* Warning */}
+                                <div className="p-4 bg-red-50 dark:bg-red-900/20 border-2 border-red-300 dark:border-red-700 rounded-lg">
+                                    <div className="flex items-start gap-3">
+                                        <AlertTriangle className="h-5 w-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
+                                        <div className="flex-1">
+                                            <h4 className="font-semibold text-red-800 dark:text-red-300 mb-1">
+                                                Warning: This action cannot be undone
+                                            </h4>
+                                            <p className="text-sm text-red-700 dark:text-red-400">
+                                                All {groupInfo.totalOrders} orders will be permanently rejected. Stock quantities will be released back to inventory.
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Rejection Details */}
+                                <div className="space-y-3">
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <Label className="text-sm text-muted-foreground">Orders to Reject</Label>
+                                            <p className="font-semibold">{orders.map(o => `#${o.id}`).join(', ')}</p>
+                                        </div>
+                                        <div>
+                                            <Label className="text-sm text-muted-foreground">Total Amount</Label>
+                                            <p className="font-semibold text-red-600 dark:text-red-400">₱{groupInfo.totalAmount.toFixed(2)}</p>
+                                        </div>
+                                        <div>
+                                            <Label className="text-sm text-muted-foreground">Customer</Label>
+                                            <p className="font-semibold">{groupInfo.customerName}</p>
+                                        </div>
+                                        <div>
+                                            <Label className="text-sm text-muted-foreground">Total Items</Label>
+                                            <p className="font-semibold">
+                                                {orders.reduce((sum, order) => sum + (order.audit_trail?.length || 0), 0)} items
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    {/* What will happen */}
+                                    <div className="p-3 bg-muted/50 rounded-lg">
+                                        <h4 className="font-semibold text-sm mb-2">What will happen:</h4>
+                                        <ul className="text-sm space-y-1 list-disc list-inside text-muted-foreground">
+                                            <li>All {groupInfo.totalOrders} orders will be marked as "rejected"</li>
+                                            <li>Stock quantities will be released back to inventory</li>
+                                            <li>Customer will be notified of the rejection</li>
+                                            <li>Orders will be removed from suspicious orders list</li>
+                                            <li>This action cannot be reversed</li>
+                                        </ul>
+                                    </div>
+
+                                    {/* Rejection Reason */}
+                                    <div className="space-y-2">
+                                        <Label htmlFor="rejection-reason">Rejection Reason (Optional)</Label>
+                                        <Textarea
+                                            id="rejection-reason"
+                                            placeholder="Explain why these orders are being rejected (e.g., 'Suspicious ordering pattern detected', 'Potential fraud', etc.)"
+                                            value={rejectionReason}
+                                            onChange={(e) => setRejectionReason(e.target.value)}
+                                            rows={3}
+                                        />
+                                        <p className="text-xs text-muted-foreground">
+                                            If no reason is provided, orders will be rejected with: "Rejected as part of suspicious order group"
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <DialogFooter>
+                                <Button
+                                    variant="outline"
+                                    onClick={() => setShowRejectDialog(false)}
+                                    disabled={isRejecting}
+                                >
+                                    Cancel
+                                </Button>
+                                <Button
+                                    onClick={handleRejectAllOrders}
+                                    disabled={isRejecting}
+                                    variant="destructive"
+                                    className="bg-red-600 hover:bg-red-700"
+                                >
+                                    {isRejecting ? 'Rejecting...' : `Reject All ${groupInfo.totalOrders} Orders`}
+                                </Button>
+                            </DialogFooter>
+                        </DialogContent>
+                    </Dialog>
 
                     {/* Merge Orders Dialog */}
                     <Dialog open={showMergeDialog} onOpenChange={setShowMergeDialog}>

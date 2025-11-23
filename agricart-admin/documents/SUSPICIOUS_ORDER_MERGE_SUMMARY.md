@@ -86,19 +86,19 @@ status: pending
 ```sql
 -- Order #101 (Primary)
 is_suspicious: false ✓
-suspicious_reason: "3 orders within 10 minutes" (preserved for audit)
+suspicious_reason: null ✓ (cleared)
 status: pending
 total_amount: ₱450.00 (combined)
 
 -- Order #102 (Secondary)
 is_suspicious: false ✓
-suspicious_reason: "3 orders within 10 minutes" (preserved for audit)
+suspicious_reason: null ✓ (cleared)
 status: merged
 admin_notes: "Merged into order #101"
 
 -- Order #103 (Secondary)
 is_suspicious: false ✓
-suspicious_reason: "3 orders within 10 minutes" (preserved for audit)
+suspicious_reason: null ✓ (cleared)
 status: merged
 admin_notes: "Merged into order #101"
 ```
