@@ -32,7 +32,9 @@ export default function OrderReceivedConfirmationModal({
     
     router.post(`/customer/orders/${orderId}/confirm-received`, {
       rating: rating > 0 ? rating : null,
-      feedback: feedback.trim() || null
+      feedback: feedback.trim() || null,
+      logistic_rating: rating > 0 ? rating : null,
+      logistic_feedback: null
     }, {
       onSuccess: () => {
         setIsConfirmed(true);
@@ -87,7 +89,7 @@ export default function OrderReceivedConfirmationModal({
         </DialogHeader>
         
         <div className="space-y-6">
-          {/* Star Rating Section */}
+          {/* Rating Section */}
           <div className="space-y-3">
             <Label className="text-base font-semibold">{t('customer.rate_your_experience')}</Label>
             <StarRating
@@ -98,6 +100,7 @@ export default function OrderReceivedConfirmationModal({
               interactive={true}
               showLabel={true}
             />
+            <p className="text-xs text-muted-foreground">{t('customer.rating_includes_delivery')}</p>
           </div>
           
           {/* Feedback Section */}

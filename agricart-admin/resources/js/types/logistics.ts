@@ -1,3 +1,11 @@
+export interface LogisticFeedback {
+    order_id: number;
+    feedback: string;
+    rating: number;
+    delivered_at: string;
+    confirmed_at: string;
+}
+
 export interface Logistic {
     id: number;
     name: string;
@@ -18,6 +26,10 @@ export interface Logistic {
     deactivation_reason?: string;
     can_be_deleted: boolean;
     deletion_reason?: string;
+    average_rating?: number | null;
+    total_ratings?: number;
+    total_deliveries?: number;
+    feedback?: LogisticFeedback[];
     [key: string]: unknown;
 }
 
@@ -26,6 +38,8 @@ export interface LogisticStats {
     activeLogistics: number;
     deactivatedLogistics: number;
     pendingRequests: number;
+    overallRating: number | null;
+    totalRatings: number;
 }
 
 export interface LogisticFilters {

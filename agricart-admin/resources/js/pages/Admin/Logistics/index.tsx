@@ -12,6 +12,7 @@ import { LogisticManagement } from '@/components/logistics/logistic-management';
 import { DeactivationModal } from '@/components/logistics/deactivation-modal';
 import { ReactivationModal } from '@/components/logistics/reactivation-modal';
 import { LogisticDeletionModal } from '@/components/logistics/logistic-deletion-modal';
+import { FeedbackModal } from '@/components/logistics/feedback-modal';
 import { Logistic, LogisticStats } from '@/types/logistics';
 import { useTranslation } from '@/hooks/use-translation';
 
@@ -37,6 +38,7 @@ export default function Index() {
     const [showDeactivationModal, setShowDeactivationModal] = useState(false);
     const [showReactivationModal, setShowReactivationModal] = useState(false);
     const [showDeletionModal, setShowDeletionModal] = useState(false);
+    const [showFeedbackModal, setShowFeedbackModal] = useState(false);
     const [selectedLogistic, setSelectedLogistic] = useState<Logistic | null>(null);
     const [highlightLogisticId, setHighlightLogisticId] = useState<number | null>(null);
 
@@ -55,12 +57,20 @@ export default function Index() {
     const logisticStats: LogisticStats = useMemo(() => {
         const activeLogistics = logistics.filter(l => l.active);
         const deactivatedLogistics = logistics.filter(l => !l.active);
+        
+        // Calculate overall average rating across all logistics
+        const logisticsWithRatings = logistics.filter(l => l.average_rating && l.average_rating > 0);
+        const overallRating = logisticsWithRatings.length > 0
+            ? logisticsWithRatings.reduce((sum, l) => sum + (l.average_rating || 0), 0) / logisticsWithRatings.length
+            : null;
 
         return {
             totalLogistics: logistics.length,
             activeLogistics: activeLogistics.length,
             deactivatedLogistics: deactivatedLogistics.length,
-            pendingRequests: 0 // This would come from your backend
+            pendingRequests: 0, // This would come from your backend
+            overallRating: overallRating,
+            totalRatings: logisticsWithRatings.reduce((sum, l) => sum + (l.total_ratings || 0), 0)
         };
     }, [logistics]);
 
@@ -187,6 +197,17 @@ export default function Index() {
         setSelectedLogistic(null);
     };
 
+    // Handle view feedback
+    const handleViewFeedback = (logistic: Logistic) => {
+        setSelectedLogistic(logistic);
+        setShowFeedbackModal(true);
+    };
+
+    const handleCloseFeedback = () => {
+        setShowFeedbackModal(false);
+        setSelectedLogistic(null);
+    };
+
     return (
         <PermissionGuard
             permissions={['view logistics', 'create logistics', 'edit logistics', 'deactivate logistics', 'reactivate logistics', 'generate logistics report']}
@@ -220,6 +241,7 @@ export default function Index() {
                             onDeactivate={handleDeactivate}
                             onReactivate={handleReactivate}
                             onDelete={handleDelete}
+                            onViewFeedback={handleViewFeedback}
                             highlightLogisticId={highlightLogisticId}
                             showDeactivated={showDeactivated}
                             setShowDeactivated={setShowDeactivated}
@@ -254,6 +276,13 @@ export default function Index() {
                             logistic={selectedLogistic}
                             onConfirm={handleConfirmDeletion}
                             processing={processing}
+                        />
+
+                        {/* Feedback Modal */}
+                        <FeedbackModal
+                            isOpen={showFeedbackModal}
+                            onClose={handleCloseFeedback}
+                            logistic={selectedLogistic}
                         />
                     </div>
                 </div>

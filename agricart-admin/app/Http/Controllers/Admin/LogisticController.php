@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Response;
+use Illuminate\Support\Facades\DB;
 use Barryvdh\DomPDF\Facade\Pdf;
 
 class LogisticController extends Controller
@@ -21,6 +22,42 @@ class LogisticController extends Controller
             ->limit(200) // Limit instead of paginate to maintain frontend compatibility
             ->get()
             ->map(function ($logistic) {
+                // Calculate average rating and total deliveries
+                $deliveries = DB::table('sales')
+                    ->where('logistic_id', $logistic->id)
+                    ->whereNotNull('logistic_rating')
+                    ->select('logistic_rating')
+                    ->get();
+                
+                $totalDeliveries = DB::table('sales')
+                    ->where('logistic_id', $logistic->id)
+                    ->count();
+                
+                $averageRating = $deliveries->count() > 0 
+                    ? round($deliveries->avg('logistic_rating'), 1) 
+                    : null;
+                
+                $totalRatings = $deliveries->count();
+                
+                // Get feedback for this logistic
+                $feedback = DB::table('sales')
+                    ->where('logistic_id', $logistic->id)
+                    ->whereNotNull('customer_feedback')
+                    ->whereNotNull('logistic_rating')
+                    ->select('id', 'customer_feedback', 'logistic_rating', 'delivered_at', 'customer_confirmed_at')
+                    ->orderBy('customer_confirmed_at', 'desc')
+                    ->limit(10)
+                    ->get()
+                    ->map(function($item) {
+                        return [
+                            'order_id' => $item->id,
+                            'feedback' => $item->customer_feedback,
+                            'rating' => $item->logistic_rating,
+                            'delivered_at' => $item->delivered_at,
+                            'confirmed_at' => $item->customer_confirmed_at,
+                        ];
+                    })
+                    ->toArray();
                 // Check if logistic has pending orders
                 $hasPendingOrders = $logistic->hasPendingOrders();
                 $canBeDeactivated = $logistic->active && !$hasPendingOrders;
@@ -41,7 +78,7 @@ class LogisticController extends Controller
                 }
 
                 // Check for any assigned orders (including completed)
-                $totalOrdersCount = \DB::table('sales_audit')
+                $totalOrdersCount = DB::table('sales_audit')
                     ->where('logistic_id', $logistic->id)
                     ->count();
                 
@@ -51,7 +88,7 @@ class LogisticController extends Controller
                 }
 
                 // Check for delivery proofs
-                $deliveryProofsCount = \DB::table('delivery_proofs')
+                $deliveryProofsCount = DB::table('delivery_proofs')
                     ->where('logistic_id', $logistic->id)
                     ->count();
                 
@@ -85,6 +122,10 @@ class LogisticController extends Controller
                     'deactivation_reason' => $deactivationReason,
                     'can_be_deleted' => $canBeDeleted,
                     'deletion_reason' => $deletionReason,
+                    'average_rating' => $averageRating,
+                    'total_ratings' => $totalRatings,
+                    'total_deliveries' => $totalDeliveries,
+                    'feedback' => $feedback,
                 ];
             });
         return Inertia::render('Logistics/index', compact('logistics'));
@@ -427,7 +468,7 @@ class LogisticController extends Controller
         }
 
         // Check for any assigned orders (including completed)
-        $totalOrdersCount = \DB::table('sales_audit')
+        $totalOrdersCount = DB::table('sales_audit')
             ->where('logistic_id', $logistic->id)
             ->count();
         
@@ -437,7 +478,7 @@ class LogisticController extends Controller
         }
 
         // Check for delivery proofs
-        $deliveryProofsCount = \DB::table('delivery_proofs')
+        $deliveryProofsCount = DB::table('delivery_proofs')
             ->where('logistic_id', $logistic->id)
             ->count();
         
