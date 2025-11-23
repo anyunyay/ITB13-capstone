@@ -146,7 +146,39 @@ export const createLogisticsTableColumns = (
     maxWidth: '320px',
     render: (logistic) => (
       <div className="flex flex-col gap-2 items-center">
-        {/* First Row: Edit and Assign Area */}
+        {/* First Row: Assign Area (Full Width) */}
+        <PermissionGate permissions={['edit logistics', 'assign logistics area']} requireAll={false}>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => onAssignArea(logistic)}
+                  className="transition-all duration-200 hover:shadow-lg hover:opacity-90 w-full max-w-[280px]"
+                >
+                  <MapPin className="h-4 w-4 mr-1 flex-shrink-0" />
+                  <span className="truncate">
+                    {logistic.assigned_area || 'Assign Area'}
+                  </span>
+                </Button>
+              </TooltipTrigger>
+              {logistic.assigned_area && (
+                <TooltipContent>
+                  <p>Assigned to: {logistic.assigned_area}</p>
+                  <p className="text-xs text-muted-foreground">Click to change</p>
+                </TooltipContent>
+              )}
+              {!logistic.assigned_area && (
+                <TooltipContent>
+                  <p>Click to assign delivery area</p>
+                </TooltipContent>
+              )}
+            </Tooltip>
+          </TooltipProvider>
+        </PermissionGate>
+        
+        {/* Second Row: Edit, Deactivate/Reactivate, and Delete */}
         <div className="flex gap-2">
           <PermissionGate permission="edit logistics">
             <Button
@@ -161,40 +193,6 @@ export const createLogisticsTableColumns = (
               </Link>
             </Button>
           </PermissionGate>
-          <PermissionGate permissions={['edit logistics', 'assign logistics area']} requireAll={false}>
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => onAssignArea(logistic)}
-                    className="transition-all duration-200 hover:shadow-lg hover:opacity-90 max-w-[140px]"
-                  >
-                    <MapPin className="h-4 w-4 mr-1 flex-shrink-0" />
-                    <span className="truncate">
-                      {logistic.assigned_area || 'Assign Area'}
-                    </span>
-                  </Button>
-                </TooltipTrigger>
-                {logistic.assigned_area && (
-                  <TooltipContent>
-                    <p>Assigned to: {logistic.assigned_area}</p>
-                    <p className="text-xs text-muted-foreground">Click to change</p>
-                  </TooltipContent>
-                )}
-                {!logistic.assigned_area && (
-                  <TooltipContent>
-                    <p>Click to assign delivery area</p>
-                  </TooltipContent>
-                )}
-              </Tooltip>
-            </TooltipProvider>
-          </PermissionGate>
-        </div>
-        
-        {/* Second Row: Deactivate/Reactivate and Delete */}
-        <div className="flex gap-2">
           {logistic.active ? (
             <PermissionGate permission="deactivate logistics">
               <TooltipProvider>
