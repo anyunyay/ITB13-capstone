@@ -143,12 +143,12 @@ export default function GroupShow({ orders, groupInfo }: GroupShowProps) {
                                 </p>
                             </div>
                         </div>
-                        <div className="flex flex-wrap items-center gap-2">
+                        <div className="flex items-center gap-2 w-full lg:w-auto">
                             <PermissionGate permission="merge orders">
                                 {canMerge && (
                                     <Button 
                                         onClick={() => setShowMergeDialog(true)}
-                                        className="bg-blue-600 hover:bg-blue-700"
+                                        className="bg-blue-600 hover:bg-blue-700 flex-1 lg:flex-none"
                                     >
                                         <Merge className="h-4 w-4 mr-2" />
                                         <span className="hidden sm:inline">Merge Orders</span>
@@ -161,7 +161,7 @@ export default function GroupShow({ orders, groupInfo }: GroupShowProps) {
                                     <Button 
                                         onClick={() => setShowRejectDialog(true)}
                                         variant="destructive"
-                                        className="bg-red-600 hover:bg-red-700"
+                                        className="bg-red-600 hover:bg-red-700 flex-1 lg:flex-none"
                                     >
                                         <XCircle className="h-4 w-4 mr-2" />
                                         <span className="hidden sm:inline">Reject All</span>
@@ -169,8 +169,8 @@ export default function GroupShow({ orders, groupInfo }: GroupShowProps) {
                                     </Button>
                                 )}
                             </PermissionGate>
-                            <Link href={route('admin.orders.suspicious')}>
-                                <Button variant="outline" className="whitespace-nowrap">
+                            <Link href={route('admin.orders.suspicious')} className="flex-1 lg:flex-none">
+                                <Button variant="outline" className="whitespace-nowrap w-full">
                                     <ArrowLeft className="h-4 w-4 mr-2" />
                                     <span className="hidden sm:inline">Back to Suspicious Orders</span>
                                     <span className="sm:hidden">Back</span>
