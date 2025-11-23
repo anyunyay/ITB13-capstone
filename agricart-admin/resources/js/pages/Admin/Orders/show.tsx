@@ -458,6 +458,7 @@ export default function OrderShow({ order, logistics, highlight = false, isUrgen
                   setAssignLogisticDialogOpen={setAssignLogisticDialogOpen}
                   assignLogisticForm={assignLogisticForm}
                   onAssignLogistic={handleAssignLogistic}
+                  customerBarangay={order.customer.barangay}
                 />
               )}
             </div>

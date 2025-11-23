@@ -1045,6 +1045,13 @@ return [
     'order_approved_ready_delivery' => 'Na-apruba na ang order na ito at handa na para sa delivery. Pakisuyo na pumili ng logistik para sa delivery.',
     'assigning' => 'Nag-a-assign...',
     'contact' => 'Kontak',
+    'customer_location' => 'Lokasyon ng Customer',
+    'recommended_logistic' => 'Inirerekomendang Logistik',
+    'assigned_to_area' => 'Naka-assign sa lugar',
+    'no_logistic_for_area' => 'Walang logistik na naka-assign sa :area. Pakipili mula sa available na logistik.',
+    'recommended_for_area' => 'Inirerekomenda para sa lugar na ito',
+    'other_logistics' => 'Iba Pang Logistik',
+    'all_logistics' => 'Lahat ng Logistik',
 
     // Remove Stock Modal
     'remove_stock' => 'Tanggalin ang Stock',

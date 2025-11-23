@@ -131,7 +131,25 @@ class OrderController extends Controller
         }
 
         // Get available logistics for assignment (only active logistics)
-        $logistics = User::where('type', 'logistic')->where('active', true)->get(['id', 'name', 'contact_number']);
+        $logistics = User::where('type', 'logistic')
+            ->where('active', true)
+            ->get(['id', 'name', 'contact_number', 'assigned_area'])
+            ->map(function ($logistic) {
+                // Calculate average rating from sales
+                $ratings = \DB::table('sales')
+                    ->where('logistic_id', $logistic->id)
+                    ->whereNotNull('logistic_rating')
+                    ->pluck('logistic_rating');
+                
+                return [
+                    'id' => $logistic->id,
+                    'name' => $logistic->name,
+                    'contact_number' => $logistic->contact_number,
+                    'assigned_area' => $logistic->assigned_area,
+                    'average_rating' => $ratings->count() > 0 ? round($ratings->avg(), 1) : null,
+                    'total_ratings' => $ratings->count(),
+                ];
+            });
 
         // Calculate orders that need urgent approval (within 8 hours of 24-hour limit OR manually marked as urgent)
         $urgentOrders = $processedOrders->filter(function ($order) {
@@ -234,7 +252,25 @@ class OrderController extends Controller
         });
 
         // Get available logistics for assignment
-        $logistics = User::where('type', 'logistic')->where('active', true)->get(['id', 'name', 'contact_number']);
+        $logistics = User::where('type', 'logistic')
+            ->where('active', true)
+            ->get(['id', 'name', 'contact_number', 'assigned_area'])
+            ->map(function ($logistic) {
+                // Calculate average rating from sales
+                $ratings = \DB::table('sales')
+                    ->where('logistic_id', $logistic->id)
+                    ->whereNotNull('logistic_rating')
+                    ->pluck('logistic_rating');
+                
+                return [
+                    'id' => $logistic->id,
+                    'name' => $logistic->name,
+                    'contact_number' => $logistic->contact_number,
+                    'assigned_area' => $logistic->assigned_area,
+                    'average_rating' => $ratings->count() > 0 ? round($ratings->avg(), 1) : null,
+                    'total_ratings' => $ratings->count(),
+                ];
+            });
 
         return Inertia::render('Admin/Orders/suspicious', [
             'orders' => $processedOrders,
@@ -526,7 +562,25 @@ class OrderController extends Controller
         $order->load(['customer.defaultAddress', 'address', 'admin', 'logistic', 'auditTrail.product', 'auditTrail.stock']);
 
         // Get available logistics for assignment (only active logistics)
-        $logistics = User::where('type', 'logistic')->where('active', true)->get(['id', 'name', 'contact_number']);
+        $logistics = User::where('type', 'logistic')
+            ->where('active', true)
+            ->get(['id', 'name', 'contact_number', 'assigned_area'])
+            ->map(function ($logistic) {
+                // Calculate average rating from sales
+                $ratings = \DB::table('sales')
+                    ->where('logistic_id', $logistic->id)
+                    ->whereNotNull('logistic_rating')
+                    ->pluck('logistic_rating');
+                
+                return [
+                    'id' => $logistic->id,
+                    'name' => $logistic->name,
+                    'contact_number' => $logistic->contact_number,
+                    'assigned_area' => $logistic->assigned_area,
+                    'average_rating' => $ratings->count() > 0 ? round($ratings->avg(), 1) : null,
+                    'total_ratings' => $ratings->count(),
+                ];
+            });
 
         // Check if highlighting is requested (from notification click)
         $highlight = $request->get('highlight', false);

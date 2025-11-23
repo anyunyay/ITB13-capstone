@@ -1035,6 +1035,13 @@ return [
     'order_approved_ready_delivery' => 'This order has been approved and is ready for delivery. Please select a logistic provider to handle the delivery.',
     'assigning' => 'Assigning...',
     'contact' => 'Contact',
+    'customer_location' => 'Customer Location',
+    'recommended_logistic' => 'Recommended Logistic',
+    'assigned_to_area' => 'Assigned to area',
+    'no_logistic_for_area' => 'No logistics assigned to :area. Please select from available logistics.',
+    'recommended_for_area' => 'Recommended for this area',
+    'other_logistics' => 'Other Logistics',
+    'all_logistics' => 'All Logistics',
 
     // Remove Stock Modal
     'remove_stock' => 'Remove Stock',
