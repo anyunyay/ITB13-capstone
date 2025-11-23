@@ -113,47 +113,46 @@ export const OrderManagement = ({
 
         return (
             <>
-                {currentView === 'cards' ? (
-                    <>
-                        {/* Show suspicious order alert if any found - with link to dedicated page */}
-                        {suspiciousStats.suspiciousGroups > 0 && (
-                            <div className="mb-4 p-4 bg-red-50 dark:bg-red-900/20 border-2 border-red-300 dark:border-red-700 rounded-lg">
-                                <div className="flex items-center justify-between gap-4">
-                                    <div className="flex-1">
-                                        <div className="flex items-center gap-2 mb-2">
-                                            <span className="text-2xl">⚠️</span>
-                                            <h3 className="text-lg font-semibold text-red-800 dark:text-red-300 m-0">
-                                                Suspicious Order Patterns Detected
-                                            </h3>
-                                        </div>
-                                        <p className="text-sm text-red-700 dark:text-red-400 m-0">
-                                            Found {suspiciousStats.suspiciousGroups} suspicious order group(s) with {suspiciousStats.totalSuspiciousOrders} orders 
-                                            (Total: ₱{suspiciousStats.totalSuspiciousAmount.toFixed(2)})
-                                        </p>
-                                    </div>
-                                    <Button
-                                        onClick={() => window.location.href = route('admin.orders.suspicious')}
-                                        variant="default"
-                                        className="bg-red-600 hover:bg-red-700 text-white flex-shrink-0"
-                                    >
-                                        <Eye className="h-4 w-4 mr-2" />
-                                        View Suspicious Orders
-                                    </Button>
+                {/* Show suspicious order alert if any found - visible in both card and table views */}
+                {suspiciousStats.suspiciousGroups > 0 && (
+                    <div className="mb-4 p-3 sm:p-4 bg-red-50 dark:bg-red-900/20 border-2 border-red-300 dark:border-red-700 rounded-lg">
+                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
+                            <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-2 mb-2">
+                                    <span className="text-xl sm:text-2xl flex-shrink-0">⚠️</span>
+                                    <h3 className="text-base sm:text-lg font-semibold text-red-800 dark:text-red-300 m-0 break-words">
+                                        Suspicious Order Patterns Detected
+                                    </h3>
                                 </div>
+                                <p className="text-xs sm:text-sm text-red-700 dark:text-red-400 m-0 break-words">
+                                    Found {suspiciousStats.suspiciousGroups} suspicious order group(s) with {suspiciousStats.totalSuspiciousOrders} orders 
+                                    (Total: ₱{suspiciousStats.totalSuspiciousAmount.toFixed(2)})
+                                </p>
                             </div>
-                        )}
-                        
-                        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-2">
-                            {paginatedOrders.map((order) => (
-                                <OrderCard 
-                                    key={order.id} 
-                                    order={order} 
-                                    highlight={highlightOrderId === order.id.toString()}
-                                    isUrgent={urgentOrders.some(urgent => urgent.id === order.id) || order.is_urgent}
-                                />
-                            ))}
+                            <Button
+                                onClick={() => window.location.href = route('admin.orders.suspicious')}
+                                variant="default"
+                                size="sm"
+                                className="bg-red-600 hover:bg-red-700 text-white flex-shrink-0 w-full sm:w-auto"
+                            >
+                                <Eye className="h-4 w-4 mr-2" />
+                                <span className="whitespace-nowrap">View Suspicious Orders</span>
+                            </Button>
                         </div>
-                    </>
+                    </div>
+                )}
+
+                {currentView === 'cards' ? (
+                    <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-2">
+                        {paginatedOrders.map((order) => (
+                            <OrderCard 
+                                key={order.id} 
+                                order={order} 
+                                highlight={highlightOrderId === order.id.toString()}
+                                isUrgent={urgentOrders.some(urgent => urgent.id === order.id) || order.is_urgent}
+                            />
+                        ))}
+                    </div>
                 ) : (
                     <BaseTable
                         data={paginatedOrders}
