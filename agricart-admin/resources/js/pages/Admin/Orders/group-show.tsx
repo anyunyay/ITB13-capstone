@@ -113,23 +113,23 @@ export default function GroupShow({ orders, groupInfo }: GroupShowProps) {
             <Head title={`Suspicious Order Group - ${groupInfo.customerName}`} />
 
             <PermissionGuard permission="view orders">
-                <div className="container mx-auto px-4 py-6 max-w-7xl">
+                <div className="p-6">
                     {/* Header */}
-                    <div className="mb-6 flex items-center justify-between flex-wrap gap-4">
-                        <div className="flex items-center gap-4">
-                            <div className="bg-red-100 dark:bg-red-900/20 text-red-600 dark:text-red-400 p-3 rounded-lg">
-                                <AlertTriangle className="h-6 w-6" />
+                    <div className="flex flex-col gap-2 mb-6 lg:flex-row lg:items-center lg:justify-between">
+                        <div className="flex items-center gap-3">
+                            <div className="bg-red-100 dark:bg-red-900/20 text-red-600 dark:text-red-400 p-2.5 rounded-lg">
+                                <AlertTriangle className="h-5 w-5" />
                             </div>
                             <div>
-                                <h1 className="text-2xl font-semibold text-foreground m-0 mb-1">
+                                <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-1">
                                     Suspicious Order Group
                                 </h1>
-                                <p className="text-sm text-muted-foreground m-0">
+                                <p className="text-sm text-muted-foreground">
                                     {groupInfo.totalOrders} orders from {groupInfo.customerName}
                                 </p>
                             </div>
                         </div>
-                        <div className="flex gap-2 flex-wrap">
+                        <div className="flex flex-wrap items-center gap-2">
                             <PermissionGate permission="merge orders">
                                 {canMerge && (
                                     <Button 
@@ -137,7 +137,8 @@ export default function GroupShow({ orders, groupInfo }: GroupShowProps) {
                                         className="bg-blue-600 hover:bg-blue-700"
                                     >
                                         <Merge className="h-4 w-4 mr-2" />
-                                        Merge Orders
+                                        <span className="hidden sm:inline">Merge Orders</span>
+                                        <span className="sm:hidden">Merge</span>
                                     </Button>
                                 )}
                             </PermissionGate>
@@ -149,28 +150,30 @@ export default function GroupShow({ orders, groupInfo }: GroupShowProps) {
                                         className="bg-red-600 hover:bg-red-700"
                                     >
                                         <XCircle className="h-4 w-4 mr-2" />
-                                        Reject All Orders
+                                        <span className="hidden sm:inline">Reject All</span>
+                                        <span className="sm:hidden">Reject</span>
                                     </Button>
                                 )}
                             </PermissionGate>
                             <Link href={route('admin.orders.suspicious')}>
-                                <Button variant="outline">
+                                <Button variant="outline" className="whitespace-nowrap">
                                     <ArrowLeft className="h-4 w-4 mr-2" />
-                                    Back to Suspicious Orders
+                                    <span className="hidden sm:inline">Back to Suspicious Orders</span>
+                                    <span className="sm:hidden">Back</span>
                                 </Button>
                             </Link>
                         </div>
                     </div>
 
                     {/* Warning Banner */}
-                    <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border-2 border-red-300 dark:border-red-700 rounded-lg">
+                    <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-300 dark:border-red-700 rounded-lg">
                         <div className="flex items-start gap-3">
                             <AlertTriangle className="h-5 w-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
                             <div className="flex-1">
-                                <h3 className="text-lg font-semibold text-red-800 dark:text-red-300 m-0 mb-2">
+                                <h3 className="text-base font-semibold text-red-800 dark:text-red-300 mb-2">
                                     Suspicious Pattern Detected
                                 </h3>
-                                <p className="text-sm text-red-700 dark:text-red-400 m-0">
+                                <p className="text-sm text-red-700 dark:text-red-400">
                                     {groupInfo.totalOrders} orders were placed within {groupInfo.timeSpan} minutes from the same customer. 
                                     This pattern may indicate unusual activity and requires review.
                                 </p>
@@ -178,169 +181,172 @@ export default function GroupShow({ orders, groupInfo }: GroupShowProps) {
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                        {/* Left Column - Customer & Group Info */}
-                        <div className="lg:col-span-1 space-y-6">
-                            {/* Customer Information */}
-                            <Card>
-                                <CardHeader>
-                                    <CardTitle className="flex items-center gap-2">
-                                        <User className="h-5 w-5" />
-                                        Customer Information
-                                    </CardTitle>
-                                </CardHeader>
-                                <CardContent className="space-y-3">
-                                    <div>
-                                        <p className="text-sm text-muted-foreground">Name</p>
-                                        <p className="font-medium">{orders[0].customer.name}</p>
-                                    </div>
-                                    <div>
-                                        <p className="text-sm text-muted-foreground flex items-center gap-2">
-                                            <Mail className="h-4 w-4" />
-                                            Email
-                                        </p>
-                                        <p className="font-medium">{orders[0].customer.email}</p>
-                                    </div>
-                                    {orders[0].customer.contact_number && (
-                                        <div>
-                                            <p className="text-sm text-muted-foreground flex items-center gap-2">
-                                                <Phone className="h-4 w-4" />
-                                                Contact
-                                            </p>
-                                            <p className="font-medium">{orders[0].customer.contact_number}</p>
-                                        </div>
-                                    )}
-                                    {orders[0].delivery_address && (
-                                        <div>
-                                            <p className="text-sm text-muted-foreground flex items-center gap-2">
-                                                <MapPin className="h-4 w-4" />
-                                                Delivery Address
-                                            </p>
-                                            <p className="font-medium">{orders[0].delivery_address}</p>
-                                        </div>
-                                    )}
-                                </CardContent>
-                            </Card>
-
-                            {/* Group Summary */}
-                            <Card>
-                                <CardHeader>
-                                    <CardTitle className="flex items-center gap-2">
-                                        <Package className="h-5 w-5" />
-                                        Group Summary
-                                    </CardTitle>
-                                </CardHeader>
-                                <CardContent className="space-y-3">
-                                    <div>
-                                        <p className="text-sm text-muted-foreground">Total Orders</p>
-                                        <p className="text-2xl font-bold">{groupInfo.totalOrders}</p>
-                                    </div>
-                                    <div>
-                                        <p className="text-sm text-muted-foreground">Combined Total</p>
-                                        <p className="text-2xl font-bold text-primary">₱{groupInfo.totalAmount.toFixed(2)}</p>
-                                    </div>
-                                    <div>
-                                        <p className="text-sm text-muted-foreground flex items-center gap-2">
-                                            <Clock className="h-4 w-4" />
-                                            Time Span
-                                        </p>
-                                        <p className="font-medium">{groupInfo.timeSpan} minutes</p>
-                                    </div>
-                                    <div>
-                                        <p className="text-sm text-muted-foreground">First Order</p>
-                                        <p className="font-medium">{format(new Date(groupInfo.firstOrderTime), 'MMM dd, yyyy HH:mm:ss')}</p>
-                                    </div>
-                                    <div>
-                                        <p className="text-sm text-muted-foreground">Last Order</p>
-                                        <p className="font-medium">{format(new Date(groupInfo.lastOrderTime), 'MMM dd, yyyy HH:mm:ss')}</p>
-                                    </div>
-                                </CardContent>
-                            </Card>
-                        </div>
-
-                        {/* Right Column - Individual Orders */}
-                        <div className="lg:col-span-2 space-y-4">
-                            <h2 className="text-xl font-semibold text-foreground">Individual Orders</h2>
-                            
-                            {orders.map((order, index) => (
-                                <Card key={order.id} className="border-l-4 border-l-red-500">
+                    {/* Main Content Layout */}
+                    <div className="space-y-6">
+                        <div className="grid grid-cols-1 xl:grid-cols-3 gap-2">
+                            {/* Left Column - Customer & Group Info */}
+                            <div className="xl:col-span-1 space-y-6">
+                                {/* Customer Information */}
+                                <Card>
                                     <CardHeader>
-                                        <div className="flex items-center justify-between">
-                                            <div className="flex items-center gap-3">
-                                                <div className="bg-red-100 dark:bg-red-900/20 text-red-600 dark:text-red-400 w-10 h-10 rounded-full flex items-center justify-center font-bold">
-                                                    {index + 1}
-                                                </div>
-                                                <div>
-                                                    <CardTitle className="text-lg">Order #{order.id}</CardTitle>
-                                                    <p className="text-sm text-muted-foreground">
-                                                        {format(new Date(order.created_at), 'MMM dd, yyyy HH:mm:ss')}
-                                                    </p>
-                                                </div>
-                                            </div>
-                                            <div className="flex items-center gap-2">
-                                                {getStatusBadge(order.status)}
-                                                {order.delivery_status && getDeliveryStatusBadge(order.delivery_status)}
-                                            </div>
-                                        </div>
+                                        <CardTitle className="flex items-center gap-2">
+                                            <User className="h-5 w-5" />
+                                            Customer Information
+                                        </CardTitle>
                                     </CardHeader>
-                                    <CardContent>
-                                        <div className="space-y-4">
-                                            {/* Order Items */}
+                                    <CardContent className="space-y-3">
+                                        <div>
+                                            <p className="text-sm text-muted-foreground mb-1">Name</p>
+                                            <p className="font-medium">{orders[0].customer.name}</p>
+                                        </div>
+                                        <div>
+                                            <p className="text-sm text-muted-foreground flex items-center gap-2 mb-1">
+                                                <Mail className="h-4 w-4" />
+                                                Email
+                                            </p>
+                                            <p className="font-medium break-all">{orders[0].customer.email}</p>
+                                        </div>
+                                        {orders[0].customer.contact_number && (
                                             <div>
-                                                <h4 className="text-sm font-semibold text-foreground mb-2">Items</h4>
-                                                <div className="space-y-2">
-                                                    {order.audit_trail?.map((item) => (
-                                                        <div key={item.id} className="flex justify-between items-center p-2 bg-muted/50 rounded">
-                                                            <div className="flex-1">
-                                                                <p className="font-medium text-sm">{item.product.name}</p>
-                                                                <p className="text-xs text-muted-foreground">
-                                                                    {item.quantity} {item.category} × ₱{item.unit_price?.toFixed(2) || '0.00'}
-                                                                </p>
-                                                            </div>
-                                                            <p className="font-semibold">
-                                                                ₱{((item.unit_price || 0) * item.quantity).toFixed(2)}
-                                                            </p>
-                                                        </div>
-                                                    ))}
-                                                </div>
+                                                <p className="text-sm text-muted-foreground flex items-center gap-2 mb-1">
+                                                    <Phone className="h-4 w-4" />
+                                                    Contact
+                                                </p>
+                                                <p className="font-medium">{orders[0].customer.contact_number}</p>
                                             </div>
-
-                                            {/* Order Total */}
-                                            <div className="pt-3 border-t border-border">
-                                                <div className="flex justify-between items-center">
-                                                    <span className="font-semibold">Order Total</span>
-                                                    <span className="text-xl font-bold text-primary">
-                                                        ₱{order.total_amount.toFixed(2)}
-                                                    </span>
-                                                </div>
+                                        )}
+                                        {orders[0].delivery_address && (
+                                            <div>
+                                                <p className="text-sm text-muted-foreground flex items-center gap-2 mb-1">
+                                                    <MapPin className="h-4 w-4" />
+                                                    Delivery Address
+                                                </p>
+                                                <p className="font-medium">{orders[0].delivery_address}</p>
                                             </div>
+                                        )}
+                                    </CardContent>
+                                </Card>
 
-                                            {/* Admin Notes */}
-                                            {order.admin_notes && (
-                                                <div className="pt-3 border-t border-border">
-                                                    <p className="text-sm text-muted-foreground mb-1">Admin Notes</p>
-                                                    <p className="text-sm">{order.admin_notes}</p>
-                                                </div>
-                                            )}
-
-                                            {/* View Details Button */}
-                                            <div className="pt-3">
-                                                <Link href={route('admin.orders.show', order.id)}>
-                                                    <Button variant="outline" className="w-full">
-                                                        View Full Order Details
-                                                    </Button>
-                                                </Link>
-                                            </div>
+                                {/* Group Summary */}
+                                <Card>
+                                    <CardHeader>
+                                        <CardTitle className="flex items-center gap-2">
+                                            <Package className="h-5 w-5" />
+                                            Group Summary
+                                        </CardTitle>
+                                    </CardHeader>
+                                    <CardContent className="space-y-3">
+                                        <div>
+                                            <p className="text-sm text-muted-foreground mb-1">Total Orders</p>
+                                            <p className="text-2xl font-bold">{groupInfo.totalOrders}</p>
+                                        </div>
+                                        <div>
+                                            <p className="text-sm text-muted-foreground mb-1">Combined Total</p>
+                                            <p className="text-2xl font-bold text-primary">₱{groupInfo.totalAmount.toFixed(2)}</p>
+                                        </div>
+                                        <div>
+                                            <p className="text-sm text-muted-foreground flex items-center gap-2 mb-1">
+                                                <Clock className="h-4 w-4" />
+                                                Time Span
+                                            </p>
+                                            <p className="font-medium">{groupInfo.timeSpan} minutes</p>
+                                        </div>
+                                        <div>
+                                            <p className="text-sm text-muted-foreground mb-1">First Order</p>
+                                            <p className="font-medium text-sm">{format(new Date(groupInfo.firstOrderTime), 'MMM dd, yyyy HH:mm:ss')}</p>
+                                        </div>
+                                        <div>
+                                            <p className="text-sm text-muted-foreground mb-1">Last Order</p>
+                                            <p className="font-medium text-sm">{format(new Date(groupInfo.lastOrderTime), 'MMM dd, yyyy HH:mm:ss')}</p>
                                         </div>
                                     </CardContent>
                                 </Card>
-                            ))}
+                            </div>
+
+                            {/* Right Column - Individual Orders */}
+                            <div className="xl:col-span-2 space-y-6">
+                                <h2 className="text-xl font-semibold text-foreground">Individual Orders</h2>
+                                
+                                {orders.map((order, index) => (
+                                    <Card key={order.id} className="border-l-4 border-l-red-500">
+                                        <CardHeader>
+                                            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="bg-red-100 dark:bg-red-900/20 text-red-600 dark:text-red-400 w-10 h-10 rounded-full flex items-center justify-center font-bold">
+                                                        {index + 1}
+                                                    </div>
+                                                    <div>
+                                                        <CardTitle className="text-lg">Order #{order.id}</CardTitle>
+                                                        <p className="text-sm text-muted-foreground">
+                                                            {format(new Date(order.created_at), 'MMM dd, yyyy HH:mm:ss')}
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                                <div className="flex items-center gap-2 flex-wrap">
+                                                    {getStatusBadge(order.status)}
+                                                    {order.delivery_status && getDeliveryStatusBadge(order.delivery_status)}
+                                                </div>
+                                            </div>
+                                        </CardHeader>
+                                        <CardContent>
+                                            <div className="space-y-4">
+                                                {/* Order Items */}
+                                                <div>
+                                                    <h4 className="text-sm font-semibold text-foreground mb-2">Items</h4>
+                                                    <div className="space-y-2">
+                                                        {order.audit_trail?.map((item) => (
+                                                            <div key={item.id} className="flex justify-between items-start sm:items-center gap-2 p-2 bg-muted/50 rounded">
+                                                                <div className="flex-1 min-w-0">
+                                                                    <p className="font-medium text-sm">{item.product.name}</p>
+                                                                    <p className="text-xs text-muted-foreground">
+                                                                        {item.quantity} {item.category} × ₱{item.unit_price?.toFixed(2) || '0.00'}
+                                                                    </p>
+                                                                </div>
+                                                                <p className="font-semibold text-sm whitespace-nowrap">
+                                                                    ₱{((item.unit_price || 0) * item.quantity).toFixed(2)}
+                                                                </p>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                </div>
+
+                                                {/* Order Total */}
+                                                <div className="pt-3 border-t border-border">
+                                                    <div className="flex justify-between items-center">
+                                                        <span className="font-semibold">Order Total</span>
+                                                        <span className="text-xl font-bold text-primary">
+                                                            ₱{order.total_amount.toFixed(2)}
+                                                        </span>
+                                                    </div>
+                                                </div>
+
+                                                {/* Admin Notes */}
+                                                {order.admin_notes && (
+                                                    <div className="pt-3 border-t border-border">
+                                                        <p className="text-sm text-muted-foreground mb-1">Admin Notes</p>
+                                                        <p className="text-sm">{order.admin_notes}</p>
+                                                    </div>
+                                                )}
+
+                                                {/* View Details Button */}
+                                                <div className="pt-3">
+                                                    <Link href={route('admin.orders.show', order.id)}>
+                                                        <Button variant="outline" className="w-full">
+                                                            View Full Order Details
+                                                        </Button>
+                                                    </Link>
+                                                </div>
+                                            </div>
+                                        </CardContent>
+                                    </Card>
+                                ))}
+                            </div>
                         </div>
                     </div>
 
                     {/* Reject All Orders Dialog */}
                     <Dialog open={showRejectDialog} onOpenChange={setShowRejectDialog}>
-                        <DialogContent className="max-w-2xl">
+                        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
                             <DialogHeader>
                                 <DialogTitle className="flex items-center gap-2 text-red-600 dark:text-red-400">
                                     <XCircle className="h-5 w-5" />
@@ -353,7 +359,7 @@ export default function GroupShow({ orders, groupInfo }: GroupShowProps) {
 
                             <div className="space-y-4 py-4">
                                 {/* Warning */}
-                                <div className="p-4 bg-red-50 dark:bg-red-900/20 border-2 border-red-300 dark:border-red-700 rounded-lg">
+                                <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-300 dark:border-red-700 rounded-lg">
                                     <div className="flex items-start gap-3">
                                         <AlertTriangle className="h-5 w-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
                                         <div className="flex-1">
@@ -441,7 +447,7 @@ export default function GroupShow({ orders, groupInfo }: GroupShowProps) {
 
                     {/* Merge Orders Dialog */}
                     <Dialog open={showMergeDialog} onOpenChange={setShowMergeDialog}>
-                        <DialogContent className="max-w-2xl">
+                        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
                             <DialogHeader>
                                 <DialogTitle className="flex items-center gap-2">
                                     <Merge className="h-5 w-5" />
