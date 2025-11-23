@@ -71,17 +71,13 @@ export const OrderManagement = ({
 }: OrderManagementProps) => {
     const t = useTranslation();
     
-    // Group orders for suspicious pattern detection (frontend only)
+    // Group ALL orders for suspicious pattern detection (frontend only)
+    // Use allOrders to detect all suspicious patterns across the entire dataset
     const orderGroups = useMemo(() => {
-        return groupSuspiciousOrders(paginatedOrders, 10); // 10 minute window
-    }, [paginatedOrders]);
+        return groupSuspiciousOrders(allOrders, 10); // 10 minute window
+    }, [allOrders]);
 
-    // Filter out suspicious groups - they should only appear on the dedicated suspicious orders page
-    const nonSuspiciousGroups = useMemo(() => {
-        return orderGroups.filter(g => !g.isSuspicious);
-    }, [orderGroups]);
-
-    // Get suspicious order statistics
+    // Get suspicious order statistics for the alert banner
     const suspiciousStats = useMemo(() => {
         return getSuspiciousOrderStats(orderGroups);
     }, [orderGroups]);
@@ -148,12 +144,12 @@ export const OrderManagement = ({
                         )}
                         
                         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-2">
-                            {nonSuspiciousGroups.map((group, index) => (
+                            {paginatedOrders.map((order) => (
                                 <OrderCard 
-                                    key={group.orders[0].id} 
-                                    order={group.orders[0]} 
-                                    highlight={highlightOrderId === group.orders[0].id.toString()}
-                                    isUrgent={urgentOrders.some(urgent => urgent.id === group.orders[0].id) || group.orders[0].is_urgent}
+                                    key={order.id} 
+                                    order={order} 
+                                    highlight={highlightOrderId === order.id.toString()}
+                                    isUrgent={urgentOrders.some(urgent => urgent.id === order.id) || order.is_urgent}
                                 />
                             ))}
                         </div>

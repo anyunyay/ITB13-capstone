@@ -8,6 +8,7 @@ import { OrderManagement } from '@/components/orders/order-management';
 import { Order, OrdersPageProps } from '@/types/orders';
 import animations from './orders-animations.module.css';
 import { useTranslation } from '@/hooks/use-translation';
+import { groupSuspiciousOrders } from '@/utils/order-grouping';
 
 export default function OrdersIndex({ 
   orders, 
@@ -82,12 +83,26 @@ export default function OrdersIndex({
     };
   }, [allOrders]);
 
+  // Detect suspicious order groups first
+  const suspiciousOrderIds = useMemo(() => {
+    const groups = groupSuspiciousOrders(allOrders, 10);
+    const suspiciousGroups = groups.filter(g => g.isSuspicious && g.orders.length >= 2);
+    const ids = new Set<number>();
+    suspiciousGroups.forEach(group => {
+      group.orders.forEach(order => ids.add(order.id));
+    });
+    return ids;
+  }, [allOrders]);
+
   // Filter and sort orders (client-side)
   const filteredAndSortedOrders = useMemo(() => {
     let filtered = allOrders;
 
     // Filter out suspicious orders from main index (they go to dedicated page)
-    filtered = filtered.filter(order => !order.is_suspicious);
+    // This includes both individually marked suspicious AND orders in suspicious groups
+    filtered = filtered.filter(order => 
+      !order.is_suspicious && !suspiciousOrderIds.has(order.id)
+    );
 
     // Apply search filter
     if (searchTerm) {
