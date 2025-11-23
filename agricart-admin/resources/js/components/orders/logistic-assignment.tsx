@@ -2,6 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { useTranslation } from '@/hooks/use-translation';
+import { useEffect } from 'react';
 
 interface Logistic {
   id: number;
@@ -60,11 +61,15 @@ export const LogisticAssignment = ({
   // Get the highest-rated recommended logistic
   const recommendedLogistic = sortedRecommendedLogistics.length > 0 ? sortedRecommendedLogistics[0] : null;
   
-  // Auto-select recommended logistic when dialog opens
-  const handleDialogOpenChange = (open: boolean) => {
-    if (open && recommendedLogistic && !assignLogisticForm.data.logistic_id) {
+  // Pre-fill dropdown when dialog opens and recommended logistic is available
+  useEffect(() => {
+    if (assignLogisticDialogOpen && recommendedLogistic && !assignLogisticForm.data.logistic_id) {
       assignLogisticForm.setData('logistic_id', recommendedLogistic.id.toString());
     }
+  }, [assignLogisticDialogOpen, recommendedLogistic]);
+  
+  // Handle dialog open/close
+  const handleDialogOpenChange = (open: boolean) => {
     setAssignLogisticDialogOpen(open);
   };
   
