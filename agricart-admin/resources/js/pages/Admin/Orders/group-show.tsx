@@ -7,7 +7,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { format } from 'date-fns';
-import { ArrowLeft, User, MapPin, Phone, Mail, Package, Clock, AlertTriangle, Merge, XCircle } from 'lucide-react';
+import { ArrowLeft, User, MapPin, Phone, Mail, Package, Clock, AlertTriangle, Merge, XCircle, ChevronDown } from 'lucide-react';
 import { useTranslation } from '@/hooks/use-translation';
 import { Order } from '@/types/orders';
 import { PermissionGuard } from '@/components/common/permission-guard';
@@ -35,9 +35,23 @@ export default function GroupShow({ orders, groupInfo }: GroupShowProps) {
     const [rejectionReason, setRejectionReason] = useState('');
     const [isMerging, setIsMerging] = useState(false);
     const [isRejecting, setIsRejecting] = useState(false);
+    // Track expanded orders - first order is expanded by default
+    const [expandedOrders, setExpandedOrders] = useState<Set<number>>(new Set([orders[0]?.id]));
 
     const canMerge = orders.every(order => ['pending', 'delayed'].includes(order.status));
     const canReject = orders.every(order => ['pending', 'delayed'].includes(order.status));
+
+    const toggleOrderExpansion = (orderId: number) => {
+        setExpandedOrders(prev => {
+            const newSet = new Set(prev);
+            if (newSet.has(orderId)) {
+                newSet.delete(orderId);
+            } else {
+                newSet.add(orderId);
+            }
+            return newSet;
+        });
+    };
 
     const handleMergeOrders = () => {
         setIsMerging(true);
@@ -183,7 +197,7 @@ export default function GroupShow({ orders, groupInfo }: GroupShowProps) {
 
                     {/* Main Content Layout */}
                     <div className="space-y-6">
-                        <div className="grid grid-cols-1 xl:grid-cols-3 gap-2">
+                        <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
                             {/* Left Column - Customer & Group Info */}
                             <div className="xl:col-span-1 space-y-6">
                                 {/* Customer Information */}
@@ -267,29 +281,55 @@ export default function GroupShow({ orders, groupInfo }: GroupShowProps) {
                             <div className="xl:col-span-2 space-y-6">
                                 <h2 className="text-xl font-semibold text-foreground">Individual Orders</h2>
                                 
-                                {orders.map((order, index) => (
-                                    <Card key={order.id} className="border-l-4 border-l-red-500">
-                                        <CardHeader>
-                                            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                                                <div className="flex items-center gap-3">
-                                                    <div className="bg-red-100 dark:bg-red-900/20 text-red-600 dark:text-red-400 w-10 h-10 rounded-full flex items-center justify-center font-bold">
-                                                        {index + 1}
+                                {orders.map((order, index) => {
+                                    const isExpanded = expandedOrders.has(order.id);
+                                    
+                                    return (
+                                        <Card key={order.id} className="border-l-4 border-l-red-500 gap-0">
+                                            <CardHeader 
+                                                className="cursor-pointer hover:bg-muted/50 transition-colors"
+                                                onClick={() => toggleOrderExpansion(order.id)}
+                                            >
+                                                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+                                                    <div className="flex items-center gap-3 flex-1">
+                                                        <div className="bg-red-100 dark:bg-red-900/20 text-red-600 dark:text-red-400 w-10 h-10 rounded-full flex items-center justify-center font-bold flex-shrink-0">
+                                                            {index + 1}
+                                                        </div>
+                                                        <div className="flex-1 min-w-0">
+                                                            <CardTitle className="text-lg">Order #{order.id}</CardTitle>
+                                                            <p className="text-sm text-muted-foreground">
+                                                                {format(new Date(order.created_at), 'MMM dd, yyyy HH:mm:ss')}
+                                                            </p>
+                                                        </div>
                                                     </div>
-                                                    <div>
-                                                        <CardTitle className="text-lg">Order #{order.id}</CardTitle>
-                                                        <p className="text-sm text-muted-foreground">
-                                                            {format(new Date(order.created_at), 'MMM dd, yyyy HH:mm:ss')}
-                                                        </p>
+                                                    <div className="flex items-center gap-2 flex-wrap">
+                                                        {getStatusBadge(order.status)}
+                                                        {order.delivery_status && getDeliveryStatusBadge(order.delivery_status)}
+                                                        <Button
+                                                            variant="ghost"
+                                                            size="sm"
+                                                            className="ml-2 transition-transform duration-300"
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                toggleOrderExpansion(order.id);
+                                                            }}
+                                                        >
+                                                            <ChevronDown 
+                                                                className={`h-5 w-5 transition-transform duration-300 ${
+                                                                    isExpanded ? 'rotate-180' : 'rotate-0'
+                                                                }`} 
+                                                            />
+                                                        </Button>
                                                     </div>
                                                 </div>
-                                                <div className="flex items-center gap-2 flex-wrap">
-                                                    {getStatusBadge(order.status)}
-                                                    {order.delivery_status && getDeliveryStatusBadge(order.delivery_status)}
-                                                </div>
-                                            </div>
-                                        </CardHeader>
-                                        <CardContent>
-                                            <div className="space-y-4">
+                                            </CardHeader>
+                                            <div 
+                                                className={`overflow-hidden transition-all duration-300 ease-in-out ${
+                                                    isExpanded ? 'max-h-[2000px] opacity-100' : 'max-h-0 opacity-0'
+                                                }`}
+                                            >
+                                                <CardContent className="mt-4">
+                                                    <div className="space-y-4">
                                                 {/* Order Items */}
                                                 <div>
                                                     <h4 className="text-sm font-semibold text-foreground mb-2">Items</h4>
@@ -336,10 +376,12 @@ export default function GroupShow({ orders, groupInfo }: GroupShowProps) {
                                                         </Button>
                                                     </Link>
                                                 </div>
+                                                    </div>
+                                                </CardContent>
                                             </div>
-                                        </CardContent>
-                                    </Card>
-                                ))}
+                                        </Card>
+                                    );
+                                })}
                             </div>
                         </div>
                     </div>
