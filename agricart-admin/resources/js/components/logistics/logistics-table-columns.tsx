@@ -77,18 +77,6 @@ export const createLogisticsTableColumns = (
     ),
   },
   {
-    key: 'assigned_area',
-    label: 'Assigned Area',
-    sortable: true,
-    align: 'center',
-    maxWidth: '180px',
-    render: (logistic) => (
-      <div className="text-sm text-foreground text-center">
-        {logistic.assigned_area || 'N/A'}
-      </div>
-    ),
-  },
-  {
     key: 'registration_date',
     label: t('admin.registration_date'),
     sortable: true,
@@ -174,15 +162,34 @@ export const createLogisticsTableColumns = (
             </Button>
           </PermissionGate>
           <PermissionGate permissions={['edit logistics', 'assign logistics area']} requireAll={false}>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => onAssignArea(logistic)}
-              className="transition-all duration-200 hover:shadow-lg hover:opacity-90"
-            >
-              <MapPin className="h-4 w-4" />
-              Area
-            </Button>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => onAssignArea(logistic)}
+                    className="transition-all duration-200 hover:shadow-lg hover:opacity-90 max-w-[140px]"
+                  >
+                    <MapPin className="h-4 w-4 mr-1 flex-shrink-0" />
+                    <span className="truncate">
+                      {logistic.assigned_area || 'Assign Area'}
+                    </span>
+                  </Button>
+                </TooltipTrigger>
+                {logistic.assigned_area && (
+                  <TooltipContent>
+                    <p>Assigned to: {logistic.assigned_area}</p>
+                    <p className="text-xs text-muted-foreground">Click to change</p>
+                  </TooltipContent>
+                )}
+                {!logistic.assigned_area && (
+                  <TooltipContent>
+                    <p>Click to assign delivery area</p>
+                  </TooltipContent>
+                )}
+              </Tooltip>
+            </TooltipProvider>
           </PermissionGate>
         </div>
         
@@ -311,12 +318,6 @@ export const LogisticsMobileCard = ({
           </span>
         </div>
       )}
-      <div className="flex items-center gap-2 bg-blue-50 dark:bg-blue-900/20 px-2 py-1 rounded">
-        <MapPin className="h-3 w-3 text-blue-500" />
-        <span className="text-xs font-medium">
-          Area: {logistic.assigned_area || 'Not assigned'}
-        </span>
-      </div>
       {logistic.registration_date && (
         <div className="flex items-center gap-2">
           <Calendar className="h-3 w-3 text-muted-foreground" />
@@ -359,8 +360,10 @@ export const LogisticsMobileCard = ({
             onClick={() => onAssignArea(logistic)}
             className="flex-1"
           >
-            <MapPin className="h-4 w-4 mr-1" />
-            Area
+            <MapPin className="h-4 w-4 mr-1 flex-shrink-0" />
+            <span className="truncate">
+              {logistic.assigned_area || 'Assign Area'}
+            </span>
           </Button>
         </PermissionGate>
       </div>
