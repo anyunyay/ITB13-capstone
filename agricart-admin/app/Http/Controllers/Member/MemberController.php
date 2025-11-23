@@ -123,17 +123,22 @@ class MemberController extends Controller
         // Get pagination parameters
         $stockPage = $request->get('stock_page', 1);
         $transactionPage = $request->get('transaction_page', 1);
+        $trailPage = $request->get('trail_page', 1);
 
         // Get sorting parameters
         $stockSortBy = $request->get('stock_sort_by', 'product_name');
         $stockSortDir = $request->get('stock_sort_dir', 'asc');
         $transactionSortBy = $request->get('transaction_sort_by', 'created_at');
         $transactionSortDir = $request->get('transaction_sort_dir', 'desc');
+        $trailSortBy = $request->get('trail_sort_by', 'created_at');
+        $trailSortDir = $request->get('trail_sort_dir', 'desc');
 
         // Get filter parameters
         $stockCategoryFilter = $request->get('stock_category', 'all');
         $stockStatusFilter = $request->get('stock_status', 'all');
         $transactionCategoryFilter = $request->get('transaction_category', 'all');
+        $trailCategoryFilter = $request->get('trail_category', 'all');
+        $trailActionFilter = $request->get('trail_action', 'all');
 
         // Get date range parameters for transaction exports
         $startDate = $request->get('start_date');
@@ -146,6 +151,7 @@ class MemberController extends Controller
         // Set per page limits based on device
         $stockPerPage = $isMobile ? 5 : 10;
         $transactionPerPage = $isMobile ? 5 : 10;
+        $trailPerPage = $isMobile ? 5 : 10;
 
         // Get all stocks for the member using scopes
         $availableStocks = Stock::hasAvailableQuantity()
@@ -219,6 +225,60 @@ class MemberController extends Controller
         // Calculate transaction summary (with date filtering)
         $summary = $this->calculateTransactionSummary($user->id, $startDate, $endDate);
 
+        // Get stock trail data for the member with optimized eager loading
+        $stockTrailQuery = \App\Models\StockTrail::with([
+            'product' => function ($query) {
+                $query->select('id', 'name', 'price_kilo', 'price_pc', 'price_tali');
+            },
+            'member' => function ($query) {
+                $query->select('id', 'name');
+            },
+            'performedByUser' => function ($query) {
+                $query->select('id', 'name', 'type');
+            }
+        ])
+            ->select('id', 'stock_id', 'product_id', 'member_id', 'action_type', 'old_quantity', 'new_quantity', 'category', 'notes', 'performed_by', 'performed_by_type', 'created_at')
+            ->where('member_id', $user->id)
+            ->when($startDate, function ($query) use ($startDate) {
+                return $query->whereDate('created_at', '>=', $startDate);
+            })
+            ->when($endDate, function ($query) use ($endDate) {
+                return $query->whereDate('created_at', '<=', $endDate);
+            });
+
+        // Apply category filter to stock trail
+        if ($trailCategoryFilter !== 'all') {
+            $stockTrailQuery->where('category', $trailCategoryFilter);
+        }
+
+        // Apply action filter to stock trail
+        if ($trailActionFilter !== 'all') {
+            $stockTrailQuery->where('action_type', $trailActionFilter);
+        }
+
+        // Apply sorting to stock trail
+        $stockTrailQuery = $this->applyStockTrailSorting($stockTrailQuery, $trailSortBy, $trailSortDir);
+
+        // Manual pagination for stock trail
+        $totalTrails = $stockTrailQuery->count();
+        $stockTrails = $stockTrailQuery
+            ->skip(($trailPage - 1) * $trailPerPage)
+            ->take($trailPerPage)
+            ->get();
+
+        // Build stock trail pagination data
+        $trailPagination = [
+            'current_page' => (int) $trailPage,
+            'per_page' => $trailPerPage,
+            'total' => $totalTrails,
+            'last_page' => (int) ceil($totalTrails / $trailPerPage),
+            'from' => (($trailPage - 1) * $trailPerPage) + 1,
+            'to' => min($trailPage * $trailPerPage, $totalTrails),
+        ];
+
+        // Calculate stock trail summary (for all trails, not just paginated)
+        $trailSummary = $this->calculateStockTrailSummary($user->id, $startDate, $endDate);
+
         // Get display parameter for PDF viewing
         $display = $request->get('display', false);
 
@@ -249,7 +309,19 @@ class MemberController extends Controller
                     'to' => $transactionPagination['to'],
                 ],
             ],
+            'stockTrails' => [
+                'data' => $stockTrails,
+                'meta' => [
+                    'current_page' => $trailPagination['current_page'],
+                    'per_page' => $trailPagination['per_page'],
+                    'total' => $trailPagination['total'],
+                    'last_page' => $trailPagination['last_page'],
+                    'from' => $trailPagination['from'],
+                    'to' => $trailPagination['to'],
+                ],
+            ],
             'summary' => $summary,
+            'trailSummary' => $trailSummary,
             'stockPagination' => [
                 'current_page' => (int) $stockPage,
                 'per_page' => $stockPerPage,
@@ -263,11 +335,15 @@ class MemberController extends Controller
                 'stock_sort_dir' => $stockSortDir,
                 'transaction_sort_by' => $transactionSortBy,
                 'transaction_sort_dir' => $transactionSortDir,
+                'trail_sort_by' => $trailSortBy,
+                'trail_sort_dir' => $trailSortDir,
             ],
             'filters' => [
                 'stock_category' => $stockCategoryFilter,
                 'stock_status' => $stockStatusFilter,
                 'transaction_category' => $transactionCategoryFilter,
+                'trail_category' => $trailCategoryFilter,
+                'trail_action' => $trailActionFilter,
                 'start_date' => $startDate,
                 'end_date' => $endDate,
             ],
@@ -382,6 +458,34 @@ class MemberController extends Controller
                     ->join('users', 'sales.customer_id', '=', 'users.id')
                     ->orderBy('users.name', $sortDir)
                     ->select('audit_trails.*');
+
+            default:
+                return $query->orderBy('created_at', 'desc');
+        }
+    }
+
+    /**
+     * Apply sorting to stock trail query
+     */
+    private function applyStockTrailSorting($query, $sortBy, $sortDir)
+    {
+        switch ($sortBy) {
+            case 'product_name':
+                return $query->join('products', 'stock_trails.product_id', '=', 'products.id')
+                    ->orderBy('products.name', $sortDir)
+                    ->select('stock_trails.*');
+
+            case 'category':
+                return $query->orderBy('category', $sortDir);
+
+            case 'action_type':
+                return $query->orderBy('action_type', $sortDir);
+
+            case 'quantity':
+                return $query->orderBy('new_quantity', $sortDir);
+
+            case 'created_at':
+                return $query->orderBy('created_at', $sortDir);
 
             default:
                 return $query->orderBy('created_at', 'desc');
@@ -1198,5 +1302,65 @@ class MemberController extends Controller
         $pdf->setPaper('A4', 'landscape');
 
         return $display ? $pdf->stream($filename) : $pdf->download($filename);
+    }
+
+    /**
+     * Calculate stock trail summary including losses
+     */
+    private function calculateStockTrailSummary($memberId, $startDate = null, $endDate = null)
+    {
+        $query = \App\Models\StockTrail::with([
+            'product' => function ($query) {
+                $query->select('id', 'price_kilo', 'price_pc', 'price_tali');
+            }
+        ])
+            ->select('id', 'product_id', 'action_type', 'old_quantity', 'new_quantity', 'category', 'created_at')
+            ->where('member_id', $memberId)
+            ->when($startDate, function ($query) use ($startDate) {
+                return $query->whereDate('created_at', '>=', $startDate);
+            })
+            ->when($endDate, function ($query) use ($endDate) {
+                return $query->whereDate('created_at', '<=', $endDate);
+            });
+
+        $allTrails = $query->get();
+
+        // Count by action type
+        $totalChanges = $allTrails->count();
+        $totalAdded = $allTrails->where('action_type', 'added')->count();
+        $totalSold = $allTrails->where('action_type', 'sold')->count();
+        $totalRemoved = $allTrails->where('action_type', 'removed')->count();
+
+        // Calculate losses in sales (value of removed stock)
+        $totalRemovedValue = 0;
+        $removedTrails = $allTrails->where('action_type', 'removed');
+
+        foreach ($removedTrails as $trail) {
+            if ($trail->product && $trail->new_quantity !== null) {
+                // Calculate the quantity that was removed (old_quantity - new_quantity)
+                $removedQuantity = ($trail->old_quantity ?? 0) - ($trail->new_quantity ?? 0);
+
+                // Get the price based on category
+                $price = 0;
+                if ($trail->category === 'Kilo') {
+                    $price = $trail->product->price_kilo ?? 0;
+                } elseif ($trail->category === 'Pc') {
+                    $price = $trail->product->price_pc ?? 0;
+                } elseif ($trail->category === 'Tali') {
+                    $price = $trail->product->price_tali ?? 0;
+                }
+
+                // Calculate potential revenue lost
+                $totalRemovedValue += $removedQuantity * $price;
+            }
+        }
+
+        return [
+            'total_changes' => $totalChanges,
+            'total_added' => $totalAdded,
+            'total_sold' => $totalSold,
+            'total_removed' => $totalRemoved,
+            'total_removed_value' => $totalRemovedValue,
+        ];
     }
 }
