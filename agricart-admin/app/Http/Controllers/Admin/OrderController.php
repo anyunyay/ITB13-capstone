@@ -57,6 +57,7 @@ class OrderController extends Controller
             }
         ])
             ->select('id', 'customer_id', 'address_id', 'admin_id', 'logistic_id', 'total_amount', 'status', 'delivery_status', 'delivery_packed_time', 'delivered_time', 'created_at', 'admin_notes', 'is_urgent', 'is_suspicious', 'suspicious_reason')
+            ->where('status', '!=', 'merged') // Exclude merged orders from main index
             ->orderBy('created_at', 'desc')
             ->limit(200) // Reduced limit for better performance
             ->get()
@@ -155,6 +156,7 @@ class OrderController extends Controller
     public function suspicious(Request $request)
     {
         // Optimize: Load only recent orders with essential data
+        // Exclude merged orders from suspicious orders page
         $allOrders = SalesAudit::with([
             'customer' => function ($query) {
                 $query->select('id', 'name', 'email', 'contact_number');
@@ -179,6 +181,7 @@ class OrderController extends Controller
             }
         ])
             ->select('id', 'customer_id', 'address_id', 'admin_id', 'logistic_id', 'total_amount', 'status', 'delivery_status', 'delivery_packed_time', 'delivered_time', 'created_at', 'admin_notes', 'is_urgent', 'is_suspicious', 'suspicious_reason')
+            ->where('status', '!=', 'merged') // Exclude merged orders
             ->orderBy('created_at', 'desc')
             ->limit(500) // Increased limit to catch more potential suspicious patterns
             ->get()
@@ -413,7 +416,8 @@ class OrderController extends Controller
 
             \DB::commit();
 
-            return redirect()->route('admin.orders.show', $primaryOrder->id)
+            // Redirect to main orders index with the merged order highlighted
+            return redirect()->route('admin.orders.index', ['highlight_order' => $primaryOrder->id])
                 ->with('message', "Successfully merged {$orders->count()} orders into Order #{$primaryOrder->id}. New total: ₱{$newTotalAmount}");
 
         } catch (\Exception $e) {

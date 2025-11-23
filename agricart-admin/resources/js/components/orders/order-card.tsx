@@ -31,6 +31,8 @@ export const OrderCard = ({ order, highlight = false, isUrgent = false }: OrderC
                 return <Badge className="status-delayed">{t('admin.delayed')}</Badge>;
             case 'cancelled':
                 return <Badge className="status-cancelled">{t('admin.cancelled')}</Badge>;
+            case 'merged':
+                return <Badge className="bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400">Merged</Badge>;
             default:
                 return <Badge variant="outline">{status}</Badge>;
         }

@@ -9,7 +9,7 @@ export interface Order {
     subtotal?: number;
     coop_share?: number;
     member_share?: number;
-    status: 'pending' | 'approved' | 'rejected' | 'expired' | 'delayed' | 'cancelled';
+    status: 'pending' | 'approved' | 'rejected' | 'expired' | 'delayed' | 'cancelled' | 'merged';
     delivery_status: 'pending' | 'ready_to_pickup' | 'out_for_delivery' | 'delivered';
     created_at: string;
     admin?: {

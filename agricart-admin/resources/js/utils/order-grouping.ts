@@ -15,8 +15,11 @@ export function groupSuspiciousOrders(orders: Order[], timeWindowMinutes: number
     const groups: OrderGroup[] = [];
     const processedOrderIds = new Set<number>();
 
+    // Filter out merged orders before grouping
+    const activeOrders = orders.filter(order => order.status !== 'merged');
+
     // Sort orders by created_at
-    const sortedOrders = [...orders].sort((a, b) => 
+    const sortedOrders = [...activeOrders].sort((a, b) => 
         new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
     );
 
