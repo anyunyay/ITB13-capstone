@@ -53,6 +53,14 @@ export default function GroupShow({ orders, groupInfo }: GroupShowProps) {
         });
     };
 
+    const formatTimeSpan = (timeSpanInMinutes: number) => {
+        if (timeSpanInMinutes < 1) {
+            const seconds = Math.round(timeSpanInMinutes * 60);
+            return `${seconds} ${seconds === 1 ? 'second' : 'seconds'}`;
+        }
+        return `${timeSpanInMinutes} ${timeSpanInMinutes === 1 ? 'minute' : 'minutes'}`;
+    };
+
     const handleMergeOrders = () => {
         setIsMerging(true);
         
@@ -127,73 +135,77 @@ export default function GroupShow({ orders, groupInfo }: GroupShowProps) {
             <Head title={`Suspicious Order Group - ${groupInfo.customerName}`} />
 
             <PermissionGuard permission="view orders">
-                <div className="p-6">
-                    {/* Header */}
-                    <div className="flex flex-col gap-2 mb-6 lg:flex-row lg:items-center lg:justify-between">
-                        <div className="flex items-center gap-3">
-                            <div className="bg-red-100 dark:bg-red-900/20 text-red-600 dark:text-red-400 p-2.5 rounded-lg">
-                                <AlertTriangle className="h-5 w-5" />
+                <div className="p-6 space-y-6">
+                    {/* Header Card */}
+                    <Card>
+                        <CardHeader>
+                            <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+                                <div className="flex items-center gap-3">
+                                    <div className="bg-red-100 dark:bg-red-900/20 text-red-600 dark:text-red-400 p-2.5 rounded-lg">
+                                        <AlertTriangle className="h-5 w-5" />
+                                    </div>
+                                    <div>
+                                        <CardTitle className="text-2xl sm:text-3xl mb-1">
+                                            Suspicious Order Group
+                                        </CardTitle>
+                                        <p className="text-sm text-muted-foreground">
+                                            {groupInfo.totalOrders} orders from {groupInfo.customerName}
+                                        </p>
+                                    </div>
+                                </div>
+                                <div className="flex items-center gap-2 w-full lg:w-auto">
+                                    <PermissionGate permission="merge orders">
+                                        {canMerge && (
+                                            <Button 
+                                                onClick={() => setShowMergeDialog(true)}
+                                                className="bg-blue-600 hover:bg-blue-700 flex-1 lg:flex-none"
+                                            >
+                                                <Merge className="h-4 w-4 mr-2" />
+                                                <span className="hidden sm:inline">Merge Orders</span>
+                                                <span className="sm:hidden">Merge</span>
+                                            </Button>
+                                        )}
+                                    </PermissionGate>
+                                    <PermissionGate permission="manage orders">
+                                        {canReject && (
+                                            <Button 
+                                                onClick={() => setShowRejectDialog(true)}
+                                                variant="destructive"
+                                                className="bg-red-600 hover:bg-red-700 flex-1 lg:flex-none"
+                                            >
+                                                <XCircle className="h-4 w-4 mr-2" />
+                                                <span className="hidden sm:inline">Reject All</span>
+                                                <span className="sm:hidden">Reject</span>
+                                            </Button>
+                                        )}
+                                    </PermissionGate>
+                                    <Link href={route('admin.orders.suspicious')} className="flex-1 lg:flex-none">
+                                        <Button variant="outline" className="whitespace-nowrap w-full">
+                                            <ArrowLeft className="h-4 w-4 mr-2" />
+                                            <span className="hidden sm:inline">Back to Suspicious Orders</span>
+                                            <span className="sm:hidden">Back</span>
+                                        </Button>
+                                    </Link>
+                                </div>
                             </div>
-                            <div>
-                                <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-1">
-                                    Suspicious Order Group
-                                </h1>
-                                <p className="text-sm text-muted-foreground">
-                                    {groupInfo.totalOrders} orders from {groupInfo.customerName}
-                                </p>
-                            </div>
-                        </div>
-                        <div className="flex items-center gap-2 w-full lg:w-auto">
-                            <PermissionGate permission="merge orders">
-                                {canMerge && (
-                                    <Button 
-                                        onClick={() => setShowMergeDialog(true)}
-                                        className="bg-blue-600 hover:bg-blue-700 flex-1 lg:flex-none"
-                                    >
-                                        <Merge className="h-4 w-4 mr-2" />
-                                        <span className="hidden sm:inline">Merge Orders</span>
-                                        <span className="sm:hidden">Merge</span>
-                                    </Button>
-                                )}
-                            </PermissionGate>
-                            <PermissionGate permission="manage orders">
-                                {canReject && (
-                                    <Button 
-                                        onClick={() => setShowRejectDialog(true)}
-                                        variant="destructive"
-                                        className="bg-red-600 hover:bg-red-700 flex-1 lg:flex-none"
-                                    >
-                                        <XCircle className="h-4 w-4 mr-2" />
-                                        <span className="hidden sm:inline">Reject All</span>
-                                        <span className="sm:hidden">Reject</span>
-                                    </Button>
-                                )}
-                            </PermissionGate>
-                            <Link href={route('admin.orders.suspicious')} className="flex-1 lg:flex-none">
-                                <Button variant="outline" className="whitespace-nowrap w-full">
-                                    <ArrowLeft className="h-4 w-4 mr-2" />
-                                    <span className="hidden sm:inline">Back to Suspicious Orders</span>
-                                    <span className="sm:hidden">Back</span>
-                                </Button>
-                            </Link>
-                        </div>
-                    </div>
 
-                    {/* Warning Banner */}
-                    <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-300 dark:border-red-700 rounded-lg">
-                        <div className="flex items-start gap-3">
-                            <AlertTriangle className="h-5 w-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
-                            <div className="flex-1">
-                                <h3 className="text-base font-semibold text-red-800 dark:text-red-300 mb-2">
-                                    Suspicious Pattern Detected
-                                </h3>
-                                <p className="text-sm text-red-700 dark:text-red-400">
-                                    {groupInfo.totalOrders} orders were placed within {groupInfo.timeSpan} minutes from the same customer. 
-                                    This pattern may indicate unusual activity and requires review.
-                                </p>
+                            {/* Warning Banner */}
+                            <div className="mt-4 p-4 bg-red-50 dark:bg-red-900/20 border border-red-300 dark:border-red-700 rounded-lg">
+                                <div className="flex items-start gap-3">
+                                    <AlertTriangle className="h-5 w-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
+                                    <div className="flex-1">
+                                        <h3 className="text-base font-semibold text-red-800 dark:text-red-300 mb-2">
+                                            Suspicious Pattern Detected
+                                        </h3>
+                                        <p className="text-sm text-red-700 dark:text-red-400">
+                                            {groupInfo.totalOrders} orders were placed within {formatTimeSpan(groupInfo.timeSpan)} from the same customer. 
+                                            This pattern may indicate unusual activity and requires review.
+                                        </p>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                    </div>
+                        </CardHeader>
+                    </Card>
 
                     {/* Main Content Layout */}
                     <div className="space-y-6">
@@ -263,7 +275,7 @@ export default function GroupShow({ orders, groupInfo }: GroupShowProps) {
                                                 <Clock className="h-4 w-4" />
                                                 Time Span
                                             </p>
-                                            <p className="font-medium">{groupInfo.timeSpan} minutes</p>
+                                            <p className="font-medium">{formatTimeSpan(groupInfo.timeSpan)}</p>
                                         </div>
                                         <div>
                                             <p className="text-sm text-muted-foreground mb-1">First Order</p>
