@@ -317,7 +317,14 @@ return [
     'total_deliveries' => 'total deliveries',
     'page' => 'Page',
     'overall_rating' => 'Overall Rating',
+    'average_rating' => 'Average Rating',
     'total_ratings_count' => 'total ratings',
+    'view_feedback' => 'View Feedback',
+    'customer_feedback' => 'Customer Feedback',
+    'total_feedback' => 'Total Feedback',
+    'no_feedback_yet' => 'No feedback available yet',
+    'confirmed_on' => 'Confirmed on',
+    'order' => 'Order',
 
     // Sales
     'sales_management' => 'Sales Management',

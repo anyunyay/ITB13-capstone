@@ -38,6 +38,26 @@ class LogisticController extends Controller
                     : null;
                 
                 $totalRatings = $deliveries->count();
+                
+                // Get feedback for this logistic
+                $feedback = DB::table('sales')
+                    ->where('logistic_id', $logistic->id)
+                    ->whereNotNull('customer_feedback')
+                    ->whereNotNull('logistic_rating')
+                    ->select('id', 'customer_feedback', 'logistic_rating', 'delivered_at', 'customer_confirmed_at')
+                    ->orderBy('customer_confirmed_at', 'desc')
+                    ->limit(10)
+                    ->get()
+                    ->map(function($item) {
+                        return [
+                            'order_id' => $item->id,
+                            'feedback' => $item->customer_feedback,
+                            'rating' => $item->logistic_rating,
+                            'delivered_at' => $item->delivered_at,
+                            'confirmed_at' => $item->customer_confirmed_at,
+                        ];
+                    })
+                    ->toArray();
                 // Check if logistic has pending orders
                 $hasPendingOrders = $logistic->hasPendingOrders();
                 $canBeDeactivated = $logistic->active && !$hasPendingOrders;
@@ -105,6 +125,7 @@ class LogisticController extends Controller
                     'average_rating' => $averageRating,
                     'total_ratings' => $totalRatings,
                     'total_deliveries' => $totalDeliveries,
+                    'feedback' => $feedback,
                 ];
             });
         return Inertia::render('Logistics/index', compact('logistics'));

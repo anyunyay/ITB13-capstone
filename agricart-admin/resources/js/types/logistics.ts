@@ -1,3 +1,11 @@
+export interface LogisticFeedback {
+    order_id: number;
+    feedback: string;
+    rating: number;
+    delivered_at: string;
+    confirmed_at: string;
+}
+
 export interface Logistic {
     id: number;
     name: string;
@@ -21,6 +29,7 @@ export interface Logistic {
     average_rating?: number | null;
     total_ratings?: number;
     total_deliveries?: number;
+    feedback?: LogisticFeedback[];
     [key: string]: unknown;
 }
 

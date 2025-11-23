@@ -25,6 +25,7 @@ interface LogisticManagementProps {
     onDeactivate: (logistic: Logistic) => void;
     onReactivate: (logistic: Logistic) => void;
     onDelete: (logistic: Logistic) => void;
+    onViewFeedback: (logistic: Logistic) => void;
     highlightLogisticId: number | null;
     showDeactivated: boolean;
     setShowDeactivated: (show: boolean) => void;
@@ -51,6 +52,7 @@ export const LogisticManagement = ({
     onDeactivate,
     onReactivate,
     onDelete,
+    onViewFeedback,
     highlightLogisticId,
     showDeactivated,
     setShowDeactivated,
@@ -73,8 +75,8 @@ export const LogisticManagement = ({
     // Create column definitions
     const logisticsColumns = useMemo(() => {
         const startIndex = (currentPage - 1) * itemsPerPage;
-        return createLogisticsTableColumns(t, processing, onDeactivate, onReactivate, onDelete, startIndex);
-    }, [t, processing, onDeactivate, onReactivate, onDelete, currentPage, itemsPerPage]);
+        return createLogisticsTableColumns(t, processing, onDeactivate, onReactivate, onDelete, onViewFeedback, startIndex);
+    }, [t, processing, onDeactivate, onReactivate, onDelete, onViewFeedback, currentPage, itemsPerPage]);
 
     return (
         <div className="bg-card border border-border rounded-xl p-4 mb-4 shadow-sm">

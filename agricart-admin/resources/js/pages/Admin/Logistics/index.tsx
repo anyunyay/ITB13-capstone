@@ -12,6 +12,7 @@ import { LogisticManagement } from '@/components/logistics/logistic-management';
 import { DeactivationModal } from '@/components/logistics/deactivation-modal';
 import { ReactivationModal } from '@/components/logistics/reactivation-modal';
 import { LogisticDeletionModal } from '@/components/logistics/logistic-deletion-modal';
+import { FeedbackModal } from '@/components/logistics/feedback-modal';
 import { Logistic, LogisticStats } from '@/types/logistics';
 import { useTranslation } from '@/hooks/use-translation';
 
@@ -37,6 +38,7 @@ export default function Index() {
     const [showDeactivationModal, setShowDeactivationModal] = useState(false);
     const [showReactivationModal, setShowReactivationModal] = useState(false);
     const [showDeletionModal, setShowDeletionModal] = useState(false);
+    const [showFeedbackModal, setShowFeedbackModal] = useState(false);
     const [selectedLogistic, setSelectedLogistic] = useState<Logistic | null>(null);
     const [highlightLogisticId, setHighlightLogisticId] = useState<number | null>(null);
 
@@ -195,6 +197,17 @@ export default function Index() {
         setSelectedLogistic(null);
     };
 
+    // Handle view feedback
+    const handleViewFeedback = (logistic: Logistic) => {
+        setSelectedLogistic(logistic);
+        setShowFeedbackModal(true);
+    };
+
+    const handleCloseFeedback = () => {
+        setShowFeedbackModal(false);
+        setSelectedLogistic(null);
+    };
+
     return (
         <PermissionGuard
             permissions={['view logistics', 'create logistics', 'edit logistics', 'deactivate logistics', 'reactivate logistics', 'generate logistics report']}
@@ -228,6 +241,7 @@ export default function Index() {
                             onDeactivate={handleDeactivate}
                             onReactivate={handleReactivate}
                             onDelete={handleDelete}
+                            onViewFeedback={handleViewFeedback}
                             highlightLogisticId={highlightLogisticId}
                             showDeactivated={showDeactivated}
                             setShowDeactivated={setShowDeactivated}
@@ -262,6 +276,13 @@ export default function Index() {
                             logistic={selectedLogistic}
                             onConfirm={handleConfirmDeletion}
                             processing={processing}
+                        />
+
+                        {/* Feedback Modal */}
+                        <FeedbackModal
+                            isOpen={showFeedbackModal}
+                            onClose={handleCloseFeedback}
+                            logistic={selectedLogistic}
                         />
                     </div>
                 </div>
