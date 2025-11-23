@@ -76,4 +76,10 @@ export interface OrdersPageProps {
     highlightOrderId?: string;
     urgentOrders?: Order[];
     showUrgentApproval?: boolean;
+    pagination?: {
+        current_page: number;
+        per_page: number;
+        total: number;
+        has_more: boolean;
+    };
 }

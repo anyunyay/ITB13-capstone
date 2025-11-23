@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button';
-import { ChevronLeft, ChevronRight, MoreHorizontal } from 'lucide-react';
+import { ChevronLeft, ChevronRight, MoreHorizontal, Loader2 } from 'lucide-react';
 import { useTranslation } from '@/hooks/use-translation';
 
 interface PaginationControlsProps {
@@ -8,6 +8,9 @@ interface PaginationControlsProps {
     onPageChange: (page: number) => void;
     itemsPerPage: number;
     totalItems: number;
+    isLoading?: boolean;
+    hasMore?: boolean;
+    onLoadMore?: () => void;
 }
 
 export const PaginationControls = ({ 
@@ -15,7 +18,10 @@ export const PaginationControls = ({
     totalPages, 
     onPageChange, 
     itemsPerPage, 
-    totalItems
+    totalItems,
+    isLoading = false,
+    hasMore = false,
+    onLoadMore
 }: PaginationControlsProps) => {
     const t = useTranslation();
 
@@ -65,13 +71,21 @@ export const PaginationControls = ({
         return pages;
     };
 
-    if (totalPages <= 1) return null;
+    if (totalPages <= 1 && !hasMore) return null;
 
     return (
         <div className="flex flex-col gap-3 mt-8 p-3 md:p-4 bg-card border border-border rounded-xl shadow-sm md:flex-row md:items-center md:justify-between">
-            <span className="text-sm text-muted-foreground font-medium text-center md:text-left">
-                {((currentPage - 1) * itemsPerPage) + 1}-{Math.min(currentPage * itemsPerPage, totalItems)} {t('admin.of')} {totalItems}
-            </span>
+            <div className="flex items-center gap-3">
+                <span className="text-sm text-muted-foreground font-medium text-center md:text-left">
+                    {((currentPage - 1) * itemsPerPage) + 1}-{Math.min(currentPage * itemsPerPage, totalItems)} {t('admin.of')} {totalItems}
+                </span>
+                {isLoading && (
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        <span>Loading more...</span>
+                    </div>
+                )}
+            </div>
 
             <div className="flex items-center justify-center gap-1 md:gap-2 overflow-x-auto">
                 <Button

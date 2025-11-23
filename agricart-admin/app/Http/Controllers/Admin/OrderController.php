@@ -31,9 +31,13 @@ class OrderController extends Controller
         $status = $request->get('status', 'all');
         $highlightOrderId = $request->get('highlight_order');
         $showUrgentApproval = $request->get('urgent_approval', false);
-
-        // Optimize: Load only recent orders with essential data including audit trail for order cards
-        $allOrders = SalesAudit::with([
+        
+        // Smart pagination: Over-fetch to handle frontend filtering
+        $page = $request->get('page', 1);
+        $perPage = $request->get('per_page', 16); // Default to 16 for over-fetching
+        
+        // Build base query
+        $query = SalesAudit::with([
             'customer' => function ($query) {
                 $query->select('id', 'name', 'email', 'contact_number');
             },
@@ -58,10 +62,17 @@ class OrderController extends Controller
         ])
             ->select('id', 'customer_id', 'address_id', 'admin_id', 'logistic_id', 'total_amount', 'status', 'delivery_status', 'delivery_packed_time', 'delivered_time', 'created_at', 'admin_notes', 'is_urgent', 'is_suspicious', 'suspicious_reason')
             ->where('status', '!=', 'merged') // Exclude merged orders from main index
-            ->orderBy('created_at', 'desc')
-            ->limit(200) // Reduced limit for better performance
+            ->orderBy('created_at', 'desc');
+        
+        // Get total count for pagination metadata
+        $total = $query->count();
+        
+        // Paginate with over-fetching
+        $allOrders = $query
+            ->skip(($page - 1) * $perPage)
+            ->take($perPage)
             ->get()
-            ->values(); // Convert to array
+            ->values();
 
         // Process orders to check for delayed status and calculate urgent orders
         $processedOrders = $allOrders->map(function ($order) {
@@ -141,6 +152,9 @@ class OrderController extends Controller
             $orderAge = \Carbon\Carbon::parse($order['created_at'])->diffInHours(now());
             return $orderAge >= 16; // 16+ hours old (8 hours left)
         })->values(); // Convert to array
+        
+        // Calculate if there are more pages
+        $hasMore = $total > ($page * $perPage);
 
         return Inertia::render('Admin/Orders/index', [
             'orders' => $orders,
@@ -150,6 +164,12 @@ class OrderController extends Controller
             'highlightOrderId' => $highlightOrderId,
             'urgentOrders' => $urgentOrders,
             'showUrgentApproval' => $showUrgentApproval,
+            'pagination' => [
+                'current_page' => $page,
+                'per_page' => $perPage,
+                'total' => $total,
+                'has_more' => $hasMore,
+            ],
         ]);
     }
 

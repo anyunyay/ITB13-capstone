@@ -9,7 +9,15 @@ import { Order, OrdersPageProps } from '@/types/orders';
 import animations from './orders-animations.module.css';
 import { useTranslation } from '@/hooks/use-translation';
 
-export default function OrdersIndex({ orders, allOrders, currentStatus, highlightOrderId, urgentOrders = [], showUrgentApproval = false }: OrdersPageProps) {
+export default function OrdersIndex({ 
+  orders, 
+  allOrders, 
+  currentStatus, 
+  highlightOrderId, 
+  urgentOrders = [], 
+  showUrgentApproval = false,
+  pagination 
+}: OrdersPageProps) {
   const t = useTranslation();
   // Ensure urgentOrders is always an array
   const safeUrgentOrders = Array.isArray(urgentOrders) ? urgentOrders : [];
@@ -18,12 +26,12 @@ export default function OrdersIndex({ orders, allOrders, currentStatus, highligh
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedStatus, setSelectedStatus] = useState(currentStatus);
   const [selectedDeliveryStatus, setSelectedDeliveryStatus] = useState('all');
-  const [currentPage, setCurrentPage] = useState(1);
   const [showSearch, setShowSearch] = useState(false);
   const [currentView, setCurrentView] = useState<'cards' | 'table'>('cards');
   const [isMobile, setIsMobile] = useState(false);
   const [sortBy, setSortBy] = useState('id');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+  const [backendPage, setBackendPage] = useState(1);
 
   // Detect mobile screen size
   useEffect(() => {
@@ -38,7 +46,7 @@ export default function OrdersIndex({ orders, allOrders, currentStatus, highligh
   }, []);
   
   // Dynamic items per page based on view type and screen size
-  const itemsPerPage = currentView === 'cards' 
+  const targetVisibleCount = currentView === 'cards' 
     ? (isMobile ? 4 : 8) 
     : (isMobile ? 5 : 10);
 
@@ -74,11 +82,14 @@ export default function OrdersIndex({ orders, allOrders, currentStatus, highligh
     };
   }, [allOrders]);
 
-  // Filter and sort orders based on search and status
-  const filteredOrders = useMemo(() => {
+  // Filter and sort orders
+  const filteredAndSortedOrders = useMemo(() => {
     let filtered = allOrders;
 
-    // Filter by search term
+    // Filter out suspicious orders from main index (they go to dedicated page)
+    filtered = filtered.filter(order => !order.is_suspicious);
+
+    // Apply search filter
     if (searchTerm) {
       const searchLower = searchTerm.toLowerCase();
       filtered = filtered.filter(order => 
@@ -88,12 +99,12 @@ export default function OrdersIndex({ orders, allOrders, currentStatus, highligh
       );
     }
 
-    // Filter by status
+    // Apply status filter
     if (selectedStatus !== 'all') {
       filtered = filtered.filter(order => order.status === selectedStatus);
     }
 
-    // Filter by delivery status
+    // Apply delivery status filter
     if (selectedDeliveryStatus !== 'all') {
       filtered = filtered.filter(order => order.delivery_status === selectedDeliveryStatus);
     }
@@ -127,24 +138,41 @@ export default function OrdersIndex({ orders, allOrders, currentStatus, highligh
     });
   }, [allOrders, searchTerm, selectedStatus, selectedDeliveryStatus, sortBy, sortOrder]);
 
-  // Paginate filtered orders
+  // Paginate: slice to show exactly targetVisibleCount items
   const paginatedOrders = useMemo(() => {
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const endIndex = startIndex + itemsPerPage;
-    return filteredOrders.slice(startIndex, endIndex);
-  }, [filteredOrders, currentPage, itemsPerPage]);
+    const startIndex = (backendPage - 1) * targetVisibleCount;
+    const endIndex = startIndex + targetVisibleCount;
+    return filteredAndSortedOrders.slice(startIndex, endIndex);
+  }, [filteredAndSortedOrders, backendPage, targetVisibleCount]);
 
-  const totalPages = Math.ceil(filteredOrders.length / itemsPerPage);
+  const totalPages = Math.ceil(filteredAndSortedOrders.length / targetVisibleCount);
+  const hasMore = pagination?.has_more || false;
 
-  // Reset pagination when filters change
+  // Handle page change - load more data from backend if needed
+  const handlePageChange = (page: number) => {
+    setBackendPage(page);
+    
+    // If we're approaching the end of loaded data, fetch more from backend
+    const loadedCount = allOrders.length;
+    const neededCount = page * targetVisibleCount;
+    
+    if (neededCount > loadedCount * 0.8 && hasMore) {
+      // Fetch next batch from backend
+      router.reload({
+        data: {
+          status: selectedStatus,
+          page: Math.ceil(loadedCount / 16) + 1,
+          per_page: 16
+        },
+        only: ['allOrders', 'pagination'],
+      });
+    }
+  };
+
+  // Reset to page 1 when filters change
   useEffect(() => {
-    setCurrentPage(1);
-  }, [searchTerm, selectedStatus, selectedDeliveryStatus, showSearch]);
-
-  // Reset pagination when view changes (cards vs table) or screen size changes
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [currentView, isMobile]);
+    setBackendPage(1);
+  }, [searchTerm, selectedStatus, selectedDeliveryStatus, currentView, isMobile]);
 
   return (
     <PermissionGuard 
@@ -168,18 +196,20 @@ export default function OrdersIndex({ orders, allOrders, currentStatus, highligh
               setSelectedStatus={setSelectedStatus}
               selectedDeliveryStatus={selectedDeliveryStatus}
               setSelectedDeliveryStatus={setSelectedDeliveryStatus}
-              filteredOrders={filteredOrders}
+              filteredOrders={filteredAndSortedOrders}
               paginatedOrders={paginatedOrders}
-              currentPage={currentPage}
-              setCurrentPage={setCurrentPage}
+              currentPage={backendPage}
+              setCurrentPage={handlePageChange}
               totalPages={totalPages}
-              itemsPerPage={itemsPerPage}
+              itemsPerPage={targetVisibleCount}
               currentView={currentView}
               setCurrentView={setCurrentView}
               sortBy={sortBy}
               setSortBy={setSortBy}
               sortOrder={sortOrder}
               setSortOrder={setSortOrder}
+              isLoading={false}
+              hasMore={hasMore}
             />
           </div>
         </div>

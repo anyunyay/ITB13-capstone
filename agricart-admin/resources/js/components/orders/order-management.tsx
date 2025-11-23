@@ -36,6 +36,9 @@ interface OrderManagementProps {
     setSortBy: (field: string) => void;
     sortOrder: 'asc' | 'desc';
     setSortOrder: (order: 'asc' | 'desc') => void;
+    isLoading?: boolean;
+    hasMore?: boolean;
+    onLoadMore?: () => void;
 }
 
 export const OrderManagement = ({
@@ -61,7 +64,10 @@ export const OrderManagement = ({
     sortBy,
     setSortBy,
     sortOrder,
-    setSortOrder
+    setSortOrder,
+    isLoading = false,
+    hasMore = false,
+    onLoadMore
 }: OrderManagementProps) => {
     const t = useTranslation();
     
@@ -170,6 +176,9 @@ export const OrderManagement = ({
                     onPageChange={setCurrentPage}
                     itemsPerPage={itemsPerPage}
                     totalItems={filteredOrders.length}
+                    isLoading={isLoading}
+                    hasMore={hasMore}
+                    onLoadMore={onLoadMore}
                 />
             </>
         );
