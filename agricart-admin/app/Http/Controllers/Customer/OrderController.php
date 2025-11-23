@@ -625,10 +625,17 @@ class OrderController extends Controller
         $request->validate([
             'rating' => 'nullable|integer|min:1|max:5',
             'feedback' => 'nullable|string|max:1000',
+            'logistic_rating' => 'nullable|integer|min:1|max:5',
+            'logistic_feedback' => 'nullable|string|max:1000',
         ]);
 
         // Mark order as received
-        $order->markAsReceived($request->input('rating'), $request->input('feedback'));
+        $order->markAsReceived(
+            $request->input('rating'),
+            $request->input('feedback'),
+            $request->input('logistic_rating'),
+            $request->input('logistic_feedback')
+        );
 
         return redirect()->back()->with('success', 'Order confirmed as received successfully!');
     }

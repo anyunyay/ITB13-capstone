@@ -171,10 +171,12 @@ class ComprehensiveSalesSeeder extends Seeder
             ]);
 
             if ($order) {
-                // Create corresponding Sales record
+                // Create corresponding Sales record with ratings
+                $rating = rand(4, 5);
                 $sales = $this->createSalesRecord($order, $deliveredAt, $confirmedAt, [
-                    'customer_rate' => rand(4, 5),
+                    'customer_rate' => $rating,
                     'customer_feedback' => $this->getRandomFeedback(),
+                    'logistic_rating' => $rating,
                 ]);
                 
                 $this->command->info("Created historical order #{$order->id} - Delivered: {$deliveredAt->format('M j, Y')} - Total: ₱{$order->total_amount}");
@@ -329,6 +331,9 @@ class ComprehensiveSalesSeeder extends Seeder
             );
         }
 
+        // Generate a single rating that applies to both customer and logistics
+        $rating = $confirmedAt ? rand(4, 5) : null;
+        
         $defaults = [
             'customer_id' => $salesAudit->customer_id,
             'total_amount' => $salesAudit->total_amount,
@@ -342,6 +347,9 @@ class ComprehensiveSalesSeeder extends Seeder
             'delivered_at' => $deliveredAt,
             'customer_received' => $confirmedAt ? true : false,
             'customer_confirmed_at' => $confirmedAt,
+            'customer_rate' => $rating,
+            'logistic_rating' => $rating,
+            'logistic_feedback' => null,
         ];
 
         $salesData = array_merge($defaults, $overrides);

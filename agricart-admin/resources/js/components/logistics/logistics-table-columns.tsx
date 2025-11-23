@@ -89,6 +89,43 @@ export const createLogisticsTableColumns = (
     ),
   },
   {
+    key: 'average_rating',
+    label: t('admin.rating'),
+    sortable: true,
+    align: 'center',
+    maxWidth: '200px',
+    render: (logistic) => (
+      <div className="text-sm text-center">
+        {logistic.average_rating ? (
+          <div className="flex flex-col items-center gap-1">
+            <div className="flex items-center gap-1">
+              <span className="text-yellow-500">★</span>
+              <span className="font-semibold">{logistic.average_rating.toFixed(1)}</span>
+              <span className="text-muted-foreground">/ 5</span>
+            </div>
+            <div className="flex flex-col items-center gap-0.5">
+              <span className="text-xs text-muted-foreground">
+                {logistic.total_ratings} {logistic.total_ratings === 1 ? t('admin.rating') : t('admin.ratings')}
+              </span>
+              <span className="text-xs text-muted-foreground">
+                {logistic.total_deliveries} {t('admin.total_deliveries')}
+              </span>
+            </div>
+          </div>
+        ) : (
+          <div className="flex flex-col items-center gap-0.5">
+            <span className="text-muted-foreground">{t('admin.no_ratings_yet')}</span>
+            {logistic.total_deliveries && logistic.total_deliveries > 0 && (
+              <span className="text-xs text-muted-foreground">
+                {logistic.total_deliveries} {t('admin.total_deliveries')}
+              </span>
+            )}
+          </div>
+        )}
+      </div>
+    ),
+  },
+  {
     key: 'actions',
     label: t('admin.actions'),
     sortable: false,
@@ -234,6 +271,15 @@ export const LogisticsMobileCard = ({
           <Calendar className="h-3 w-3 text-muted-foreground" />
           <span className="text-muted-foreground">
             {new Date(logistic.registration_date).toLocaleDateString()}
+          </span>
+        </div>
+      )}
+      {logistic.average_rating && (
+        <div className="flex items-center gap-2 bg-yellow-50 dark:bg-yellow-900/20 px-2 py-1 rounded">
+          <span className="text-yellow-500">★</span>
+          <span className="font-semibold text-sm">{logistic.average_rating}</span>
+          <span className="text-xs text-muted-foreground">
+            ({logistic.total_ratings} {logistic.total_ratings === 1 ? t('admin.rating') : t('admin.ratings')})
           </span>
         </div>
       )}

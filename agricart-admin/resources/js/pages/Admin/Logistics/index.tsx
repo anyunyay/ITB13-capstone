@@ -55,12 +55,20 @@ export default function Index() {
     const logisticStats: LogisticStats = useMemo(() => {
         const activeLogistics = logistics.filter(l => l.active);
         const deactivatedLogistics = logistics.filter(l => !l.active);
+        
+        // Calculate overall average rating across all logistics
+        const logisticsWithRatings = logistics.filter(l => l.average_rating && l.average_rating > 0);
+        const overallRating = logisticsWithRatings.length > 0
+            ? logisticsWithRatings.reduce((sum, l) => sum + (l.average_rating || 0), 0) / logisticsWithRatings.length
+            : null;
 
         return {
             totalLogistics: logistics.length,
             activeLogistics: activeLogistics.length,
             deactivatedLogistics: deactivatedLogistics.length,
-            pendingRequests: 0 // This would come from your backend
+            pendingRequests: 0, // This would come from your backend
+            overallRating: overallRating,
+            totalRatings: logisticsWithRatings.reduce((sum, l) => sum + (l.total_ratings || 0), 0)
         };
     }, [logistics]);
 

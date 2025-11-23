@@ -25,6 +25,7 @@ class Sales extends Model
         'customer_rate',
         'customer_feedback',
         'customer_confirmed_at',
+        'logistic_rating',
     ];
 
     protected $casts = [
@@ -129,7 +130,7 @@ class Sales extends Model
     /**
      * Mark order as received by customer
      */
-    public function markAsReceived(int $rating = null, string $feedback = null): void
+    public function markAsReceived(?int $rating = null, ?string $feedback = null, ?int $logisticRating = null): void
     {
         $this->customer_received = true;
         $this->customer_confirmed_at = now();
@@ -138,6 +139,9 @@ class Sales extends Model
         }
         if ($feedback !== null) {
             $this->customer_feedback = $feedback;
+        }
+        if ($logisticRating !== null) {
+            $this->logistic_rating = $logisticRating;
         }
         $this->save();
     }

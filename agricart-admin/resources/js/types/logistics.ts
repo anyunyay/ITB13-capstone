@@ -18,6 +18,9 @@ export interface Logistic {
     deactivation_reason?: string;
     can_be_deleted: boolean;
     deletion_reason?: string;
+    average_rating?: number | null;
+    total_ratings?: number;
+    total_deliveries?: number;
     [key: string]: unknown;
 }
 
@@ -26,6 +29,8 @@ export interface LogisticStats {
     activeLogistics: number;
     deactivatedLogistics: number;
     pendingRequests: number;
+    overallRating: number | null;
+    totalRatings: number;
 }
 
 export interface LogisticFilters {
