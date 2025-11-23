@@ -82,7 +82,7 @@ export default function OrdersIndex({
     };
   }, [allOrders]);
 
-  // Filter and sort orders
+  // Filter and sort orders (client-side)
   const filteredAndSortedOrders = useMemo(() => {
     let filtered = allOrders;
 
@@ -138,7 +138,7 @@ export default function OrdersIndex({
     });
   }, [allOrders, searchTerm, selectedStatus, selectedDeliveryStatus, sortBy, sortOrder]);
 
-  // Paginate: slice to show exactly targetVisibleCount items
+  // Client-side pagination: slice to show exactly targetVisibleCount items
   const paginatedOrders = useMemo(() => {
     const startIndex = (backendPage - 1) * targetVisibleCount;
     const endIndex = startIndex + targetVisibleCount;
@@ -146,27 +146,10 @@ export default function OrdersIndex({
   }, [filteredAndSortedOrders, backendPage, targetVisibleCount]);
 
   const totalPages = Math.ceil(filteredAndSortedOrders.length / targetVisibleCount);
-  const hasMore = pagination?.has_more || false;
 
-  // Handle page change - load more data from backend if needed
+  // Simple page change handler
   const handlePageChange = (page: number) => {
     setBackendPage(page);
-    
-    // If we're approaching the end of loaded data, fetch more from backend
-    const loadedCount = allOrders.length;
-    const neededCount = page * targetVisibleCount;
-    
-    if (neededCount > loadedCount * 0.8 && hasMore) {
-      // Fetch next batch from backend
-      router.reload({
-        data: {
-          status: selectedStatus,
-          page: Math.ceil(loadedCount / 16) + 1,
-          per_page: 16
-        },
-        only: ['allOrders', 'pagination'],
-      });
-    }
   };
 
   // Reset to page 1 when filters change
@@ -209,7 +192,7 @@ export default function OrdersIndex({
               sortOrder={sortOrder}
               setSortOrder={setSortOrder}
               isLoading={false}
-              hasMore={hasMore}
+              hasMore={false}
             />
           </div>
         </div>
