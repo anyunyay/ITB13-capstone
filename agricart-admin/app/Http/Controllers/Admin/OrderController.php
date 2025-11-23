@@ -398,8 +398,14 @@ class OrderController extends Controller
                     'status' => 'merged',
                     'admin_notes' => "Merged into order #{$primaryOrder->id}",
                     'admin_id' => $request->user()->id,
+                    'is_suspicious' => false, // Clear suspicious flag
                 ]);
             }
+            
+            // Clear suspicious flag from primary order as well
+            $primaryOrder->update([
+                'is_suspicious' => false,
+            ]);
 
             // Log the merge operation
             SystemLogger::logOrderStatusChange(
