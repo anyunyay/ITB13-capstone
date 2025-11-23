@@ -23,6 +23,9 @@ import { TransactionHistoryCards } from '@/components/member/TransactionHistoryC
 import { TransactionHistoryTable } from '@/components/member/TransactionHistoryTable';
 import { StockOverviewCards } from '@/components/member/StockOverviewCards';
 import { StockOverviewTable } from '@/components/member/StockOverviewTable';
+import { StockTrailTable } from '@/components/member/StockTrailTable';
+import { StockTrailCards } from '@/components/member/StockTrailCards';
+import { StockTrailSummaryCards } from '@/components/member/StockTrailSummaryCards';
 
 interface Product {
     id: number;
@@ -137,19 +140,64 @@ interface Summary {
     total_gross_profit: number;
 }
 
+interface TrailSummary {
+    total_changes: number;
+    total_added: number;
+    total_sold: number;
+    total_removed: number;
+    total_removed_value: number;
+}
+
 interface SortingState {
     stock_sort_by: string;
     stock_sort_dir: string;
     transaction_sort_by: string;
     transaction_sort_dir: string;
+    trail_sort_by?: string;
+    trail_sort_dir?: string;
 }
 
 interface FilterState {
     stock_category: string;
     stock_status: string;
     transaction_category: string;
+    trail_category?: string;
+    trail_action?: string;
     start_date?: string;
     end_date?: string;
+}
+
+interface StockTrail {
+    id: number;
+    stock_id: number;
+    product_id: number;
+    member_id: number;
+    performed_by: number;
+    action_type: string;
+    old_quantity: number | null;
+    new_quantity: number | null;
+    category: string;
+    notes: string | null;
+    performed_by_type: string | null;
+    created_at: string;
+    product: {
+        id: number;
+        name: string;
+    };
+    member: {
+        id: number;
+        name: string;
+    };
+    performedByUser: {
+        id: number;
+        name: string;
+        type: string;
+    } | null;
+}
+
+interface StockTrailsData {
+    data: StockTrail[];
+    meta: PaginationData;
 }
 
 interface PageProps {
@@ -158,25 +206,29 @@ interface PageProps {
     comprehensiveStockData: ComprehensiveStockData[];
     allComprehensiveStockData: ComprehensiveStockData[];
     transactions: TransactionsData;
+    stockTrails: StockTrailsData;
     summary: Summary;
+    trailSummary: TrailSummary;
     stockPagination: PaginationData;
     sorting: SortingState;
     filters: FilterState;
 }
 
-export default function AllStocks({ availableStocks, salesData, comprehensiveStockData, allComprehensiveStockData, transactions, summary, stockPagination, sorting, filters }: PageProps) {
+export default function AllStocks({ availableStocks, salesData, comprehensiveStockData, allComprehensiveStockData, transactions, stockTrails, summary, trailSummary, stockPagination, sorting, filters }: PageProps) {
     const { auth } = usePage<SharedData>().props;
     const t = useTranslation();
 
     // Read view state from URL parameters on initial load
     const urlParams = new URLSearchParams(window.location.search);
-    const initialView = urlParams.get('view') === 'transactions';
+    const viewParam = urlParams.get('view');
+    const initialView = viewParam === 'transactions' ? 'transactions' : viewParam === 'trail' ? 'trail' : 'stocks';
     const highlightStockId = urlParams.get('highlight_stock');
     const highlightTransactionId = urlParams.get('highlight_transaction');
     const highlightProductId = urlParams.get('highlight_product');
     const highlightCategory = urlParams.get('highlight_category');
 
-    const [showTransactions, setShowTransactions] = useState(initialView);
+    const [currentView, setCurrentView] = useState<'stocks' | 'transactions' | 'trail'>(initialView);
+    const [showTransactions, setShowTransactions] = useState(initialView === 'transactions');
     const [isMobile, setIsMobile] = useState(false);
     const [filtersOpen, setFiltersOpen] = useState(false);
 
@@ -731,16 +783,96 @@ export default function AllStocks({ availableStocks, salesData, comprehensiveSto
             <Head title={t('member.all_stocks')} />
             <div className="p-4 pt-20 lg:p-6 lg:pt-25">
                 <div className="w-full flex flex-col gap-4">
+                    {/* View Toggle - Three Options - Moved to Top */}
+                    <div className="w-full">
+                        <div className="grid grid-cols-3 gap-2 p-1 border border-border rounded-lg bg-card shadow-sm">
+                            <Button
+                                variant={currentView === 'stocks' ? 'default' : 'ghost'}
+                                size="sm"
+                                onClick={() => {
+                                    setCurrentView('stocks');
+                                    setShowTransactions(false);
+                                    router.get(route('member.allStocks'), {
+                                        stock_page: stockPagination?.current_page || 1,
+                                        view: 'stocks',
+                                        stock_sort_by: sorting.stock_sort_by,
+                                        stock_sort_dir: sorting.stock_sort_dir,
+                                        stock_category: filters.stock_category,
+                                        stock_status: filters.stock_status,
+                                    }, {
+                                        preserveState: true,
+                                        preserveScroll: true,
+                                        replace: true
+                                    });
+                                }}
+                                className="flex items-center justify-center gap-1.5 w-full"
+                            >
+                                <BarChart3 className="h-4 w-4" />
+                                <span className="hidden sm:inline">{t('member.stock_overview')}</span>
+                                <span className="sm:hidden">Stocks</span>
+                            </Button>
+                            <Button
+                                variant={currentView === 'transactions' ? 'default' : 'ghost'}
+                                size="sm"
+                                onClick={() => {
+                                    setCurrentView('transactions');
+                                    setShowTransactions(true);
+                                    router.get(route('member.allStocks'), {
+                                        transaction_page: transactions?.meta?.current_page || 1,
+                                        view: 'transactions',
+                                        transaction_sort_by: sorting.transaction_sort_by,
+                                        transaction_sort_dir: sorting.transaction_sort_dir,
+                                        transaction_category: filters.transaction_category,
+                                    }, {
+                                        preserveState: true,
+                                        preserveScroll: true,
+                                        replace: true
+                                    });
+                                }}
+                                className="flex items-center justify-center gap-1.5 w-full"
+                            >
+                                <History className="h-4 w-4" />
+                                <span className="hidden sm:inline">{t('member.show_transactions')}</span>
+                                <span className="sm:hidden">Sales</span>
+                            </Button>
+                            <Button
+                                variant={currentView === 'trail' ? 'default' : 'ghost'}
+                                size="sm"
+                                onClick={() => {
+                                    setCurrentView('trail');
+                                    setShowTransactions(false);
+                                    router.get(route('member.allStocks'), {
+                                        trail_page: stockTrails?.meta?.current_page || 1,
+                                        view: 'trail',
+                                        trail_sort_by: sorting.trail_sort_by || 'created_at',
+                                        trail_sort_dir: sorting.trail_sort_dir || 'desc',
+                                        trail_category: filters.trail_category || 'all',
+                                        trail_action: filters.trail_action || 'all',
+                                    }, {
+                                        preserveState: true,
+                                        preserveScroll: true,
+                                        replace: true
+                                    });
+                                }}
+                                className="flex items-center justify-center gap-1.5 w-full"
+                            >
+                                <Package className="h-4 w-4" />
+                                <span className="hidden sm:inline">{t('member.stock_trail')}</span>
+                                <span className="sm:hidden">History</span>
+                            </Button>
+                        </div>
+                    </div>
+
                     {/* Header */}
                     <div className="bg-gradient-to-br from-card to-[color-mix(in_srgb,var(--card)_95%,var(--primary)_5%)] border border-border rounded-xl p-4 sm:p-6 shadow-lg">
                         {/* Mobile Layout */}
                         <div className="flex md:hidden items-center gap-2 mb-3">
                             <div className="flex items-center gap-2 flex-1 min-w-0">
                                 <div className="bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] text-primary p-2 rounded-lg shrink-0">
-                                    {showTransactions ? <History className="h-5 w-5" /> : <Package className="h-5 w-5" />}
+                                    {currentView === 'trail' ? <Package className="h-5 w-5" /> : currentView === 'transactions' ? <History className="h-5 w-5" /> : <BarChart3 className="h-5 w-5" />}
                                 </div>
                                 <h1 className="text-lg font-bold text-foreground truncate">
-                                    {showTransactions ? t('member.transaction_history') : t('member.all_stocks')}
+                                    {currentView === 'trail' ? t('member.stock_trail') : currentView === 'transactions' ? t('member.transaction_history') : t('member.all_stocks')}
                                 </h1>
                             </div>
                             <Link href={route('member.dashboard')}>
@@ -754,14 +886,16 @@ export default function AllStocks({ availableStocks, salesData, comprehensiveSto
                         <div className="hidden md:flex items-center justify-between">
                             <div className="flex items-center gap-3 flex-1 min-w-0">
                                 <div className="bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] text-primary p-3 rounded-lg shrink-0">
-                                    {showTransactions ? <History className="h-8 w-8" /> : <Package className="h-8 w-8" />}
+                                    {currentView === 'trail' ? <Package className="h-8 w-8" /> : currentView === 'transactions' ? <History className="h-8 w-8" /> : <BarChart3 className="h-8 w-8" />}
                                 </div>
                                 <div className="min-w-0">
                                     <h1 className="text-2xl md:text-3xl font-bold text-foreground truncate">
-                                        {showTransactions ? t('member.transaction_history') : t('member.all_stocks')}
+                                        {currentView === 'trail' ? t('member.stock_trail') : currentView === 'transactions' ? t('member.transaction_history') : t('member.all_stocks')}
                                     </h1>
                                     <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
-                                        {showTransactions
+                                        {currentView === 'trail'
+                                            ? t('member.stock_trail_description')
+                                            : currentView === 'transactions'
                                             ? t('member.transaction_history_description')
                                             : t('member.all_stocks_description')
                                         }
@@ -775,7 +909,7 @@ export default function AllStocks({ availableStocks, salesData, comprehensiveSto
                                         {t('member.back_to_dashboard') || 'Back to Dashboard'}
                                     </Button>
                                 </Link>
-                                {!showTransactions && (
+                                {currentView === 'stocks' && (
                                     <>
                                         <Button onClick={() => handleExportClick('csv')} variant="outline" className="flex items-center gap-2">
                                             <Download className="h-4 w-4" />
@@ -792,7 +926,7 @@ export default function AllStocks({ availableStocks, salesData, comprehensiveSto
 
                         {/* Mobile Export Buttons */}
                         <div className="flex md:hidden gap-2 mt-2">
-                            {!showTransactions && (
+                            {currentView === 'stocks' && (
                                 <>
                                     <Button onClick={() => handleExportClick('csv')} variant="outline" className="flex items-center justify-center gap-1.5 flex-1 text-xs px-3">
                                         <Download className="h-3.5 w-3.5" />
@@ -807,32 +941,18 @@ export default function AllStocks({ availableStocks, salesData, comprehensiveSto
                         </div>
                     </div>
 
-                    {/* Toggle Switch - Between Header and Summary Cards */}
-                    <div className="flex justify-end">
-                        <div className="flex items-center gap-2 px-3 py-2 border border-border rounded-lg bg-card shadow-sm">
-                            <div className="flex items-center gap-1.5">
-                                <BarChart3 className="h-4 w-4 text-muted-foreground" />
-                                <Label htmlFor="view-toggle" className="text-sm text-foreground whitespace-nowrap cursor-pointer">
-                                    {t('member.stock_overview')}
-                                </Label>
-                            </div>
-                            <Switch
-                                id="view-toggle"
-                                checked={showTransactions}
-                                onCheckedChange={handleViewToggle}
-                            />
-                            <div className="flex items-center gap-1.5">
-                                <History className="h-4 w-4 text-muted-foreground" />
-                                <Label htmlFor="view-toggle" className="text-sm text-foreground whitespace-nowrap cursor-pointer">
-                                    {t('member.show_transactions')}
-                                </Label>
-                            </div>
-                        </div>
-                    </div>
-
                     {/* Summary Cards */}
-                    <div className={`grid gap-2 ${showTransactions ? 'grid-cols-2 md:grid-cols-3 lg:grid-cols-6' : 'grid-cols-2 lg:grid-cols-4'}`}>
-                        {showTransactions ? (
+                    <div className={`grid gap-2 ${currentView === 'trail' ? 'grid-cols-2 md:grid-cols-3 lg:grid-cols-5' : showTransactions ? 'grid-cols-2 md:grid-cols-3 lg:grid-cols-6' : 'grid-cols-2 lg:grid-cols-4'}`}>
+                        {currentView === 'trail' ? (
+                            <StockTrailSummaryCards
+                                totalChanges={trailSummary?.total_changes || 0}
+                                totalAdded={trailSummary?.total_added || 0}
+                                totalSold={trailSummary?.total_sold || 0}
+                                totalRemoved={trailSummary?.total_removed || 0}
+                                totalRemovedValue={trailSummary?.total_removed_value || 0}
+                                formatCurrency={formatCurrency}
+                            />
+                        ) : showTransactions ? (
                             <TransactionSummaryCards
                                 summary={summary}
                                 formatCurrency={formatCurrency}
@@ -1035,7 +1155,83 @@ export default function AllStocks({ availableStocks, salesData, comprehensiveSto
                     </Card>
 
                     {/* Main Content Area */}
-                    {showTransactions ? (
+                    {currentView === 'trail' ? (
+                        <>
+                            {/* Stock Trail View */}
+                            {isMobile ? (
+                                <StockTrailCards
+                                    trails={stockTrails?.data || []}
+                                    from={stockTrails?.meta?.from || 0}
+                                    to={stockTrails?.meta?.to || 0}
+                                    total={stockTrails?.meta?.total || 0}
+                                />
+                            ) : (
+                                <StockTrailTable
+                                    trails={stockTrails?.data || []}
+                                    from={stockTrails?.meta?.from || 0}
+                                    to={stockTrails?.meta?.to || 0}
+                                    total={stockTrails?.meta?.total || 0}
+                                />
+                            )}
+                            
+                            {/* Stock Trail Pagination */}
+                            {stockTrails?.meta && stockTrails.meta.last_page > 1 && (
+                                <div className="flex justify-center mt-6">
+                                    <div className="flex items-center gap-2">
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            disabled={stockTrails.meta.current_page === 1}
+                                            onClick={() => {
+                                                router.get(route('member.allStocks'), {
+                                                    trail_page: stockTrails.meta.current_page - 1,
+                                                    view: 'trail',
+                                                    trail_sort_by: sorting.trail_sort_by || 'created_at',
+                                                    trail_sort_dir: sorting.trail_sort_dir || 'desc',
+                                                    trail_category: filters.trail_category || 'all',
+                                                    trail_action: filters.trail_action || 'all',
+                                                }, {
+                                                    preserveState: true,
+                                                    preserveScroll: false,
+                                                    replace: true
+                                                });
+                                            }}
+                                        >
+                                            {t('member.previous')}
+                                        </Button>
+                                        <span className="text-sm text-muted-foreground">
+                                            {t('member.showing_entries', {
+                                                from: stockTrails.meta.from,
+                                                to: stockTrails.meta.to,
+                                                total: stockTrails.meta.total
+                                            })}
+                                        </span>
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            disabled={stockTrails.meta.current_page === stockTrails.meta.last_page}
+                                            onClick={() => {
+                                                router.get(route('member.allStocks'), {
+                                                    trail_page: stockTrails.meta.current_page + 1,
+                                                    view: 'trail',
+                                                    trail_sort_by: sorting.trail_sort_by || 'created_at',
+                                                    trail_sort_dir: sorting.trail_sort_dir || 'desc',
+                                                    trail_category: filters.trail_category || 'all',
+                                                    trail_action: filters.trail_action || 'all',
+                                                }, {
+                                                    preserveState: true,
+                                                    preserveScroll: false,
+                                                    replace: true
+                                                });
+                                            }}
+                                        >
+                                            {t('member.next')}
+                                        </Button>
+                                    </div>
+                                </div>
+                            )}
+                        </>
+                    ) : showTransactions ? (
                         /* Transaction View */
                         <Card className="shadow-sm" data-transactions-table>
                             <CardHeader>
