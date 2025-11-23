@@ -323,6 +323,10 @@ return [
     'customer_feedback' => 'Customer Feedback',
     'total_feedback' => 'Total Feedback',
     'no_feedback_yet' => 'No feedback available yet',
+    'no_feedback_description' => 'This logistic hasn\'t received any customer feedback yet. Feedback will appear here once customers rate their delivery experience.',
+    'customer_reviews' => 'Customer Reviews',
+    'review' => 'review',
+    'reviews' => 'reviews',
     'confirmed_on' => 'Confirmed on',
     'order' => 'Order',
 
