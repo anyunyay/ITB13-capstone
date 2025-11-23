@@ -31,16 +31,16 @@ class ComprehensiveSalesSeeder extends Seeder
             \Illuminate\Notifications\Events\NotificationSending::class,
             \Illuminate\Notifications\Events\NotificationSent::class,
         ]);
-        
+
         // Clear existing data in correct order to avoid foreign key violations
         // IMPORTANT: Clear child tables BEFORE parent tables
         // 1. First clear notifications (references sales_audit via order_id in data)
         \Illuminate\Support\Facades\DB::table('notifications')->delete();
-        
+
         // 2. Then clear sales and audit trails (reference sales_audit)
         Sales::query()->delete();
         AuditTrail::query()->delete();
-        
+
         // 3. Finally clear sales_audit (parent table)
         SalesAudit::query()->delete();
 
@@ -62,12 +62,12 @@ class ComprehensiveSalesSeeder extends Seeder
         }
 
         // Get products with available stock from any member (excluding locked stocks)
-        $products = Product::with(['stocks' => function($query) {
+        $products = Product::with(['stocks' => function ($query) {
             $query->where('quantity', '>', 0)
-                  ->whereNull('removed_at'); // Exclude removed stocks
-        }])->whereHas('stocks', function($query) {
+                ->whereNull('removed_at'); // Exclude removed stocks
+        }])->whereHas('stocks', function ($query) {
             $query->where('quantity', '>', 0)
-                  ->whereNull('removed_at'); // Exclude removed stocks
+                ->whereNull('removed_at'); // Exclude removed stocks
         })->get();
 
         if ($products->isEmpty()) {
@@ -104,9 +104,14 @@ class ComprehensiveSalesSeeder extends Seeder
             ]);
 
             if ($order) {
-                // Create corresponding Sales record
-                $sales = $this->createSalesRecord($order, $deliveredAt, $confirmedAt);
-                
+                // Create corresponding Sales record with feedback
+                $rating = rand(4, 5);
+                $sales = $this->createSalesRecord($order, $deliveredAt, $confirmedAt, [
+                    'customer_rate' => $rating,
+                    'customer_feedback' => $this->getRandomFeedback(),
+                    'logistic_rating' => $rating,
+                ]);
+
                 $this->command->info("Created completed order #{$order->id} - Delivered: {$deliveredAt->format('M j, Y')} - Total: ₱{$order->total_amount}");
             }
         }
@@ -178,7 +183,7 @@ class ComprehensiveSalesSeeder extends Seeder
                     'customer_feedback' => $this->getRandomFeedback(),
                     'logistic_rating' => $rating,
                 ]);
-                
+
                 $this->command->info("Created historical order #{$order->id} - Delivered: {$deliveredAt->format('M j, Y')} - Total: ₱{$order->total_amount}");
             }
         }
@@ -191,28 +196,28 @@ class ComprehensiveSalesSeeder extends Seeder
     {
         // Select 1-4 random products for realistic order sizes
         $selectedProducts = $products->random(rand(1, 4));
-        
+
         $subtotal = 0;
         $orderItems = [];
 
         // Calculate order items and totals from available stocks across all members
         foreach ($selectedProducts as $product) {
             // Only get stocks that are available and not locked (quantity > 0 and not removed)
-            $availableStocks = $product->stocks->filter(function($stock) {
+            $availableStocks = $product->stocks->filter(function ($stock) {
                 return $this->isStockAvailable($stock);
             });
-            
+
             if ($availableStocks->isEmpty()) continue;
 
             // Randomly select a stock from available ones (could be from any member)
             $stock = $availableStocks->random();
-            
+
             // Don't order more than available, and leave at least 1 unit to avoid locking during seeding
             $maxQuantity = min(5, max(1, (int)$stock->quantity - 1));
             if ($maxQuantity < 1) continue; // Skip if stock is too low
-            
+
             $quantity = rand(1, $maxQuantity);
-            
+
             $price = $this->getProductPrice($product, $stock->category);
             $itemTotal = $price * $quantity;
             $subtotal += $itemTotal;
@@ -261,7 +266,7 @@ class ComprehensiveSalesSeeder extends Seeder
         // Create audit trail entries with proper stock tracking
         foreach ($orderItems as $item) {
             $availableStockAfter = $item['stock']->quantity - $item['quantity'];
-            
+
             AuditTrail::create([
                 'sale_id' => $order->id,
                 'order_id' => $order->id,
@@ -284,12 +289,12 @@ class ComprehensiveSalesSeeder extends Seeder
             if ($order->status === 'approved') {
                 // Refresh stock to get latest data
                 $item['stock']->refresh();
-                
+
                 // Only update if stock is not locked
                 if (!$item['stock']->isLocked()) {
                     $item['stock']->decrement('quantity', $item['quantity']);
                     $item['stock']->increment('sold_quantity', $item['quantity']);
-                    
+
                     // If stock reaches zero after this sale, create Stock Trail entry
                     $item['stock']->refresh();
                     if ($item['stock']->quantity == 0 && $item['stock']->sold_quantity > 0) {
@@ -333,7 +338,7 @@ class ComprehensiveSalesSeeder extends Seeder
 
         // Generate a single rating that applies to both customer and logistics
         $rating = $confirmedAt ? rand(4, 5) : null;
-        
+
         $defaults = [
             'customer_id' => $salesAudit->customer_id,
             'total_amount' => $salesAudit->total_amount,
@@ -349,7 +354,6 @@ class ComprehensiveSalesSeeder extends Seeder
             'customer_confirmed_at' => $confirmedAt,
             'customer_rate' => $rating,
             'logistic_rating' => $rating,
-            'logistic_feedback' => null,
         ];
 
         $salesData = array_merge($defaults, $overrides);
@@ -364,7 +368,7 @@ class ComprehensiveSalesSeeder extends Seeder
      */
     private function getProductPrice($product, $category)
     {
-        return match($category) {
+        return match ($category) {
             'Kilo' => $product->price_kilo ?? 0,
             'Pc' => $product->price_pc ?? 0,
             'Tali' => $product->price_tali ?? 0,
@@ -398,7 +402,7 @@ class ComprehensiveSalesSeeder extends Seeder
      */
     private function isStockAvailable($stock)
     {
-        return $stock->quantity > 0 
+        return $stock->quantity > 0
             && is_null($stock->removed_at)
             && !($stock->quantity == 0 && $stock->sold_quantity > 0); // Not locked
     }
