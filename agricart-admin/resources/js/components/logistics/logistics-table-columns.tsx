@@ -4,9 +4,56 @@ import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Link } from '@inertiajs/react';
 import { route } from 'ziggy-js';
-import { Edit, UserMinus, RotateCcw, MapPin, Phone, Mail, Calendar, Trash2, MessageSquare } from 'lucide-react';
+import { Edit, UserMinus, RotateCcw, MapPin, Phone, Mail, Calendar, Trash2, MessageSquare, ChevronDown, ChevronUp } from 'lucide-react';
 import { PermissionGate } from '@/components/common/permission-gate';
 import { Logistic } from '@/types/logistics';
+import React, { useState } from 'react';
+
+// Expandable address component
+const ExpandableAddress = ({ address, notAvailableText }: { address: string | null, notAvailableText: string }) => {
+  const [isExpanded, setIsExpanded] = useState(false);
+  
+  if (!address) {
+    return <span className="text-muted-foreground">{notAvailableText}</span>;
+  }
+  
+  const handleToggle = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsExpanded(prev => !prev);
+  };
+  
+  return (
+    <div className="flex flex-col gap-2 py-1">
+      {isExpanded ? (
+        <div className="text-sm break-words whitespace-normal">
+          {address}
+        </div>
+      ) : (
+        <div className="text-sm break-words line-clamp-2">
+          {address}
+        </div>
+      )}
+      <button
+        onClick={handleToggle}
+        className="text-xs text-primary hover:underline flex items-center gap-1 self-start -mt-1"
+        type="button"
+      >
+        {isExpanded ? (
+          <>
+            <ChevronUp className="h-3 w-3" />
+            Show less
+          </>
+        ) : (
+          <>
+            <ChevronDown className="h-3 w-3" />
+            Show more
+          </>
+        )}
+      </button>
+    </div>
+  );
+};
 
 export const createLogisticsTableColumns = (
   t: (key: string) => string,
@@ -69,10 +116,13 @@ export const createLogisticsTableColumns = (
     align: 'center',
     maxWidth: '250px',
     render: (logistic) => (
-      <div className="text-sm text-foreground text-left">
-        {logistic.default_address
-          ? `${logistic.default_address.street}, ${logistic.default_address.barangay}, ${logistic.default_address.city}, ${logistic.default_address.province}`
-          : t('admin.not_available')}
+      <div className="text-foreground text-left min-h-0">
+        <ExpandableAddress
+          address={logistic.default_address
+            ? `${logistic.default_address.street}, ${logistic.default_address.barangay}, ${logistic.default_address.city}, ${logistic.default_address.province}`
+            : null}
+          notAvailableText={t('admin.not_available')}
+        />
       </div>
     ),
   },
@@ -98,7 +148,7 @@ export const createLogisticsTableColumns = (
     maxWidth: '220px',
     render: (logistic) => (
       <div className="text-sm text-center">
-        {logistic.average_rating ? (
+        {logistic.average_rating && logistic.total_ratings && logistic.total_ratings > 0 ? (
           <div className="flex flex-col items-center gap-1">
             <div className="flex items-center gap-1">
               <span className="text-yellow-500">★</span>
@@ -109,9 +159,11 @@ export const createLogisticsTableColumns = (
               <span className="text-xs text-muted-foreground">
                 {logistic.total_ratings} {logistic.total_ratings === 1 ? t('admin.rating') : t('admin.ratings')}
               </span>
-              <span className="text-xs text-muted-foreground">
-                {logistic.total_deliveries} {t('admin.total_deliveries')}
-              </span>
+              {logistic.total_deliveries && logistic.total_deliveries > 0 && (
+                <span className="text-xs text-muted-foreground">
+                  {logistic.total_deliveries} {t('admin.total_deliveries')}
+                </span>
+              )}
             </div>
             {logistic.feedback && logistic.feedback.length > 0 && (
               <Button
@@ -128,11 +180,6 @@ export const createLogisticsTableColumns = (
         ) : (
           <div className="flex flex-col items-center gap-0.5">
             <span className="text-muted-foreground">{t('admin.no_ratings_yet')}</span>
-            {logistic.total_deliveries && logistic.total_deliveries > 0 && (
-              <span className="text-xs text-muted-foreground">
-                {logistic.total_deliveries} {t('admin.total_deliveries')}
-              </span>
-            )}
           </div>
         )}
       </div>
@@ -324,10 +371,10 @@ export const LogisticsMobileCard = ({
           </span>
         </div>
       )}
-      {logistic.average_rating && (
+      {logistic.average_rating && logistic.total_ratings && logistic.total_ratings > 0 && (
         <div className="flex items-center gap-2 bg-yellow-50 dark:bg-yellow-900/20 px-2 py-1 rounded">
           <span className="text-yellow-500">★</span>
-          <span className="font-semibold text-sm">{logistic.average_rating}</span>
+          <span className="font-semibold text-sm">{logistic.average_rating.toFixed(1)}</span>
           <span className="text-xs text-muted-foreground">
             ({logistic.total_ratings} {logistic.total_ratings === 1 ? t('admin.rating') : t('admin.ratings')})
           </span>
