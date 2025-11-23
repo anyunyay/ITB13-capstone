@@ -57,14 +57,18 @@ export const GroupedOrderCard = ({ orders, highlight = false }: GroupedOrderCard
                 <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2 mb-2">
                         <Badge variant="destructive" className="bg-red-600 text-white animate-pulse text-sm">
-                            ⚠️ SUSPICIOUS ORDER GROUP
+                            ⚠️ {orders.length > 1 ? 'SUSPICIOUS ORDER GROUP' : 'FLAGGED ORDER'}
                         </Badge>
                     </div>
                     <h3 className="text-lg font-semibold text-card-foreground m-0 mb-1 leading-tight">
-                        {orders.length} Orders from Same Customer
+                        {orders.length > 1 
+                            ? `${orders.length} Orders from Same Customer` 
+                            : 'Individually Flagged Order'}
                     </h3>
                     <p className="text-sm text-muted-foreground m-0 leading-snug">
-                        {format(firstOrderTime, 'MMM dd, yyyy HH:mm')} - {format(lastOrderTime, 'HH:mm')} ({minutesDiff} minutes)
+                        {orders.length > 1 
+                            ? `${format(firstOrderTime, 'MMM dd, yyyy HH:mm')} - ${format(lastOrderTime, 'HH:mm')} (${minutesDiff} minutes)`
+                            : format(firstOrderTime, 'MMM dd, yyyy HH:mm')}
                     </p>
                 </div>
             </div>
@@ -75,7 +79,10 @@ export const GroupedOrderCard = ({ orders, highlight = false }: GroupedOrderCard
                     <p className="text-red-800 dark:text-red-300 text-sm font-semibold m-0 flex items-center gap-2">
                         <span className="text-lg">⚠️</span>
                         <span>
-                            {orders.length} orders placed within {minutesDiff} minutes (Total: ₱{totalAmount.toFixed(2)})
+                            {orders.length > 1 
+                                ? `${orders.length} orders placed within ${minutesDiff} minutes (Total: ₱${totalAmount.toFixed(2)})`
+                                : orders[0].suspicious_reason || `Flagged as suspicious (Total: ₱${totalAmount.toFixed(2)})`
+                            }
                         </span>
                     </p>
                 </div>
