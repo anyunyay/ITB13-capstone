@@ -240,7 +240,7 @@ class InventoryStockController extends Controller
     {
         $request->validate([
             'stock_id' => 'required|exists:stocks,id',
-            'reason' => 'required|string|max:500',
+            'reason' => 'required|string|in:Sold Outside,Damaged / Defective,Listing Error',
         ]);
 
         $stock = Stock::findOrFail($request->stock_id);
@@ -260,11 +260,37 @@ class InventoryStockController extends Controller
         }
 
         $oldQuantity = $stock->quantity;
+        $reason = $request->reason;
+        
+        // Calculate loss amount for "Damaged / Defective" reason
+        $lossAmount = null;
+        if ($reason === 'Damaged / Defective') {
+            // Calculate the loss based on the product price and quantity
+            $price = 0;
+            if ($stock->category === 'Kilo') {
+                $price = $product->price_kilo ?? 0;
+            } elseif ($stock->category === 'Pc') {
+                $price = $product->price_pc ?? 0;
+            } elseif ($stock->category === 'Tali') {
+                $price = $product->price_tali ?? 0;
+            }
+            $lossAmount = $oldQuantity * $price;
+        }
         
         // Mark stock as removed using the new method
-        $stock->remove($request->reason);
+        $stock->remove($reason);
 
-        // Record stock trail
+        // Build notes with impact information
+        $notes = $reason;
+        if ($reason === 'Sold Outside') {
+            $notes .= ' - No impact on system (no revenue or loss recorded)';
+        } elseif ($reason === 'Damaged / Defective') {
+            $notes .= ' - Loss recorded: ₱' . number_format($lossAmount, 2);
+        } elseif ($reason === 'Listing Error') {
+            $notes .= ' - No impact on system (incorrect stock quantity removed)';
+        }
+
+        // Record stock trail with detailed notes
         StockTrail::record(
             stockId: $stock->id,
             productId: $product->id,
@@ -273,12 +299,23 @@ class InventoryStockController extends Controller
             newQuantity: 0,
             memberId: $stock->member_id,
             category: $stock->category,
-            notes: $request->reason,
+            notes: $notes,
             performedBy: $request->user()->id,
             performedByType: $request->user()->type
         );
 
-        // Log stock removal
+        // Log stock removal with additional context
+        $logData = [
+            'member_id' => $stock->member_id,
+            'category' => $stock->category,
+            'product_name' => $product->name,
+            'reason' => $reason,
+        ];
+        
+        if ($lossAmount !== null) {
+            $logData['loss_amount'] = $lossAmount;
+        }
+
         SystemLogger::logStockUpdate(
             $stock->id,
             $product->id,
@@ -287,12 +324,7 @@ class InventoryStockController extends Controller
             $request->user()->id,
             $request->user()->type,
             'stock_removed',
-            [
-                'member_id' => $stock->member_id,
-                'category' => $stock->category,
-                'product_name' => $product->name,
-                'reason' => $request->reason
-            ]
+            $logData
         );
 
         // Notify admin and staff about inventory update (optimized with caching)
@@ -305,7 +337,12 @@ class InventoryStockController extends Controller
             $admin->notify(new InventoryUpdateNotification($stock, 'removed', $stock->member));
         }
 
-        return redirect()->route('inventory.index')->with('message', 'Perished stock removed successfully');
+        $successMessage = 'Stock removed successfully';
+        if ($reason === 'Damaged / Defective') {
+            $successMessage .= ' - Loss of ₱' . number_format($lossAmount, 2) . ' recorded';
+        }
+
+        return redirect()->route('inventory.index')->with('message', $successMessage);
     }
 
     public function removedStocks()

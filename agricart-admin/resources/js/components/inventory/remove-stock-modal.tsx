@@ -45,8 +45,7 @@ export const RemoveStockModal = ({
         onOtherReasonChange('');
     };
 
-    const otherReasonKey = t('admin.rejection_reason_other');
-    const isSubmitDisabled = !selectedStock || !reason || (reason === otherReasonKey && !otherReason) || processing;
+    const isSubmitDisabled = !selectedStock || !reason || processing;
 
     return (
         <Dialog open={isOpen} onOpenChange={handleClose}>
@@ -110,30 +109,30 @@ export const RemoveStockModal = ({
                                     <SelectValue placeholder={t('admin.select_reason_for_removal')} />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value={t('admin.removal_reason_sold_out')}>{t('admin.removal_reason_sold_out')}</SelectItem>
-                                    <SelectItem value={t('admin.removal_reason_discontinued')}>{t('admin.removal_reason_discontinued')}</SelectItem>
-                                    <SelectItem value={t('admin.removal_reason_damaged')}>{t('admin.removal_reason_damaged')}</SelectItem>
-                                    <SelectItem value={t('admin.removal_reason_expired')}>{t('admin.removal_reason_expired')}</SelectItem>
-                                    <SelectItem value={t('admin.removal_reason_season_ended')}>{t('admin.removal_reason_season_ended')}</SelectItem>
-                                    <SelectItem value={t('admin.removal_reason_listing_error')}>{t('admin.removal_reason_listing_error')}</SelectItem>
-                                    <SelectItem value={t('admin.removal_reason_vendor_inactive')}>{t('admin.removal_reason_vendor_inactive')}</SelectItem>
-                                    <SelectItem value={t('admin.removal_reason_under_update')}>{t('admin.removal_reason_under_update')}</SelectItem>
-                                    <SelectItem value={t('admin.removal_reason_regulatory_issue')}>{t('admin.removal_reason_regulatory_issue')}</SelectItem>
-                                    <SelectItem value={otherReasonKey}>{otherReasonKey}</SelectItem>
+                                    <SelectItem value="Sold Outside">Sold Outside</SelectItem>
+                                    <SelectItem value="Damaged / Defective">Damaged / Defective</SelectItem>
+                                    <SelectItem value="Listing Error">Listing Error</SelectItem>
                                 </SelectContent>
                             </Select>
                             
-                            {reason === otherReasonKey && (
-                                <div className="space-y-2">
-                                    <Label htmlFor="other_reason" className="text-sm font-medium">{t('admin.specify_other_reason')}</Label>
-                                    <Textarea
-                                        id="other_reason"
-                                        value={otherReason || ''}
-                                        onChange={(e) => onOtherReasonChange(e.target.value)}
-                                        placeholder={t('admin.specify_reason_for_removal')}
-                                        rows={3}
-                                        className="resize-none"
-                                    />
+                            {/* Show impact information based on selected reason */}
+                            {reason && (
+                                <div className="p-3 bg-muted/30 rounded-lg border text-sm">
+                                    {reason === "Sold Outside" && (
+                                        <p className="text-muted-foreground">
+                                            <span className="font-semibold text-foreground">Impact:</span> No impact on the system. Does not add revenue or losses. Only removes the stock quantity.
+                                        </p>
+                                    )}
+                                    {reason === "Damaged / Defective" && (
+                                        <p className="text-muted-foreground">
+                                            <span className="font-semibold text-destructive">Impact:</span> This action creates a loss in the system. Deducts stock and records the loss amount properly in the stock trail or financial logs.
+                                        </p>
+                                    )}
+                                    {reason === "Listing Error" && (
+                                        <p className="text-muted-foreground">
+                                            <span className="font-semibold text-foreground">Impact:</span> No impact on the system. No revenue or loss recorded. Simply removes the incorrect stock quantity.
+                                        </p>
+                                    )}
                                 </div>
                             )}
                         </div>
