@@ -139,6 +139,22 @@ export default function History({ orders: initialOrders, currentStatus, currentD
     setHasMore(initialHasMore);
   }, [JSON.stringify(initialOrders), initialHasMore]);
 
+  // Refresh orders when page becomes visible (to catch status updates from logistics)
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        // Page is now visible, refresh the order list to get latest statuses
+        router.reload({ only: ['orders', 'counts', 'hasMore', 'totalOrders'] });
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [currentDeliveryStatus, currentStatus]);
+
   // Close export modal smoothly when user starts scrolling
   useEffect(() => {
     if (!reportOpen) return;
@@ -623,6 +639,7 @@ export default function History({ orders: initialOrders, currentStatus, currentD
                 <section className="space-y-4 sm:space-y-5 md:space-y-6">
                   {displayedOrders.map((order: Order) => (
                   <article key={order.id} id={`order-${order.id}`} className="p-4 sm:p-5 md:p-6 lg:p-8 bg-card border border-border rounded-2xl hover:shadow-xl transition-all duration-300 overflow-hidden">
+                    {/* Order status and delivery_status are from Sales Audit (source of truth) */}
                     <div className="relative mb-3 sm:mb-4 md:mb-5">
                       {/* Mobile Layout */}
                       <div className="sm:hidden space-y-2">
@@ -632,6 +649,7 @@ export default function History({ orders: initialOrders, currentStatus, currentD
                             <span className="text-sm font-bold text-primary">#{order.id}</span>
                           </div>
                           <div className="flex-shrink-0">
+                            {/* Status badge from Sales Audit */}
                             {getStatusBadge(order.status)}
                           </div>
                         </div>
@@ -695,9 +713,9 @@ export default function History({ orders: initialOrders, currentStatus, currentD
                             </div>
                             <span className="text-[9px] sm:text-[10px] font-medium text-center">{t('customer.ready')}</span>
                           </div>
-                          <div className={`flex flex-col items-center gap-0.5 sm:gap-1 ${(order.delivery_status || 'pending') === 'out_for_delivery' ? 'text-primary' : (order.delivery_status || 'pending') === 'delivered' ? 'text-primary' : 'text-muted-foreground'}`}>
-                            <div className={`w-5 h-5 sm:w-7 sm:h-7 rounded-full flex items-center justify-center text-[10px] sm:text-xs ${(order.delivery_status || 'pending') === 'out_for_delivery' || (order.delivery_status || 'pending') === 'delivered' ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`} aria-label="Step 3">
-                              {(order.delivery_status || 'pending') === 'out_for_delivery' ? '3' : (order.delivery_status || 'pending') === 'delivered' ? '✓' : '3'}
+                          <div className={`flex flex-col items-center gap-0.5 sm:gap-1 ${(order.delivery_status || 'pending') === 'out_for_delivery' ? 'text-primary' : 'text-muted-foreground'}`}>
+                            <div className={`w-5 h-5 sm:w-7 sm:h-7 rounded-full flex items-center justify-center text-[10px] sm:text-xs ${(order.delivery_status || 'pending') === 'out_for_delivery' ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`} aria-label="Step 3">
+                              {(order.delivery_status || 'pending') === 'out_for_delivery' ? '3' : '✓'}
                             </div>
                             <span className="text-[9px] sm:text-[10px] font-medium text-center leading-tight">{t('customer.out_for_delivery')}</span>
                           </div>

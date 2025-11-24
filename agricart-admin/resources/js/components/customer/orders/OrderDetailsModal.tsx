@@ -70,10 +70,14 @@ export default function OrderDetailsModal({ isOpen, onClose, orderId }: OrderDet
     setError(null);
 
     try {
-      const response = await fetch(`/customer/orders/${orderId}`, {
+      // Add cache-busting parameter to ensure fresh data
+      const timestamp = new Date().getTime();
+      const response = await fetch(`/customer/orders/${orderId}?_=${timestamp}`, {
         headers: {
           'Accept': 'application/json',
           'X-Requested-With': 'XMLHttpRequest',
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache',
         },
       });
 
@@ -139,7 +143,7 @@ export default function OrderDetailsModal({ isOpen, onClose, orderId }: OrderDet
 
           {!isLoading && !error && order && (
             <div className="space-y-3 sm:space-y-4">
-              {/* Order Header */}
+              {/* Order Header - Status from Sales Audit (source of truth) */}
               <div className="p-3 sm:p-4 bg-muted rounded-lg">
                 {/* Mobile: Order ID and Status on same row */}
                 <div className="flex items-center justify-between gap-2 mb-2">
@@ -148,6 +152,7 @@ export default function OrderDetailsModal({ isOpen, onClose, orderId }: OrderDet
                     <span className="text-xs sm:text-sm font-bold text-primary">#{order.id}</span>
                   </div>
                   <div className="flex-shrink-0">
+                    {/* Status badge displays order.status from Sales Audit */}
                     {getStatusBadge(order.status)}
                   </div>
                 </div>
@@ -160,7 +165,7 @@ export default function OrderDetailsModal({ isOpen, onClose, orderId }: OrderDet
                 </div>
               </div>
 
-              {/* Delivery Status */}
+              {/* Delivery Status Timeline - Based on Sales Audit delivery_status */}
               {((order.status === 'approved' || order.status === 'delivered') && order.delivery_status) && (
                 <div className="p-2 sm:p-3 bg-primary/10 rounded-lg border border-primary/20 overflow-x-auto">
                   <span className="block text-[10px] sm:text-xs md:text-sm font-semibold mb-2 text-primary">
@@ -179,9 +184,9 @@ export default function OrderDetailsModal({ isOpen, onClose, orderId }: OrderDet
                       </div>
                       <span className="text-[8px] sm:text-[9px] md:text-[10px] font-medium text-center">{t('customer.ready')}</span>
                     </div>
-                    <div className={`flex flex-col items-center gap-0.5 sm:gap-1 ${order.delivery_status === 'out_for_delivery' || order.delivery_status === 'delivered' ? 'text-primary' : 'text-muted-foreground'}`}>
-                      <div className={`w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 rounded-full flex items-center justify-center text-[10px] sm:text-xs ${order.delivery_status === 'out_for_delivery' || order.delivery_status === 'delivered' ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`}>
-                        {order.delivery_status === 'out_for_delivery' ? '3' : order.delivery_status === 'delivered' ? '✓' : '3'}
+                    <div className={`flex flex-col items-center gap-0.5 sm:gap-1 ${order.delivery_status === 'out_for_delivery' ? 'text-primary' : 'text-muted-foreground'}`}>
+                      <div className={`w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 rounded-full flex items-center justify-center text-[10px] sm:text-xs ${order.delivery_status === 'out_for_delivery' ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`}>
+                        {order.delivery_status === 'out_for_delivery' ? '3' : '✓'}
                       </div>
                       <span className="text-[8px] sm:text-[9px] md:text-[10px] font-medium text-center leading-tight">{t('customer.out_for_delivery')}</span>
                     </div>

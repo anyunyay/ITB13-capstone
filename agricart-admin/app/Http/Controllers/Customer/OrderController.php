@@ -32,12 +32,16 @@ class OrderController extends Controller
                     // Use delivered_at as the primary timestamp for sorting delivered orders
                     $sortTimestamp = $sale->delivered_at ?? $sale->updated_at;
                     
+                    // Get status from sales_audit if available, otherwise default to delivered
+                    $status = $sale->salesAudit ? $sale->salesAudit->status : 'delivered';
+                    $deliveryStatus = $sale->salesAudit ? $sale->salesAudit->delivery_status : 'delivered';
+                    
                     return [
                         'id' => $sale->sales_audit_id ?? $sale->id, // Use original order ID from sales_audit
                         'sales_id' => $sale->id, // Keep sales table ID for internal reference
                         'total_amount' => $sale->total_amount,
-                        'status' => 'delivered', // All sales table orders are delivered
-                        'delivery_status' => 'delivered',
+                        'status' => $status, // Use status from sales_audit
+                        'delivery_status' => $deliveryStatus, // Use delivery_status from sales_audit
                         'created_at' => $sale->created_at->toISOString(),
                         'updated_at' => $sortTimestamp->toISOString(), // Use delivered_at for sorting
                         'delivered_at' => $sale->delivered_at?->toISOString(),
@@ -238,12 +242,16 @@ class OrderController extends Controller
                     // Use delivered_at as the primary timestamp for sorting delivered orders
                     $sortTimestamp = $sale->delivered_at ?? $sale->updated_at;
                     
+                    // Get status from sales_audit if available, otherwise default to delivered
+                    $status = $sale->salesAudit ? $sale->salesAudit->status : 'delivered';
+                    $deliveryStatus = $sale->salesAudit ? $sale->salesAudit->delivery_status : 'delivered';
+                    
                     return [
                         'id' => $sale->sales_audit_id ?? $sale->id, // Use original order ID from sales_audit
                         'sales_id' => $sale->id, // Keep sales table ID for internal reference
                         'total_amount' => $sale->total_amount,
-                        'status' => 'delivered',
-                        'delivery_status' => 'delivered',
+                        'status' => $status, // Use status from sales_audit
+                        'delivery_status' => $deliveryStatus, // Use delivery_status from sales_audit
                         'created_at' => $sale->created_at->toISOString(),
                         'updated_at' => $sortTimestamp->toISOString(), // Use delivered_at for sorting
                         'delivered_at' => $sale->delivered_at?->toISOString(),
@@ -405,12 +413,16 @@ class OrderController extends Controller
             $salesOrders = $salesQuery->orderBy('delivered_at', 'desc')
                 ->get()
                 ->map(function ($sale) {
+                    // Get status from sales_audit if available, otherwise default to delivered
+                    $status = $sale->salesAudit ? $sale->salesAudit->status : 'delivered';
+                    $deliveryStatus = $sale->salesAudit ? $sale->salesAudit->delivery_status : 'delivered';
+                    
                     return [
                         'id' => $sale->sales_audit_id ?? $sale->id, // Use original order ID from sales_audit
                         'sales_id' => $sale->id, // Keep sales table ID for internal reference
                         'total_amount' => $sale->total_amount,
-                        'status' => 'delivered',
-                        'delivery_status' => 'delivered',
+                        'status' => $status, // Use status from sales_audit
+                        'delivery_status' => $deliveryStatus, // Use delivery_status from sales_audit
                         'created_at' => $sale->created_at,
                         'updated_at' => $sale->delivered_at ?? $sale->updated_at, // Use delivered_at for sorting
                         'admin_notes' => $sale->admin_notes,
@@ -665,11 +677,15 @@ class OrderController extends Controller
             ->first();
 
         if ($salesOrder) {
+            // Get status from sales_audit if available, otherwise default to delivered
+            $status = $salesOrder->salesAudit ? $salesOrder->salesAudit->status : 'delivered';
+            $deliveryStatus = $salesOrder->salesAudit ? $salesOrder->salesAudit->delivery_status : 'delivered';
+            
             $order = [
                 'id' => $salesOrder->sales_audit_id ?? $salesOrder->id, // Use original order ID
                 'total_amount' => $salesOrder->total_amount,
-                'status' => 'delivered',
-                'delivery_status' => 'delivered',
+                'status' => $status, // Use status from sales_audit
+                'delivery_status' => $deliveryStatus, // Use delivery_status from sales_audit
                 'created_at' => $salesOrder->created_at->toISOString(),
                 'delivered_at' => $salesOrder->delivered_at?->toISOString(),
                 'admin_notes' => $salesOrder->admin_notes,
