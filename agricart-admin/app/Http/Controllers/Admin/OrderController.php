@@ -175,7 +175,7 @@ class OrderController extends Controller
     public function suspicious(Request $request)
     {
         // Optimize: Load only recent orders with essential data
-        // Exclude merged orders from suspicious orders page
+        // Only include pending and delayed orders - approved/rejected orders cannot be suspicious
         $allOrders = SalesAudit::with([
             'customer' => function ($query) {
                 $query->select('id', 'name', 'email', 'contact_number');
@@ -200,7 +200,7 @@ class OrderController extends Controller
             }
         ])
             ->select('id', 'customer_id', 'address_id', 'admin_id', 'logistic_id', 'total_amount', 'status', 'delivery_status', 'delivery_packed_time', 'delivered_time', 'created_at', 'admin_notes', 'is_urgent', 'is_suspicious', 'suspicious_reason')
-            ->whereNotIn('status', ['merged', 'rejected', 'cancelled']) // Exclude merged, rejected, and cancelled orders
+            ->whereIn('status', ['pending', 'delayed']) // Only pending/delayed orders can be suspicious
             ->orderBy('created_at', 'desc')
             ->limit(500) // Increased limit to catch more potential suspicious patterns
             ->get()
@@ -380,10 +380,11 @@ class OrderController extends Controller
             return redirect()->back()->with('error', 'No orders found to reject.');
         }
 
-        // Verify all orders can be rejected (pending or delayed status)
+        // Verify all orders can be rejected (pending or delayed status only)
+        // Approved or rejected orders cannot be in suspicious list
         $invalidStatuses = $orders->whereNotIn('status', ['pending', 'delayed']);
         if ($invalidStatuses->isNotEmpty()) {
-            return redirect()->back()->with('error', 'Can only reject orders with pending or delayed status.');
+            return redirect()->back()->with('error', 'Can only reject orders with pending or delayed status. Approved or rejected orders cannot be marked as suspicious.');
         }
 
         try {
@@ -469,10 +470,11 @@ class OrderController extends Controller
             return redirect()->back()->with('error', 'Cannot merge orders from different customers.');
         }
 
-        // Verify all orders are in pending or delayed status
+        // Verify all orders are in pending or delayed status only
+        // Approved or rejected orders cannot be in suspicious list
         $invalidStatuses = $orders->whereNotIn('status', ['pending', 'delayed']);
         if ($invalidStatuses->isNotEmpty()) {
-            return redirect()->back()->with('error', 'Can only merge orders with pending or delayed status.');
+            return redirect()->back()->with('error', 'Can only merge orders with pending or delayed status. Approved or rejected orders cannot be marked as suspicious.');
         }
 
         try {
@@ -949,6 +951,8 @@ class OrderController extends Controller
             'delivery_status' => 'pending',
             'admin_id' => $request->user()->id,
             'admin_notes' => $request->input('admin_notes'),
+            'is_suspicious' => false, // Clear suspicious flag when approved
+            'suspicious_reason' => null, // Clear suspicious reason
         ]);
 
         // Log order approval
@@ -1061,6 +1065,8 @@ class OrderController extends Controller
             'delivery_status' => null,
             'admin_id' => $request->user()->id,
             'admin_notes' => $request->input('admin_notes'),
+            'is_suspicious' => false, // Clear suspicious flag when rejected
+            'suspicious_reason' => null, // Clear suspicious reason
         ]);
 
         // Log order rejection

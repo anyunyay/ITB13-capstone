@@ -15,8 +15,13 @@ export function groupSuspiciousOrders(orders: Order[], timeWindowMinutes: number
     const groups: OrderGroup[] = [];
     const processedOrderIds = new Set<number>();
 
-    // Filter out merged orders before grouping
-    const activeOrders = orders.filter(order => order.status !== 'merged');
+    // Filter out merged, approved, and rejected orders before grouping
+    // Only pending and delayed orders can be suspicious
+    const activeOrders = orders.filter(order => 
+        order.status !== 'merged' && 
+        order.status !== 'approved' && 
+        order.status !== 'rejected'
+    );
 
     // Sort orders by created_at
     const sortedOrders = [...activeOrders].sort((a, b) => 

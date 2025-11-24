@@ -23,8 +23,12 @@ export default function SuspiciousOrdersPage({ orders, logistics }: SuspiciousOr
     const itemsPerPage = 10;
 
     // Get orders marked as suspicious in database
+    // Only include pending/delayed orders - approved/rejected cannot be suspicious
     const markedSuspiciousOrders = useMemo(() => {
-        return orders.filter(order => order.is_suspicious);
+        return orders.filter(order => 
+            order.is_suspicious && 
+            (order.status === 'pending' || order.status === 'delayed')
+        );
     }, [orders]);
 
     // Group orders for suspicious pattern detection

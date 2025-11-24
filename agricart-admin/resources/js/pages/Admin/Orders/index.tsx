@@ -84,12 +84,18 @@ export default function OrdersIndex({
   }, [allOrders]);
 
   // Detect suspicious order groups first
+  // Only pending/delayed orders can be suspicious - approved/rejected are excluded
   const suspiciousOrderIds = useMemo(() => {
     const groups = groupSuspiciousOrders(allOrders, 10);
     const suspiciousGroups = groups.filter(g => g.isSuspicious && g.orders.length >= 2);
     const ids = new Set<number>();
     suspiciousGroups.forEach(group => {
-      group.orders.forEach(order => ids.add(order.id));
+      group.orders.forEach(order => {
+        // Double-check order status before adding to suspicious list
+        if (order.status === 'pending' || order.status === 'delayed') {
+          ids.add(order.id);
+        }
+      });
     });
     return ids;
   }, [allOrders]);
@@ -100,9 +106,12 @@ export default function OrdersIndex({
 
     // Filter out suspicious orders from main index (they go to dedicated page)
     // This includes both individually marked suspicious AND orders in suspicious groups
-    filtered = filtered.filter(order => 
-      !order.is_suspicious && !suspiciousOrderIds.has(order.id)
-    );
+    // Only pending/delayed orders can be suspicious - approved/rejected stay in main index
+    filtered = filtered.filter(order => {
+      const isSuspicious = order.is_suspicious || suspiciousOrderIds.has(order.id);
+      const canBeSuspicious = order.status === 'pending' || order.status === 'delayed';
+      return !(isSuspicious && canBeSuspicious);
+    });
 
     // Apply search filter
     if (searchTerm) {
