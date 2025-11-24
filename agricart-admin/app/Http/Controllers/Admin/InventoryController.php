@@ -268,6 +268,9 @@ class InventoryController extends Controller
                 'price_tali' => $request->input('price_tali'),
             ]);
 
+            // Create initial price trend records for the new product
+            $this->createInitialPriceTrendRecords($product);
+
             return redirect()->route('inventory.index')->with('flash', [
                 'type' => 'success',
                 'message' => 'Inventory item created successfully'
@@ -907,5 +910,47 @@ class InventoryController extends Controller
         $exists = $query->exists();
 
         return response()->json(['exists' => $exists]);
+    }
+
+    /**
+     * Create initial price trend records when a new product is created
+     */
+    private function createInitialPriceTrendRecords(Product $product)
+    {
+        $today = now()->toDateString();
+
+        // Create a price trend record for each price type that has a value
+        if ($product->price_kilo) {
+            PriceTrend::create([
+                'product_name' => $product->name,
+                'date' => $today,
+                'price_per_kg' => $product->price_kilo,
+                'price_per_tali' => null,
+                'price_per_pc' => null,
+                'unit_type' => 'kg',
+            ]);
+        }
+
+        if ($product->price_tali) {
+            PriceTrend::create([
+                'product_name' => $product->name,
+                'date' => $today,
+                'price_per_kg' => null,
+                'price_per_tali' => $product->price_tali,
+                'price_per_pc' => null,
+                'unit_type' => 'tali',
+            ]);
+        }
+
+        if ($product->price_pc) {
+            PriceTrend::create([
+                'product_name' => $product->name,
+                'date' => $today,
+                'price_per_kg' => null,
+                'price_per_tali' => null,
+                'price_per_pc' => $product->price_pc,
+                'unit_type' => 'pc',
+            ]);
+        }
     }
 }
