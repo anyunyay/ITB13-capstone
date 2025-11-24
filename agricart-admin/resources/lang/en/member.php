@@ -127,6 +127,8 @@ return [
     'total_stock_label' => 'Total Stock',
     'sold_quantity' => 'Sold Quantity',
     'available_balance' => 'Available (Balance)',
+    'damaged_defective_count' => 'Damaged/Defective',
+    'loss' => 'Loss',
     'status' => 'Status',
     'total_label' => 'Total',
     'available' => 'Available',

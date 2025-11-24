@@ -1060,6 +1060,8 @@ return [
     'unknown_product' => 'Hindi Kilalang Produkto',
     'stock_id_label' => 'Stock ID: #:id',
     'quantity_label' => 'Dami',
+    'available_quantity' => 'Available na Dami',
+    'quantity_to_remove' => 'Dami na Tatanggalin',
     'member_label' => 'Kasapi',
     'reason_for_removal' => 'Dahilan para sa Pagtanggal *',
     'select_reason_for_removal' => 'Pumili ng dahilan para sa pagtanggal',

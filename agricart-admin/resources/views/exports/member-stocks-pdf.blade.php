@@ -138,10 +138,12 @@
                 <th class="text-right">Total Qty</th>
                 <th class="text-right">Sold</th>
                 <th class="text-right">Available</th>
+                <th class="text-right">Damaged</th>
                 <th class="text-right">Unit Price</th>
                 <th class="text-right">Revenue</th>
                 <th class="text-right">COGS</th>
                 <th class="text-right">Profit</th>
+                <th class="text-right">Loss</th>
             </tr>
         </thead>
         <tbody>
@@ -152,10 +154,12 @@
                 <td class="text-right">{{ number_format($stock['total_quantity']) }}</td>
                 <td class="text-right">{{ number_format($stock['sold_quantity']) }}</td>
                 <td class="text-right">{{ number_format($stock['balance_quantity']) }}</td>
+                <td class="text-right">{{ number_format($stock['damaged_defective_count'] ?? 0) }}</td>
                 <td class="text-right">PHP {{ number_format($stock['unit_price'], 2, '.', ',') }}</td>
                 <td class="text-right">PHP {{ number_format($stock['total_revenue'], 2, '.', ',') }}</td>
                 <td class="text-right">PHP {{ number_format($stock['total_cogs'], 2, '.', ',') }}</td>
                 <td class="text-right">PHP {{ number_format($stock['total_gross_profit'], 2, '.', ',') }}</td>
+                <td class="text-right">PHP {{ number_format($stock['damaged_defective_loss'] ?? 0, 2, '.', ',') }}</td>
             </tr>
             @endforeach
         </tbody>

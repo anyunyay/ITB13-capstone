@@ -93,6 +93,8 @@ return [
     'total_stock_label' => 'Kabuuang Stock',
     'sold_quantity' => 'Dami na Nabenta',
     'available_balance' => 'Available (Balance)',
+    'damaged_defective_count' => 'Sira/Depektibo',
+    'loss' => 'Lugi',
     'status' => 'Status',
     'total_label' => 'Kabuuan',
     'available' => 'Available',

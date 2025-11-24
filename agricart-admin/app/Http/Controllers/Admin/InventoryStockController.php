@@ -240,6 +240,7 @@ class InventoryStockController extends Controller
     {
         $request->validate([
             'stock_id' => 'required|exists:stocks,id',
+            'quantity' => 'required|numeric|min:0.01',
             'reason' => 'required|string|in:Sold Outside,Damaged / Defective,Listing Error',
         ]);
 
@@ -259,13 +260,21 @@ class InventoryStockController extends Controller
                 ]);
         }
 
+        // Validate quantity to remove
+        $quantityToRemove = (float) $request->quantity;
+        if ($quantityToRemove > $stock->quantity) {
+            return redirect()->back()->withErrors([
+                'quantity' => 'Cannot remove more than available quantity (' . $stock->quantity . ')'
+            ]);
+        }
+
         $oldQuantity = $stock->quantity;
         $reason = $request->reason;
         
         // Calculate loss amount for "Damaged / Defective" reason
         $lossAmount = null;
         if ($reason === 'Damaged / Defective') {
-            // Calculate the loss based on the product price and quantity
+            // Calculate the loss based on the product price and removed quantity
             $price = 0;
             if ($stock->category === 'Kilo') {
                 $price = $product->price_kilo ?? 0;
@@ -274,12 +283,9 @@ class InventoryStockController extends Controller
             } elseif ($stock->category === 'Tali') {
                 $price = $product->price_tali ?? 0;
             }
-            $lossAmount = $oldQuantity * $price;
+            $lossAmount = $quantityToRemove * $price;
         }
         
-        // Mark stock as removed using the new method
-        $stock->remove($reason);
-
         // Build notes with impact information
         $notes = $reason;
         if ($reason === 'Sold Outside') {
@@ -290,13 +296,20 @@ class InventoryStockController extends Controller
             $notes .= ' - No impact on system (incorrect stock quantity removed)';
         }
 
+        // Remove the specified quantity from stock
+        $stock->remove($quantityToRemove, $notes);
+        
+        // Refresh stock to get updated quantity
+        $stock->refresh();
+        $newQuantity = $stock->quantity;
+
         // Record stock trail with detailed notes
         StockTrail::record(
             stockId: $stock->id,
             productId: $product->id,
             actionType: 'removed',
             oldQuantity: $oldQuantity,
-            newQuantity: 0,
+            newQuantity: $newQuantity,
             memberId: $stock->member_id,
             category: $stock->category,
             notes: $notes,
@@ -310,6 +323,8 @@ class InventoryStockController extends Controller
             'category' => $stock->category,
             'product_name' => $product->name,
             'reason' => $reason,
+            'quantity_removed' => $quantityToRemove,
+            'remaining_quantity' => $newQuantity,
         ];
         
         if ($lossAmount !== null) {
@@ -320,7 +335,7 @@ class InventoryStockController extends Controller
             $stock->id,
             $product->id,
             $oldQuantity,
-            0,
+            $newQuantity,
             $request->user()->id,
             $request->user()->type,
             'stock_removed',
@@ -337,7 +352,7 @@ class InventoryStockController extends Controller
             $admin->notify(new InventoryUpdateNotification($stock, 'removed', $stock->member));
         }
 
-        $successMessage = 'Stock removed successfully';
+        $successMessage = "Successfully removed {$quantityToRemove} units. Remaining: {$newQuantity} units";
         if ($reason === 'Damaged / Defective') {
             $successMessage .= ' - Loss of ₱' . number_format($lossAmount, 2) . ' recorded';
         }

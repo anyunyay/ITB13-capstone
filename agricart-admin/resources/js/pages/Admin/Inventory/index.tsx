@@ -130,6 +130,7 @@ export default function InventoryIndex() {
     // Form for archive and delete operations
     const { data, setData, post, processing, reset } = useForm({
         reason: '',
+        quantity: 0,
         stock_id: 0,
         other_reason: '',
     });
@@ -363,6 +364,7 @@ export default function InventoryIndex() {
         setSelectedStock(stock);
         setData({
             stock_id: stock.id,
+            quantity: stock.quantity, // Default to full quantity
             reason: '',
             other_reason: ''
         });
@@ -371,7 +373,12 @@ export default function InventoryIndex() {
 
     // Handle remove stock form submission
     const handleRemoveStockSubmit = () => {
-        if (!selectedStock || !data.reason) {
+        if (!selectedStock || !data.reason || !data.quantity || data.quantity <= 0) {
+            return;
+        }
+
+        // Validate quantity
+        if (data.quantity > selectedStock.quantity) {
             return;
         }
 
@@ -384,6 +391,7 @@ export default function InventoryIndex() {
 
         setData({
             stock_id: selectedStock.id,
+            quantity: data.quantity,
             reason: finalReason,
             other_reason: data.other_reason
         });
@@ -670,8 +678,10 @@ export default function InventoryIndex() {
                             isOpen={removeDialogOpen}
                             onClose={() => setRemoveDialogOpen(false)}
                             selectedStock={selectedStock}
+                            quantity={data.quantity}
                             reason={data.reason}
                             otherReason={data.other_reason}
+                            onQuantityChange={(quantity) => setData('quantity', quantity)}
                             onReasonChange={(reason) => setData('reason', reason)}
                             onOtherReasonChange={(otherReason) => setData('other_reason', otherReason)}
                             onSubmit={handleRemoveStockSubmit}

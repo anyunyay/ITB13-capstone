@@ -14,6 +14,7 @@ class Stock extends Model
     protected $fillable = [
         'quantity', 
         'sold_quantity',
+        'removed_quantity',
         'pending_order_qty',
         'initial_quantity',
         'member_id', 
@@ -29,6 +30,7 @@ class Stock extends Model
         'removed_at' => 'datetime',
         'quantity' => 'decimal:2',
         'sold_quantity' => 'decimal:2',
+        'removed_quantity' => 'decimal:2',
         'pending_order_qty' => 'decimal:2',
         'initial_quantity' => 'decimal:2',
     ];
@@ -136,14 +138,41 @@ class Stock extends Model
     }
 
     /**
-     * Remove stock (soft delete)
+     * Remove stock quantity (partial or full removal)
+     * 
+     * @param float $quantityToRemove The quantity to remove from stock
+     * @param string|null $notes Removal reason/notes
+     * @return void
      */
-    public function remove($notes = null)
+    public function remove($quantityToRemove = null, $notes = null)
     {
-        $this->update([
-            'removed_at' => now(),
-            'notes' => $notes,
-        ]);
+        // If no quantity specified, remove all remaining quantity (legacy behavior)
+        if ($quantityToRemove === null) {
+            $quantityToRemove = $this->quantity;
+        }
+
+        // Ensure we don't remove more than available
+        $quantityToRemove = min($quantityToRemove, $this->quantity);
+
+        // Update the stock quantities
+        $this->increment('removed_quantity', $quantityToRemove);
+        $this->decrement('quantity', $quantityToRemove);
+
+        // Only mark as removed if all quantity is gone
+        if ($this->quantity <= 0) {
+            $this->update([
+                'removed_at' => now(),
+                'notes' => $notes,
+            ]);
+        } else {
+            // Just update notes if partially removed
+            if ($notes) {
+                $currentNotes = $this->notes ? $this->notes . '; ' : '';
+                $this->update([
+                    'notes' => $currentNotes . $notes,
+                ]);
+            }
+        }
     }
 
     /**

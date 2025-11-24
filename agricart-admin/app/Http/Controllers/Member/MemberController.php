@@ -363,6 +363,8 @@ class MemberController extends Controller
         }
 
         // Apply status filter
+        // IMPORTANT: Never filter out items with sold_quantity > 0 or damaged_defective_count > 0
+        // These must always remain visible for accurate member tracking
         if ($statusFilter !== 'all') {
             $collection = $collection->filter(function ($item) use ($statusFilter) {
                 if ($statusFilter === 'available') {
@@ -370,7 +372,9 @@ class MemberController extends Controller
                     return $item['balance_quantity'] > 0;
                 } elseif ($statusFilter === 'sold_out') {
                     // No balance remaining AND has sold some quantity
-                    return $item['balance_quantity'] <= 0 && $item['sold_quantity'] > 0;
+                    // Include items with sold stock OR damaged/defective stock
+                    return $item['balance_quantity'] <= 0 && 
+                           ($item['sold_quantity'] > 0 || $item['damaged_defective_count'] > 0);
                 }
                 return true;
             });
@@ -427,6 +431,16 @@ class MemberController extends Controller
                 return $ascending
                     ? $collection->sortBy('total_gross_profit')
                     : $collection->sortByDesc('total_gross_profit');
+
+            case 'damaged_defective_count':
+                return $ascending
+                    ? $collection->sortBy('damaged_defective_count')
+                    : $collection->sortByDesc('damaged_defective_count');
+
+            case 'damaged_defective_loss':
+                return $ascending
+                    ? $collection->sortBy('damaged_defective_loss')
+                    : $collection->sortByDesc('damaged_defective_loss');
 
             default:
                 return $collection;
@@ -623,9 +637,9 @@ class MemberController extends Controller
      */
     private function calculateComprehensiveStockData($memberId, $startDate = null, $endDate = null)
     {
-        // Get all stocks for this member (including sold ones)
+        // Get all stocks for this member (including sold ones and removed ones)
+        // We include removed stocks to show complete history
         $allStocks = Stock::where('member_id', $memberId)
-            ->whereNull('removed_at')
             ->with(['product'])
             ->get();
 
@@ -645,6 +659,23 @@ class MemberController extends Controller
             })
             ->get();
 
+        // Get damaged/defective stock data from stock trails
+        // Use LIKE to match notes that contain "Damaged" or "Defective"
+        $damagedDefectiveData = \App\Models\StockTrail::where('member_id', $memberId)
+            ->where('action_type', 'removed')
+            ->where(function ($query) {
+                $query->where('notes', 'LIKE', '%Damaged%')
+                      ->orWhere('notes', 'LIKE', '%Defective%');
+            })
+            ->when($startDate, function ($query) use ($startDate) {
+                return $query->whereDate('created_at', '>=', $startDate);
+            })
+            ->when($endDate, function ($query) use ($endDate) {
+                return $query->whereDate('created_at', '<=', $endDate);
+            })
+            ->with(['product'])
+            ->get();
+
         // Group stocks by product and category
         $stockGroups = [];
         foreach ($allStocks as $stock) {
@@ -657,7 +688,10 @@ class MemberController extends Controller
                     'total_quantity' => 0,
                     'available_quantity' => 0,
                     'sold_quantity' => 0,
+                    'removed_quantity' => 0,
                     'balance_quantity' => 0,
+                    'damaged_defective_count' => 0,
+                    'damaged_defective_loss' => 0,
                     'unit_price' => $this->getProductPrice($stock->product, $stock->category),
                     'total_revenue' => 0,
                     'total_cogs' => 0,
@@ -666,14 +700,36 @@ class MemberController extends Controller
                 ];
             }
 
-            // Add to total quantity (available + sold)
-            $stockGroups[$key]['total_quantity'] += $stock->quantity + $stock->sold_quantity;
+            // Add to total quantity (initial quantity or available + sold + removed)
+            // Use initial_quantity if available, otherwise calculate from current state
+            if ($stock->initial_quantity) {
+                $stockGroups[$key]['total_quantity'] += $stock->initial_quantity;
+            } else {
+                $stockGroups[$key]['total_quantity'] += $stock->quantity + $stock->sold_quantity + ($stock->removed_quantity ?? 0);
+            }
 
             // Add available quantity (current quantity that can be sold)
             $stockGroups[$key]['available_quantity'] += $stock->quantity;
 
             // Add sold quantity (total sold from this stock)
             $stockGroups[$key]['sold_quantity'] += $stock->sold_quantity;
+            
+            // Add removed quantity (total removed from this stock)
+            $stockGroups[$key]['removed_quantity'] += $stock->removed_quantity ?? 0;
+        }
+
+        // Add damaged/defective data to stock groups
+        foreach ($damagedDefectiveData as $trail) {
+            $key = $trail->product_id . '-' . $trail->category;
+            if (isset($stockGroups[$key])) {
+                // Calculate the quantity that was removed (old_quantity - new_quantity)
+                $removedQuantity = ($trail->old_quantity ?? 0) - ($trail->new_quantity ?? 0);
+                $stockGroups[$key]['damaged_defective_count'] += $removedQuantity;
+                
+                // Calculate loss value
+                $price = $stockGroups[$key]['unit_price'];
+                $stockGroups[$key]['damaged_defective_loss'] += $removedQuantity * $price;
+            }
         }
 
         // Calculate revenue from delivered sales
@@ -1100,17 +1156,21 @@ class MemberController extends Controller
             $totalStock = array_sum(array_column($allData, 'total_quantity'));
             $totalSold = array_sum(array_column($allData, 'sold_quantity'));
             $totalAvailable = array_sum(array_column($allData, 'balance_quantity'));
+            $totalDamagedDefective = array_sum(array_column($allData, 'damaged_defective_count'));
             $totalRevenue = array_sum(array_column($allData, 'total_revenue'));
             $totalCogs = array_sum(array_column($allData, 'total_cogs'));
             $totalGrossProfit = array_sum(array_column($allData, 'total_gross_profit'));
+            $totalLoss = array_sum(array_column($allData, 'damaged_defective_loss'));
 
             fputcsv($file, ['Summary Statistics']);
             fputcsv($file, ['Total Stock:', $totalStock]);
             fputcsv($file, ['Total Sold:', $totalSold]);
             fputcsv($file, ['Total Available:', $totalAvailable]);
+            fputcsv($file, ['Total Damaged/Defective:', $totalDamagedDefective]);
             fputcsv($file, ['Total Revenue:', '₱' . number_format($totalRevenue, 2)]);
             fputcsv($file, ['Total COGS:', '₱' . number_format($totalCogs, 2)]);
             fputcsv($file, ['Total Gross Profit:', '₱' . number_format($totalGrossProfit, 2)]);
+            fputcsv($file, ['Total Loss:', '₱' . number_format($totalLoss, 2)]);
             fputcsv($file, ['']);
 
             // Add column headers
@@ -1120,10 +1180,12 @@ class MemberController extends Controller
                 'Total Quantity',
                 'Sold Quantity',
                 'Available Quantity',
+                'Damaged/Defective Count',
                 'Unit Price',
                 'Total Revenue',
                 'Total COGS',
-                'Gross Profit'
+                'Gross Profit',
+                'Loss'
             ]);
 
             // Add data rows (only paginated data)
@@ -1134,10 +1196,12 @@ class MemberController extends Controller
                     $item['total_quantity'],
                     $item['sold_quantity'],
                     $item['balance_quantity'],
+                    $item['damaged_defective_count'] ?? 0,
                     '₱' . number_format($item['unit_price'], 2),
                     '₱' . number_format($item['total_revenue'], 2),
                     '₱' . number_format($item['total_cogs'], 2),
-                    '₱' . number_format($item['total_gross_profit'], 2)
+                    '₱' . number_format($item['total_gross_profit'], 2),
+                    '₱' . number_format($item['damaged_defective_loss'] ?? 0, 2)
                 ]);
             }
 
@@ -1158,9 +1222,11 @@ class MemberController extends Controller
         $totalStock = array_sum(array_column($allData, 'total_quantity'));
         $totalSold = array_sum(array_column($allData, 'sold_quantity'));
         $totalAvailable = array_sum(array_column($allData, 'balance_quantity'));
+        $totalDamagedDefective = array_sum(array_column($allData, 'damaged_defective_count'));
         $totalRevenue = array_sum(array_column($allData, 'total_revenue'));
         $totalCogs = array_sum(array_column($allData, 'total_cogs'));
         $totalGrossProfit = array_sum(array_column($allData, 'total_gross_profit'));
+        $totalLoss = array_sum(array_column($allData, 'damaged_defective_loss'));
 
         // Encode logo as base64 for PDF embedding
         $logoPath = storage_path('app/public/logo/SMMC Logo-1.png');
@@ -1177,9 +1243,11 @@ class MemberController extends Controller
                 'total_stock' => $totalStock,
                 'total_sold' => $totalSold,
                 'total_available' => $totalAvailable,
+                'total_damaged_defective' => $totalDamagedDefective,
                 'total_revenue' => $totalRevenue,
                 'total_cogs' => $totalCogs,
                 'total_gross_profit' => $totalGrossProfit,
+                'total_loss' => $totalLoss,
             ],
             'stocks' => $paginatedData,
             'logo_base64' => $logoBase64
@@ -1320,7 +1388,7 @@ class MemberController extends Controller
                 $query->select('id', 'price_kilo', 'price_pc', 'price_tali');
             }
         ])
-            ->select('id', 'product_id', 'action_type', 'old_quantity', 'new_quantity', 'category', 'created_at')
+            ->select('id', 'product_id', 'action_type', 'old_quantity', 'new_quantity', 'category', 'notes', 'created_at')
             ->where('member_id', $memberId)
             ->when($startDate, function ($query) use ($startDate) {
                 return $query->whereDate('created_at', '>=', $startDate);
@@ -1337,12 +1405,18 @@ class MemberController extends Controller
         $totalSold = $allTrails->where('action_type', 'sold')->count();
         $totalRemoved = $allTrails->where('action_type', 'removed')->count();
 
-        // Calculate losses in sales (value of removed stock)
+        // Calculate losses ONLY for damaged/defective removals
         $totalRemovedValue = 0;
         $removedTrails = $allTrails->where('action_type', 'removed');
 
         foreach ($removedTrails as $trail) {
-            if ($trail->product && $trail->new_quantity !== null) {
+            // Only count as loss if the removal was due to Damaged/Defective
+            $isDamagedDefective = $trail->notes && (
+                stripos($trail->notes, 'Damaged') !== false || 
+                stripos($trail->notes, 'Defective') !== false
+            );
+            
+            if ($isDamagedDefective && $trail->product && $trail->new_quantity !== null) {
                 // Calculate the quantity that was removed (old_quantity - new_quantity)
                 $removedQuantity = ($trail->old_quantity ?? 0) - ($trail->new_quantity ?? 0);
 
@@ -1356,7 +1430,7 @@ class MemberController extends Controller
                     $price = $trail->product->price_tali ?? 0;
                 }
 
-                // Calculate potential revenue lost
+                // Calculate loss value (only for damaged/defective)
                 $totalRemovedValue += $removedQuantity * $price;
             }
         }

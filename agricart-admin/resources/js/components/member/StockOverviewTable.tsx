@@ -23,6 +23,8 @@ interface ComprehensiveStockData {
     available_quantity: number;
     sold_quantity: number;
     balance_quantity: number;
+    damaged_defective_count: number;
+    damaged_defective_loss: number;
     unit_price: number;
     total_revenue: number;
     total_cogs: number;
@@ -73,9 +75,11 @@ export function StockOverviewTable({ data, sortBy, sortDir, onSort }: StockOverv
                         <SortableHeader column="total_quantity">{t('member.total_stock_label')}</SortableHeader>
                         <SortableHeader column="sold_quantity">{t('member.sold_quantity')}</SortableHeader>
                         <SortableHeader column="balance_quantity">{t('member.available_balance')}</SortableHeader>
+                        <SortableHeader column="damaged_defective_count">{t('member.damaged_defective_count') || 'Damaged/Defective'}</SortableHeader>
                         <SortableHeader column="total_revenue">{t('member.total_revenue')}</SortableHeader>
                         <SortableHeader column="total_cogs">{t('member.cogs')}</SortableHeader>
                         <SortableHeader column="total_gross_profit">{t('member.gross_profit')}</SortableHeader>
+                        <SortableHeader column="damaged_defective_loss">{t('member.loss') || 'Loss'}</SortableHeader>
                         <TableHead className="text-foreground text-center whitespace-nowrap font-semibold">{t('member.status')}</TableHead>
                     </TableRow>
                 </TableHeader>
@@ -131,6 +135,16 @@ export function StockOverviewTable({ data, sortBy, sortDir, onSort }: StockOverv
                             </TableCell>
                             <TableCell className="whitespace-nowrap">
                                 <div className="flex justify-center min-h-[40px] py-2 w-full">
+                                    <div className="w-full max-w-[120px] text-left flex items-center gap-2">
+                                        <AlertCircle className="h-4 w-4 text-orange-400" />
+                                        <span className="font-semibold text-black dark:text-white">
+                                            {item.damaged_defective_count || 0}
+                                        </span>
+                                    </div>
+                                </div>
+                            </TableCell>
+                            <TableCell className="whitespace-nowrap">
+                                <div className="flex justify-center min-h-[40px] py-2 w-full">
                                     <div className="w-full max-w-[120px] text-right">
                                         <span className="font-semibold text-black dark:text-white">
                                             <span className="text-yellow-500">₱</span>{item.total_revenue.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
@@ -152,6 +166,15 @@ export function StockOverviewTable({ data, sortBy, sortDir, onSort }: StockOverv
                                     <div className="w-full max-w-[120px] text-right">
                                         <span className="font-semibold text-black dark:text-white">
                                             <span className="text-yellow-500">₱</span>{((item.total_gross_profit || 0)).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                                        </span>
+                                    </div>
+                                </div>
+                            </TableCell>
+                            <TableCell className="whitespace-nowrap">
+                                <div className="flex justify-center min-h-[40px] py-2 w-full">
+                                    <div className="w-full max-w-[120px] text-right">
+                                        <span className="font-semibold text-red-600 dark:text-red-400">
+                                            <span className="text-yellow-500">₱</span>{((item.damaged_defective_loss || 0)).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
                                         </span>
                                     </div>
                                 </div>

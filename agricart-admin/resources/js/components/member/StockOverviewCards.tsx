@@ -22,6 +22,8 @@ interface ComprehensiveStockData {
     available_quantity: number;
     sold_quantity: number;
     balance_quantity: number;
+    damaged_defective_count: number;
+    damaged_defective_loss: number;
     unit_price: number;
     total_revenue: number;
     total_cogs: number;
@@ -77,7 +79,7 @@ export function StockOverviewCards({ data }: StockOverviewCardsProps) {
                         </div>
 
                         {/* Stock Information - First Row */}
-                        <div className="grid grid-cols-3 gap-2 mb-3 pb-3 border-b">
+                        <div className="grid grid-cols-4 gap-2 mb-3 pb-3 border-b">
                             <div className="flex flex-col items-center text-center">
                                 <Package className="h-4 w-4 text-blue-400 mb-1 flex-shrink-0" />
                                 <p className="text-xs text-muted-foreground mb-0.5">{t('member.total_stock_label')}</p>
@@ -93,29 +95,41 @@ export function StockOverviewCards({ data }: StockOverviewCardsProps) {
                                 <p className="text-xs text-muted-foreground mb-0.5">{t('member.available_balance')}</p>
                                 <p className="font-semibold text-foreground">{item.balance_quantity}</p>
                             </div>
+                            <div className="flex flex-col items-center text-center">
+                                <AlertCircle className="h-4 w-4 text-orange-400 mb-1 flex-shrink-0" />
+                                <p className="text-xs text-muted-foreground mb-0.5">{t('member.damaged_defective_count') || 'Damaged'}</p>
+                                <p className="font-semibold text-foreground">{item.damaged_defective_count || 0}</p>
+                            </div>
                         </div>
 
                         {/* Financial Details - Second Row */}
-                        <div className="grid grid-cols-3 gap-2">
+                        <div className="grid grid-cols-4 gap-2">
                             <div className="flex flex-col items-center text-center">
                                 <TrendingUp className="h-4 w-4 text-yellow-400 mb-1 flex-shrink-0" />
                                 <p className="text-xs text-muted-foreground mb-0.5">{t('member.total_revenue')}</p>
-                                <p className="font-semibold text-foreground text-base">
+                                <p className="font-semibold text-foreground text-sm">
                                     <span className="text-yellow-500">₱</span>{item.total_revenue.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
                                 </p>
                             </div>
                             <div className="flex flex-col items-center text-center">
                                 <TrendingUp className="h-4 w-4 text-orange-400 mb-1 flex-shrink-0" />
                                 <p className="text-xs text-muted-foreground mb-0.5">{t('member.cogs')}</p>
-                                <p className="font-semibold text-orange-400 text-base">
+                                <p className="font-semibold text-orange-400 text-sm">
                                     <span className="text-yellow-500">₱</span>{((item.total_cogs || 0)).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
                                 </p>
                             </div>
                             <div className="flex flex-col items-center text-center">
                                 <TrendingUp className="h-4 w-4 text-green-400 mb-1 flex-shrink-0" />
                                 <p className="text-xs text-muted-foreground mb-0.5">{t('member.gross_profit')}</p>
-                                <p className="font-semibold text-green-400 text-base">
+                                <p className="font-semibold text-green-400 text-sm">
                                     <span className="text-yellow-500">₱</span>{((item.total_gross_profit || 0)).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                                </p>
+                            </div>
+                            <div className="flex flex-col items-center text-center">
+                                <AlertCircle className="h-4 w-4 text-red-400 mb-1 flex-shrink-0" />
+                                <p className="text-xs text-muted-foreground mb-0.5">{t('member.loss') || 'Loss'}</p>
+                                <p className="font-semibold text-red-600 dark:text-red-400 text-sm">
+                                    <span className="text-yellow-500">₱</span>{((item.damaged_defective_loss || 0)).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
                                 </p>
                             </div>
                         </div>

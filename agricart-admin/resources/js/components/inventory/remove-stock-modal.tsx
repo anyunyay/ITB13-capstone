@@ -1,5 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -19,8 +20,10 @@ interface RemoveStockModalProps {
     isOpen: boolean;
     onClose: () => void;
     selectedStock: Stock | null;
+    quantity: number;
     reason: string;
     otherReason: string;
+    onQuantityChange: (quantity: number) => void;
     onReasonChange: (reason: string) => void;
     onOtherReasonChange: (otherReason: string) => void;
     onSubmit: () => void;
@@ -31,8 +34,10 @@ export const RemoveStockModal = ({
     isOpen,
     onClose,
     selectedStock,
+    quantity,
     reason,
     otherReason,
+    onQuantityChange,
     onReasonChange,
     onOtherReasonChange,
     onSubmit,
@@ -41,11 +46,12 @@ export const RemoveStockModal = ({
     const t = useTranslation();
     const handleClose = () => {
         onClose();
+        onQuantityChange(0);
         onReasonChange('');
         onOtherReasonChange('');
     };
 
-    const isSubmitDisabled = !selectedStock || !reason || processing;
+    const isSubmitDisabled = !selectedStock || !reason || !quantity || quantity <= 0 || quantity > (selectedStock?.quantity || 0) || processing;
 
     return (
         <Dialog open={isOpen} onOpenChange={handleClose}>
@@ -84,7 +90,7 @@ export const RemoveStockModal = ({
                             <div className="p-4 bg-muted/30 rounded-lg border">
                                 <div className="grid grid-cols-2 gap-4">
                                     <div>
-                                        <p className="text-xs text-muted-foreground uppercase tracking-wide">{t('admin.quantity_label')}</p>
+                                        <p className="text-xs text-muted-foreground uppercase tracking-wide">{t('admin.available_quantity')}</p>
                                         <p className="font-semibold">
                                             {selectedStock.quantity} {selectedStock.category}
                                         </p>
@@ -97,6 +103,26 @@ export const RemoveStockModal = ({
                                     </div>
                                 </div>
                             </div>
+                        </div>
+
+                        <div className="space-y-3">
+                            <Label htmlFor="quantity" className="text-sm font-medium">{t('admin.quantity_to_remove')}</Label>
+                            <Input
+                                id="quantity"
+                                type="number"
+                                min="0.01"
+                                step="0.01"
+                                max={selectedStock.quantity}
+                                value={quantity || ''}
+                                onChange={(e) => onQuantityChange(parseFloat(e.target.value) || 0)}
+                                placeholder={`Enter quantity (max: ${selectedStock.quantity})`}
+                                className="w-full"
+                            />
+                            {quantity > selectedStock.quantity && (
+                                <p className="text-sm text-destructive">
+                                    Cannot remove more than available quantity ({selectedStock.quantity})
+                                </p>
+                            )}
                         </div>
 
                         <div className="space-y-3">

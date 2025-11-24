@@ -80,6 +80,8 @@ interface ComprehensiveStockData {
     available_quantity: number;
     sold_quantity: number;
     balance_quantity: number;
+    damaged_defective_count: number;
+    damaged_defective_loss: number;
     unit_price: number;
     total_revenue: number;
     total_cogs: number;

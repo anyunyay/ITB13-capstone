@@ -1054,6 +1054,8 @@ return [
     'unknown_product' => 'Unknown Product',
     'stock_id_label' => 'Stock ID: #:id',
     'quantity_label' => 'Quantity',
+    'available_quantity' => 'Available Quantity',
+    'quantity_to_remove' => 'Quantity to Remove',
     'member_label' => 'Member',
     'unassigned' => 'Unassigned',
     'reason_for_removal' => 'Reason for Removal *',
