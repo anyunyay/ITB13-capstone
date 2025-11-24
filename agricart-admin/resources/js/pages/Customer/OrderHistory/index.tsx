@@ -900,7 +900,7 @@ export default function History({ orders: initialOrders, currentStatus, currentD
                       </div>
                     </footer>
 
-                    {order.status === 'delivered' && !order.customer_received && (
+                    {order.delivery_status === 'delivered' && !order.customer_received && (
                       <section className="mt-4">
                         <Button
                           onClick={() => handleOpenConfirmationModal(order.id, order.total_amount)}

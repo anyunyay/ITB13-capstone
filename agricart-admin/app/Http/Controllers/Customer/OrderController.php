@@ -639,8 +639,9 @@ class OrderController extends Controller
         }
 
         // Only allow confirmation of delivered orders
-        if (!$order->delivered_at) {
-            return redirect()->back()->with('error', 'Order must be delivered before confirmation.');
+        // Check both delivered_at timestamp and delivery_status
+        if (!$order->delivered_at || $order->salesAudit->delivery_status !== 'delivered') {
+            return redirect()->back()->with('error', 'Order must be delivered before confirmation and rating.');
         }
 
         // Check if already confirmed
