@@ -50,18 +50,18 @@ export function StockOverviewCards({ data }: StockOverviewCardsProps) {
                     {/* Status Badge - Top Right */}
                     <div className="absolute top-3 right-3 z-10">
                         {item.balance_quantity > 0 ? (
-                            <Badge className="bg-green-600 text-white shadow-md">
-                                <CheckCircle className="h-3 w-3 mr-1" />
+                            <Badge variant="default" className="flex items-center gap-1 shadow-md">
+                                <CheckCircle className="h-4 w-4" />
                                 {t('member.available')}
                             </Badge>
                         ) : item.sold_quantity > 0 ? (
-                            <Badge className="bg-red-600 text-white shadow-md">
-                                <XCircle className="h-3 w-3 mr-1" />
+                            <Badge variant="destructive" className="flex items-center gap-1 shadow-md">
+                                <XCircle className="h-4 w-4" />
                                 {t('member.sold_out')}
                             </Badge>
                         ) : (
-                            <Badge className="bg-gray-500 text-white shadow-md">
-                                <AlertCircle className="h-3 w-3 mr-1" />
+                            <Badge variant="secondary" className="flex items-center gap-1 shadow-md">
+                                <AlertCircle className="h-4 w-4" />
                                 {t('member.no_stock')}
                             </Badge>
                         )}

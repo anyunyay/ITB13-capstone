@@ -183,18 +183,18 @@ export function StockOverviewTable({ data, sortBy, sortDir, onSort }: StockOverv
                                 <div className="flex justify-center min-h-[40px] py-2 w-full">
                                     <div className="w-full max-w-[120px] text-center flex justify-center">
                                         {item.balance_quantity > 0 ? (
-                                            <Badge className="bg-green-600 text-foreground">
-                                                <CheckCircle className="h-3 w-3 mr-1" />
+                                            <Badge variant="default" className="flex items-center gap-1 w-fit">
+                                                <CheckCircle className="h-4 w-4" />
                                                 {t('member.available')}
                                             </Badge>
                                         ) : item.sold_quantity > 0 ? (
-                                            <Badge className="bg-red-600 text-foreground">
-                                                <XCircle className="h-3 w-3 mr-1" />
+                                            <Badge variant="destructive" className="flex items-center gap-1 w-fit">
+                                                <XCircle className="h-4 w-4" />
                                                 {t('member.sold_out')}
                                             </Badge>
                                         ) : (
-                                            <Badge className="bg-muted text-foreground">
-                                                <AlertCircle className="h-3 w-3 mr-1" />
+                                            <Badge variant="secondary" className="flex items-center gap-1 w-fit">
+                                                <AlertCircle className="h-4 w-4" />
                                                 {t('member.no_stock')}
                                             </Badge>
                                         )}
