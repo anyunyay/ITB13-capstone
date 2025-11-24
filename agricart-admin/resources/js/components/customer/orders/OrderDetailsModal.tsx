@@ -26,7 +26,8 @@ interface OrderItem {
 }
 
 interface Order {
-  id: number;
+  id: number; // This is the sales_audit_id (original order number)
+  sales_id?: number; // Internal sales table ID (for delivered orders)
   total_amount: number;
   status: 'pending' | 'approved' | 'rejected' | 'delayed' | 'cancelled' | 'delivered';
   delivery_status: 'pending' | 'ready_to_pickup' | 'out_for_delivery' | 'delivered' | null;
@@ -160,7 +161,7 @@ export default function OrderDetailsModal({ isOpen, onClose, orderId }: OrderDet
               </div>
 
               {/* Delivery Status */}
-              {order.status === 'approved' && order.delivery_status && (
+              {((order.status === 'approved' || order.status === 'delivered') && order.delivery_status) && (
                 <div className="p-2 sm:p-3 bg-primary/10 rounded-lg border border-primary/20 overflow-x-auto">
                   <span className="block text-[10px] sm:text-xs md:text-sm font-semibold mb-2 text-primary">
                     {t('customer.delivery_status')}

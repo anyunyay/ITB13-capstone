@@ -26,16 +26,20 @@ class OrderController extends Controller
             $salesQuery = $user->sales()
                 ->with(['auditTrail.product', 'admin', 'logistic', 'salesAudit']);
 
-            $salesOrders = $salesQuery->orderBy('updated_at', 'desc')
+            $salesOrders = $salesQuery->orderBy('delivered_at', 'desc')
                 ->get()
                 ->map(function ($sale) {
+                    // Use delivered_at as the primary timestamp for sorting delivered orders
+                    $sortTimestamp = $sale->delivered_at ?? $sale->updated_at;
+                    
                     return [
-                        'id' => $sale->id,
+                        'id' => $sale->sales_audit_id ?? $sale->id, // Use original order ID from sales_audit
+                        'sales_id' => $sale->id, // Keep sales table ID for internal reference
                         'total_amount' => $sale->total_amount,
                         'status' => 'delivered', // All sales table orders are delivered
                         'delivery_status' => 'delivered',
                         'created_at' => $sale->created_at->toISOString(),
-                        'updated_at' => $sale->updated_at->toISOString(),
+                        'updated_at' => $sortTimestamp->toISOString(), // Use delivered_at for sorting
                         'delivered_at' => $sale->delivered_at?->toISOString(),
                         'admin_notes' => $sale->admin_notes,
                         'logistic' => $sale->logistic ? [
@@ -121,12 +125,11 @@ class OrderController extends Controller
             $salesAuditQuery->where('status', $status);
         }
 
-        // Exclude orders that already exist in sales table to prevent duplicates
-        if ($deliveryStatus === 'all' || $deliveryStatus === 'delivered') {
-            $existingSalesIds = $user->sales()->pluck('sales_audit_id')->filter();
-            if ($existingSalesIds->isNotEmpty()) {
-                $salesAuditQuery->whereNotIn('id', $existingSalesIds);
-            }
+        // ALWAYS exclude orders that already exist in sales table to prevent duplicates
+        // This is critical to avoid showing "Out for Delivery" for already delivered orders
+        $existingSalesIds = $user->sales()->pluck('sales_audit_id')->filter();
+        if ($existingSalesIds->isNotEmpty()) {
+            $salesAuditQuery->whereNotIn('id', $existingSalesIds);
         }
 
         $salesAuditOrders = $salesAuditQuery->orderBy('updated_at', 'desc')
@@ -192,14 +195,13 @@ class OrderController extends Controller
 
         $allOrdersCount = $pendingOrders + $outForDeliveryOrders + $deliveredOrders;
 
-        // Pagination: Load 4 orders at a time
-        $offset = $request->get('offset', 0);
-        $limit = 4;
-        $paginatedOrders = $allOrders->slice($offset, $limit)->values();
-        $hasMore = $allOrders->count() > ($offset + $limit);
+        // Initial load: Fetch first 10 orders (frontend will display 4 at a time)
+        $initialBatchSize = 10;
+        $initialOrders = $allOrders->take($initialBatchSize)->values();
+        $hasMore = $allOrders->count() > $initialBatchSize;
 
         return Inertia::render('Customer/OrderHistory/index', [
-            'orders' => $paginatedOrders,
+            'orders' => $initialOrders,
             'currentStatus' => $status,
             'currentDeliveryStatus' => $deliveryStatus,
             'hasMore' => $hasMore,
@@ -220,7 +222,7 @@ class OrderController extends Controller
         $status = $request->get('status', 'all');
         $deliveryStatus = $request->get('delivery_status', 'all');
         $offset = $request->get('offset', 0);
-        $limit = 4;
+        $limit = 10; // Fetch 10 orders per request
 
         // Get all orders from both tables (same logic as index)
         $allOrders = collect();
@@ -230,16 +232,20 @@ class OrderController extends Controller
             $salesQuery = $user->sales()
                 ->with(['auditTrail.product', 'admin', 'logistic', 'salesAudit']);
 
-            $salesOrders = $salesQuery->orderBy('updated_at', 'desc')
+            $salesOrders = $salesQuery->orderBy('delivered_at', 'desc')
                 ->get()
                 ->map(function ($sale) {
+                    // Use delivered_at as the primary timestamp for sorting delivered orders
+                    $sortTimestamp = $sale->delivered_at ?? $sale->updated_at;
+                    
                     return [
-                        'id' => $sale->id,
+                        'id' => $sale->sales_audit_id ?? $sale->id, // Use original order ID from sales_audit
+                        'sales_id' => $sale->id, // Keep sales table ID for internal reference
                         'total_amount' => $sale->total_amount,
                         'status' => 'delivered',
                         'delivery_status' => 'delivered',
                         'created_at' => $sale->created_at->toISOString(),
-                        'updated_at' => $sale->updated_at->toISOString(),
+                        'updated_at' => $sortTimestamp->toISOString(), // Use delivered_at for sorting
                         'delivered_at' => $sale->delivered_at?->toISOString(),
                         'admin_notes' => $sale->admin_notes,
                         'logistic' => $sale->logistic ? [
@@ -321,12 +327,10 @@ class OrderController extends Controller
             $salesAuditQuery->where('status', $status);
         }
 
-        // Exclude orders that already exist in sales table
-        if ($deliveryStatus === 'all' || $deliveryStatus === 'delivered') {
-            $existingSalesIds = $user->sales()->pluck('sales_audit_id')->filter();
-            if ($existingSalesIds->isNotEmpty()) {
-                $salesAuditQuery->whereNotIn('id', $existingSalesIds);
-            }
+        // ALWAYS exclude orders that already exist in sales table to prevent duplicates
+        $existingSalesIds = $user->sales()->pluck('sales_audit_id')->filter();
+        if ($existingSalesIds->isNotEmpty()) {
+            $salesAuditQuery->whereNotIn('id', $existingSalesIds);
         }
 
         $salesAuditOrders = $salesAuditQuery->orderBy('updated_at', 'desc')
@@ -398,16 +402,17 @@ class OrderController extends Controller
                 $salesQuery->whereDate('created_at', '<=', $endDate);
             }
 
-            $salesOrders = $salesQuery->orderBy('updated_at', 'desc')
+            $salesOrders = $salesQuery->orderBy('delivered_at', 'desc')
                 ->get()
                 ->map(function ($sale) {
                     return [
-                        'id' => $sale->id,
+                        'id' => $sale->sales_audit_id ?? $sale->id, // Use original order ID from sales_audit
+                        'sales_id' => $sale->id, // Keep sales table ID for internal reference
                         'total_amount' => $sale->total_amount,
                         'status' => 'delivered',
                         'delivery_status' => 'delivered',
                         'created_at' => $sale->created_at,
-                        'updated_at' => $sale->updated_at,
+                        'updated_at' => $sale->delivered_at ?? $sale->updated_at, // Use delivered_at for sorting
                         'admin_notes' => $sale->admin_notes,
                         'logistic' => $sale->logistic,
                         'audit_trail' => $sale->auditTrail->map(function ($trail) {
@@ -603,9 +608,18 @@ class OrderController extends Controller
             ->with('message', 'Order #' . $order->id . ' has been cancelled successfully.');
     }
 
-    public function confirmReceived(Request $request, Sales $order)
+    public function confirmReceived(Request $request, $orderId)
     {
         $user = $request->user();
+
+        // Find order by sales_audit_id (the ID customers see)
+        $order = $user->sales()
+            ->where('sales_audit_id', $orderId)
+            ->first();
+
+        if (!$order) {
+            return redirect()->back()->with('error', 'Order not found.');
+        }
 
         // Verify the order belongs to the authenticated customer
         if ($order->customer_id !== $user->id) {
@@ -644,14 +658,15 @@ class OrderController extends Controller
     {
         $user = $request->user();
 
-        // Try to find the order in sales table first
+        // Try to find the order in sales table first (by sales_audit_id)
         $salesOrder = $user->sales()
             ->with(['auditTrail.product', 'admin', 'logistic', 'salesAudit'])
-            ->find($orderId);
+            ->where('sales_audit_id', $orderId)
+            ->first();
 
         if ($salesOrder) {
             $order = [
-                'id' => $salesOrder->id,
+                'id' => $salesOrder->sales_audit_id ?? $salesOrder->id, // Use original order ID
                 'total_amount' => $salesOrder->total_amount,
                 'status' => 'delivered',
                 'delivery_status' => 'delivered',

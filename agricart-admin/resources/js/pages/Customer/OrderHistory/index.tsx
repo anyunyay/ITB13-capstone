@@ -37,7 +37,8 @@ interface OrderItem {
 }
 
 interface Order {
-  id: number;
+  id: number; // This is the sales_audit_id (original order number)
+  sales_id?: number; // Internal sales table ID (for delivered orders)
   total_amount: number;
   status: 'pending' | 'approved' | 'rejected' | 'delayed' | 'cancelled' | 'delivered';
   delivery_status: 'pending' | 'ready_to_pickup' | 'out_for_delivery' | 'delivered' | null;
@@ -88,7 +89,7 @@ export default function History({ orders: initialOrders, currentStatus, currentD
       };
     };
   }>();
-  const allNotifications = page.props.notifications || [];
+  const allNotifications = page?.props?.notifications || [];
   
   // Show only unread notifications - they will be removed once marked as read
   const unreadNotifications = allNotifications.filter(n => !n.read_at);
@@ -119,16 +120,24 @@ export default function History({ orders: initialOrders, currentStatus, currentD
   const [detailsModalOpen, setDetailsModalOpen] = useState(false);
   const [selectedOrderIdForDetails, setSelectedOrderIdForDetails] = useState<number | null>(null);
   
-  // Show More state
-  const [displayedOrders, setDisplayedOrders] = useState<Order[]>(initialOrders);
+  // Lazy loading state
+  const [fetchedOrders, setFetchedOrders] = useState<Order[]>(initialOrders); // All fetched orders (batches of 10)
+  const [displayedCount, setDisplayedCount] = useState(4); // Number of orders to display (increments by 4)
   const [hasMore, setHasMore] = useState(initialHasMore);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
 
-  // Reset displayed orders when initial orders change (filter change)
+  // Derived state: orders to actually display
+  const displayedOrders = fetchedOrders.slice(0, displayedCount);
+  
+  // Check if we need to fetch more from backend
+  const needsMoreFromBackend = displayedCount >= fetchedOrders.length && hasMore;
+
+  // Reset when initial orders change (filter change)
   useEffect(() => {
-    setDisplayedOrders(initialOrders);
+    setFetchedOrders(initialOrders);
+    setDisplayedCount(4); // Reset to show first 4
     setHasMore(initialHasMore);
-  }, [initialOrders, initialHasMore]);
+  }, [JSON.stringify(initialOrders), initialHasMore]);
 
   // Close export modal smoothly when user starts scrolling
   useEffect(() => {
@@ -307,7 +316,7 @@ export default function History({ orders: initialOrders, currentStatus, currentD
     }
     router.get('/customer/orders/history', Object.fromEntries(params), {
       preserveScroll: false,
-      preserveState: true,
+      preserveState: false, // Don't preserve state to ensure fresh data
       only: ['orders', 'counts', 'currentDeliveryStatus', 'hasMore', 'totalOrders'],
       onSuccess: () => {
         window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -316,13 +325,23 @@ export default function History({ orders: initialOrders, currentStatus, currentD
   };
 
   const handleLoadMore = async () => {
-    if (isLoadingMore || !hasMore) return;
+    if (isLoadingMore) return;
+
+    // Check if we can show more from already fetched orders
+    if (displayedCount < fetchedOrders.length) {
+      // Show 4 more from the current batch
+      setDisplayedCount(prev => Math.min(prev + 4, fetchedOrders.length));
+      return;
+    }
+
+    // Need to fetch more from backend
+    if (!hasMore) return;
 
     setIsLoadingMore(true);
 
     try {
       const params = new URLSearchParams();
-      params.append('offset', displayedOrders.length.toString());
+      params.append('offset', fetchedOrders.length.toString()); // Use fetched count, not displayed
       if (currentDeliveryStatus !== 'all') {
         params.append('delivery_status', currentDeliveryStatus);
       }
@@ -341,8 +360,12 @@ export default function History({ orders: initialOrders, currentStatus, currentD
 
       const data = await response.json();
       
-      setDisplayedOrders(prev => [...prev, ...data.orders]);
+      // Add new batch to fetched orders
+      setFetchedOrders(prev => [...prev, ...data.orders]);
       setHasMore(data.hasMore);
+      
+      // Show 4 more (which will now include some from the new batch)
+      setDisplayedCount(prev => prev + 4);
     } catch (error) {
       console.error('Error loading more orders:', error);
     } finally {
@@ -426,6 +449,8 @@ export default function History({ orders: initialOrders, currentStatus, currentD
         return <Badge className="status-delayed text-xs sm:text-sm md:text-base px-2 sm:px-3 py-1 sm:py-1.5">{t('customer.delayed')}</Badge>;
       case 'cancelled':
         return <Badge className="status-cancelled text-xs sm:text-sm md:text-base px-2 sm:px-3 py-1 sm:py-1.5">{t('customer.cancelled')}</Badge>;
+      case 'delivered':
+        return <Badge className="status-delivered text-xs sm:text-sm md:text-base px-2 sm:px-3 py-1 sm:py-1.5">{t('customer.delivered')}</Badge>;
       default:
         return <Badge variant="outline" className="text-xs sm:text-sm md:text-base px-2 sm:px-3 py-1 sm:py-1.5">{status}</Badge>;
     }
@@ -654,7 +679,7 @@ export default function History({ orders: initialOrders, currentStatus, currentD
                       </div>
                     </div>
 
-                    {order.status === 'approved' && order.delivery_status && (
+                    {((order.status === 'approved' || order.status === 'delivered') && order.delivery_status) && (
                       <section className="mb-2 sm:mb-3 p-2 sm:p-3 bg-primary/10 rounded-lg border border-primary/20 overflow-x-auto">
                         <span className="block text-xs sm:text-sm font-semibold mb-2 text-primary">{t('customer.delivery_status')}</span>
                         <nav className="flex items-center justify-between gap-1 min-w-max" aria-label="Delivery progress">
@@ -895,7 +920,7 @@ export default function History({ orders: initialOrders, currentStatus, currentD
               </section>
 
               {/* Show More Button */}
-              {hasMore && (
+              {(displayedCount < fetchedOrders.length || hasMore) && (
                 <div className="flex items-center justify-center py-6 sm:py-8">
                   <Button
                     onClick={handleLoadMore}
@@ -910,14 +935,19 @@ export default function History({ orders: initialOrders, currentStatus, currentD
                         {t('customer.loading') || 'Loading...'}
                       </>
                     ) : (
-                      t('customer.show_more') || 'Show More'
+                      <>
+                        {t('customer.show_more') || 'Show More'}
+                        <span className="ml-2 text-sm opacity-75">
+                          ({displayedOrders.length} / {totalOrders})
+                        </span>
+                      </>
                     )}
                   </Button>
                 </div>
               )}
 
               {/* Show total count when all loaded */}
-              {!hasMore && displayedOrders.length > 0 && (
+              {displayedCount >= fetchedOrders.length && !hasMore && displayedOrders.length > 0 && (
                 <div className="text-center py-6 text-sm sm:text-base text-muted-foreground">
                   {t('customer.showing_all_orders') || `Showing all ${displayedOrders.length} orders`}
                 </div>
