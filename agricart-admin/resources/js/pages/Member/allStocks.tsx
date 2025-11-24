@@ -965,6 +965,7 @@ export default function AllStocks({ availableStocks, salesData, comprehensiveSto
                                 totalRevenue={totalRevenue}
                                 totalCogs={allComprehensiveStockData.reduce((sum, item) => sum + (item.total_cogs || 0), 0)}
                                 totalGrossProfit={allComprehensiveStockData.reduce((sum, item) => sum + (item.total_gross_profit || 0), 0)}
+                                totalLoss={allComprehensiveStockData.reduce((sum, item) => sum + (item.damaged_defective_loss || 0), 0)}
                                 totalStock={allComprehensiveStockData.reduce((sum, item) => sum + item.total_quantity, 0)}
                                 availableStock={allComprehensiveStockData.filter(item => item.balance_quantity > 0).length}
                                 soldOutStock={allComprehensiveStockData.filter(item => item.balance_quantity === 0 && item.sold_quantity > 0).length}

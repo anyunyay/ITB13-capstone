@@ -1,5 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Package, TrendingUp, Users, CheckCircle, XCircle } from 'lucide-react';
+import { Package, TrendingUp, Users, CheckCircle, XCircle, AlertTriangle } from 'lucide-react';
 import { useTranslation } from '@/hooks/use-translation';
 
 interface TransactionSummaryProps {
@@ -19,6 +19,7 @@ interface StockSummaryProps {
     totalRevenue: number;
     totalCogs: number;
     totalGrossProfit: number;
+    totalLoss: number;
     totalStock: number;
     availableStock: number;
     soldOutStock: number;
@@ -104,7 +105,8 @@ export function StockSummaryCards({
     totalAvailable, 
     totalRevenue, 
     totalCogs, 
-    totalGrossProfit, 
+    totalGrossProfit,
+    totalLoss, 
     totalStock, 
     availableStock, 
     soldOutStock, 
@@ -115,17 +117,6 @@ export function StockSummaryCards({
 
     return (
         <>
-            <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium text-foreground">{t('member.available_balance')}</CardTitle>
-                    <CheckCircle className="h-4 w-4 text-green-400" />
-                </CardHeader>
-                <CardContent>
-                    <div className="text-2xl font-bold text-green-400">{totalAvailable}</div>
-                    <p className="text-xs text-muted-foreground">{t('member.items_ready_for_sale')}</p>
-                </CardContent>
-            </Card>
-
             <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle className="text-sm font-medium text-foreground">{t('member.total_revenue')}</CardTitle>
@@ -156,6 +147,17 @@ export function StockSummaryCards({
                 <CardContent>
                     <div className="text-2xl font-bold text-green-400">{formatCurrency(totalGrossProfit)}</div>
                     <p className="text-xs text-muted-foreground">{t('member.revenue_minus_cogs')}</p>
+                </CardContent>
+            </Card>
+
+            <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium text-foreground">{t('member.loss') || 'Loss'}</CardTitle>
+                    <AlertTriangle className="h-4 w-4 text-red-400" />
+                </CardHeader>
+                <CardContent>
+                    <div className="text-2xl font-bold text-red-400">{formatCurrency(totalLoss)}</div>
+                    <p className="text-xs text-muted-foreground">{t('member.losses_in_sales') || 'From damaged/defective'}</p>
                 </CardContent>
             </Card>
 
