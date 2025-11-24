@@ -700,13 +700,9 @@ class MemberController extends Controller
                 ];
             }
 
-            // Add to total quantity (initial quantity or available + sold + removed)
-            // Use initial_quantity if available, otherwise calculate from current state
-            if ($stock->initial_quantity) {
-                $stockGroups[$key]['total_quantity'] += $stock->initial_quantity;
-            } else {
-                $stockGroups[$key]['total_quantity'] += $stock->quantity + $stock->sold_quantity + ($stock->removed_quantity ?? 0);
-            }
+            // Add to total quantity - this represents CURRENT total (available + sold)
+            // Removed stock is NOT included in total as it's no longer part of the inventory
+            $stockGroups[$key]['total_quantity'] += $stock->quantity + $stock->sold_quantity;
 
             // Add available quantity (current quantity that can be sold)
             $stockGroups[$key]['available_quantity'] += $stock->quantity;
@@ -714,7 +710,7 @@ class MemberController extends Controller
             // Add sold quantity (total sold from this stock)
             $stockGroups[$key]['sold_quantity'] += $stock->sold_quantity;
             
-            // Add removed quantity (total removed from this stock)
+            // Add removed quantity (total removed from this stock - tracked separately)
             $stockGroups[$key]['removed_quantity'] += $stock->removed_quantity ?? 0;
         }
 
