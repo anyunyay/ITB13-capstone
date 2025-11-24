@@ -715,7 +715,7 @@ export const StockManagement = ({
     };
 
     const getCombinedTrailData = () => {
-        // Use stock trails data
+        // Use stock trails data and ensure it's always sorted by date (most recent first)
         return stockTrails.map(trail => {
             // Get quantity change from stock trail
             const oldQuantity = trail.old_quantity || 0;
@@ -768,7 +768,23 @@ export const StockManagement = ({
                 performedBy: trail.performed_by_user?.name || null,
                 performedByType: trail.performed_by_type || trail.performed_by_user?.type || null
             };
-        }).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+        }).sort((a, b) => {
+            // IMPORTANT: Multi-level sorting for stock trail entries
+            // Primary sort: By date descending (most recent first)
+            const dateA = new Date(a.date).getTime();
+            const dateB = new Date(b.date).getTime();
+            const dateComparison = dateB - dateA;
+            
+            // Secondary sort: Within the same second (1000ms window), sort by Stock ID descending (latest stock first)
+            // This ensures that when multiple entries have the same timestamp,
+            // the entry with the higher Stock ID appears first
+            // Using 1000ms threshold to group entries that occur within the same second
+            if (Math.abs(dateComparison) < 1000) {
+                return (b.stockId || 0) - (a.stockId || 0); // Descending order by Stock ID for same-time entries
+            }
+            
+            return dateComparison;
+        });
     };
 
     const getActionLabel = (actionType: string) => {

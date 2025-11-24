@@ -147,7 +147,8 @@ class InventoryController extends Controller
             }
         ])
             ->select('id', 'stock_id', 'product_id', 'member_id', 'action_type', 'old_quantity', 'new_quantity', 'category', 'notes', 'performed_by', 'performed_by_type', 'created_at')
-            ->orderBy('created_at', 'desc')
+            ->orderBy('created_at', 'desc') // IMPORTANT: Primary sort - most recent first
+            ->orderBy('stock_id', 'desc') // Secondary sort - within same timestamp, latest stock first
             ->limit(30) // Reduced from 200
             ->get()
             ->map(function ($trail) {

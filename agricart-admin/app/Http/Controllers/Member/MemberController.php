@@ -473,22 +473,28 @@ class MemberController extends Controller
             case 'product_name':
                 return $query->join('products', 'stock_trails.product_id', '=', 'products.id')
                     ->orderBy('products.name', $sortDir)
+                    ->orderBy('stock_trails.stock_id', 'desc') // Secondary sort by Stock ID descending
                     ->select('stock_trails.*');
 
             case 'category':
-                return $query->orderBy('category', $sortDir);
+                return $query->orderBy('category', $sortDir)
+                    ->orderBy('stock_id', 'desc'); // Secondary sort by Stock ID descending
 
             case 'action_type':
-                return $query->orderBy('action_type', $sortDir);
+                return $query->orderBy('action_type', $sortDir)
+                    ->orderBy('stock_id', 'desc'); // Secondary sort by Stock ID descending
 
             case 'quantity':
-                return $query->orderBy('new_quantity', $sortDir);
+                return $query->orderBy('new_quantity', $sortDir)
+                    ->orderBy('stock_id', 'desc'); // Secondary sort by Stock ID descending
 
             case 'created_at':
-                return $query->orderBy('created_at', $sortDir);
+                return $query->orderBy('created_at', $sortDir)
+                    ->orderBy('stock_id', 'desc'); // Secondary sort by Stock ID descending
 
             default:
-                return $query->orderBy('created_at', 'desc');
+                return $query->orderBy('created_at', 'desc')
+                    ->orderBy('stock_id', 'desc'); // Secondary sort by Stock ID descending
         }
     }
 
