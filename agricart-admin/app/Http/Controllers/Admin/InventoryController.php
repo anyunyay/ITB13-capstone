@@ -146,7 +146,7 @@ class InventoryController extends Controller
                 $query->select('id', 'name', 'type');
             }
         ])
-            ->select('id', 'product_id', 'member_id', 'action_type', 'old_quantity', 'new_quantity', 'category', 'notes', 'performed_by', 'performed_by_type', 'created_at')
+            ->select('id', 'stock_id', 'product_id', 'member_id', 'action_type', 'old_quantity', 'new_quantity', 'category', 'notes', 'performed_by', 'performed_by_type', 'created_at')
             ->orderBy('created_at', 'desc')
             ->limit(30) // Reduced from 200
             ->get()
@@ -154,6 +154,7 @@ class InventoryController extends Controller
                 // Explicitly include performed_by_user data in the response
                 return [
                     'id' => $trail->id,
+                    'stock_id' => $trail->stock_id,
                     'product_id' => $trail->product_id,
                     'member_id' => $trail->member_id,
                     'action_type' => $trail->action_type,

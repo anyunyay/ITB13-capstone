@@ -97,13 +97,13 @@ export const StockManagement = ({
                 return (
                     <TableRow>
                         <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-center text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">{t('admin.date')}</TableHead>
+                        <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-center text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">{t('admin.stock_id')}</TableHead>
                         <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-center text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">{t('admin.product')}</TableHead>
                         <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-center text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">{t('admin.quantity')}</TableHead>
-                        <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-center text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">{t('admin.category')}</TableHead>
-                        <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-center text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">{t('admin.member')}</TableHead>
-                        <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-center text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">{t('admin.action')}</TableHead>
-                        <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-center text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">{t('admin.performed_by')}</TableHead>
                         <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-center text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">{t('admin.total_amount')}</TableHead>
+                        <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-center text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">{t('admin.action')}</TableHead>
+                        <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-center text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">{t('admin.member')}</TableHead>
+                        <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-center text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">{t('admin.performed_by')}</TableHead>
                         <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-center text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">{t('admin.notes')}</TableHead>
                     </TableRow>
                 );
@@ -180,6 +180,13 @@ export const StockManagement = ({
                         </TableCell>
                         <TableCell className="px-4 py-4 lg:px-3 lg:py-3 md:px-2 md:py-3 sm:px-1 sm:py-2">
                             <div className="flex justify-center min-h-[40px] py-2 w-full">
+                                <div className="w-full max-w-[120px] text-center flex justify-center">
+                                    <Badge variant="outline">#{item.stockId || 'N/A'}</Badge>
+                                </div>
+                            </div>
+                        </TableCell>
+                        <TableCell className="px-4 py-4 lg:px-3 lg:py-3 md:px-2 md:py-3 sm:px-1 sm:py-2">
+                            <div className="flex justify-center min-h-[40px] py-2 w-full">
                                 <div className="w-full max-w-[180px] text-left">
                                     <div className="font-medium">{item.product}</div>
                                 </div>
@@ -201,15 +208,10 @@ export const StockManagement = ({
                         </TableCell>
                         <TableCell className="px-4 py-4 lg:px-3 lg:py-3 md:px-2 md:py-3 sm:px-1 sm:py-2">
                             <div className="flex justify-center min-h-[40px] py-2 w-full">
-                                <div className="w-full max-w-[120px] text-center flex justify-center">
-                                    <Badge variant="secondary">{item.category}</Badge>
-                                </div>
-                            </div>
-                        </TableCell>
-                        <TableCell className="px-4 py-4 lg:px-3 lg:py-3 md:px-2 md:py-3 sm:px-1 sm:py-2">
-                            <div className="flex justify-center min-h-[40px] py-2 w-full">
-                                <div className="w-full max-w-[150px] text-left">
-                                    {item.member}
+                                <div className="w-full max-w-[120px] text-right">
+                                    <div className="font-semibold">
+                                        {item.totalAmount === null ? 'N/A' : `₱${item.totalAmount.toFixed(2)}`}
+                                    </div>
                                 </div>
                             </div>
                         </TableCell>
@@ -228,19 +230,17 @@ export const StockManagement = ({
                         <TableCell className="px-4 py-4 lg:px-3 lg:py-3 md:px-2 md:py-3 sm:px-1 sm:py-2">
                             <div className="flex justify-center min-h-[40px] py-2 w-full">
                                 <div className="w-full max-w-[150px] text-left">
-                                    <div className="font-medium text-sm">{item.performedBy || t('admin.system')}</div>
-                                    {item.performedByType && (
-                                        <div className="text-xs text-muted-foreground capitalize">{item.performedByType}</div>
-                                    )}
+                                    {item.member}
                                 </div>
                             </div>
                         </TableCell>
                         <TableCell className="px-4 py-4 lg:px-3 lg:py-3 md:px-2 md:py-3 sm:px-1 sm:py-2">
                             <div className="flex justify-center min-h-[40px] py-2 w-full">
-                                <div className="w-full max-w-[120px] text-right">
-                                    <div className="font-semibold">
-                                        {item.totalAmount === null ? 'N/A' : `₱${item.totalAmount.toFixed(2)}`}
-                                    </div>
+                                <div className="w-full max-w-[150px] text-left">
+                                    <div className="font-medium text-sm">{item.performedBy || t('admin.system')}</div>
+                                    {item.performedByType && (
+                                        <div className="text-xs text-muted-foreground capitalize">{item.performedByType}</div>
+                                    )}
                                 </div>
                             </div>
                         </TableCell>
@@ -466,8 +466,9 @@ export const StockManagement = ({
                     <div key={item.id} className="bg-card border border-border rounded-lg p-4 shadow-sm space-y-3">
                         <div className="flex justify-between items-start">
                             <div>
+                                <div className="text-xs text-muted-foreground mb-1">{new Date(item.date).toLocaleDateString()} {new Date(item.date).toLocaleTimeString()}</div>
+                                <Badge variant="outline" className="mb-2">#{item.stockId || 'N/A'}</Badge>
                                 <div className="font-semibold text-foreground">{item.product}</div>
-                                <Badge variant="secondary" className="text-xs mt-1">{item.category}</Badge>
                             </div>
                             <Badge
                                 variant={item.type === 'removed' || item.type === 'reversal' ? "destructive" : "default"}
@@ -478,10 +479,6 @@ export const StockManagement = ({
                         </div>
                         <div className="space-y-2 text-sm">
                             <div className="flex justify-between">
-                                <span className="text-muted-foreground">{t('admin.date')}:</span>
-                                <span className="font-medium">{new Date(item.date).toLocaleDateString()}</span>
-                            </div>
-                            <div className="flex justify-between">
                                 <span className="text-muted-foreground">{t('admin.quantity')}:</span>
                                 <span className="font-semibold">
                                     {item.category === 'Kilo'
@@ -490,6 +487,12 @@ export const StockManagement = ({
                                             ? `${Math.floor(item.quantity)} ${item.category.toLowerCase()}`
                                             : item.quantity
                                     }
+                                </span>
+                            </div>
+                            <div className="flex justify-between">
+                                <span className="text-muted-foreground">{t('admin.total_amount')}:</span>
+                                <span className="font-semibold">
+                                    {item.totalAmount === null ? 'N/A' : `₱${item.totalAmount.toFixed(2)}`}
                                 </span>
                             </div>
                             <div className="flex justify-between">
@@ -504,12 +507,6 @@ export const StockManagement = ({
                                         <div className="text-xs text-muted-foreground capitalize">{item.performedByType}</div>
                                     )}
                                 </div>
-                            </div>
-                            <div className="flex justify-between">
-                                <span className="text-muted-foreground">{t('admin.total_amount')}:</span>
-                                <span className="font-semibold">
-                                    {item.totalAmount === null ? 'N/A' : `₱${item.totalAmount.toFixed(2)}`}
-                                </span>
                             </div>
                             {item.notes && (
                                 <div className="pt-2 border-t border-border">
@@ -755,6 +752,7 @@ export const StockManagement = ({
 
             return {
                 id: trail.id,
+                stockId: trail.stock_id,
                 type: trail.action_type,
                 product: trail.product?.name || 'Unknown Product',
                 quantity: quantityChange,
