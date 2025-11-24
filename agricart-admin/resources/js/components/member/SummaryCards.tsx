@@ -1,5 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Package, TrendingUp, Users, CheckCircle, XCircle, AlertTriangle } from 'lucide-react';
+import { Package, TrendingUp, Users, PackageCheck, PackageOpen, PackageX } from 'lucide-react';
 import { useTranslation } from '@/hooks/use-translation';
 
 interface TransactionSummaryProps {
@@ -153,7 +153,7 @@ export function StockSummaryCards({
             <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle className="text-sm font-medium text-foreground">{t('member.loss') || 'Loss'}</CardTitle>
-                    <AlertTriangle className="h-4 w-4 text-red-400" />
+                    <PackageX className="h-4 w-4 text-red-400" />
                 </CardHeader>
                 <CardContent>
                     <div className="text-2xl font-bold text-red-400">{formatCurrency(totalLoss)}</div>
@@ -175,7 +175,7 @@ export function StockSummaryCards({
             <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle className="text-sm font-medium text-foreground">{t('member.available_stock')}</CardTitle>
-                    <CheckCircle className="h-4 w-4 text-green-400" />
+                    <PackageCheck className="h-4 w-4 text-green-400" />
                 </CardHeader>
                 <CardContent>
                     <div className="text-2xl font-bold text-green-400">{availableStock}</div>
@@ -186,10 +186,10 @@ export function StockSummaryCards({
             <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle className="text-sm font-medium text-foreground">{t('member.sold_out')}</CardTitle>
-                    <XCircle className="h-4 w-4 text-red-400" />
+                    <PackageOpen className="h-4 w-4 text-gray-400" />
                 </CardHeader>
                 <CardContent>
-                    <div className="text-2xl font-bold text-red-400">{soldOutStock}</div>
+                    <div className="text-2xl font-bold text-gray-400">{soldOutStock}</div>
                     <p className="text-xs text-muted-foreground">{t('member.products_sold_out')}</p>
                 </CardContent>
             </Card>
@@ -197,10 +197,10 @@ export function StockSummaryCards({
             <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle className="text-sm font-medium text-foreground">{t('member.sold_quantity')}</CardTitle>
-                    <XCircle className="h-4 w-4 text-red-400" />
+                    <PackageOpen className="h-4 w-4 text-gray-400" />
                 </CardHeader>
                 <CardContent>
-                    <div className="text-2xl font-bold text-red-400">{totalSold}</div>
+                    <div className="text-2xl font-bold text-gray-400">{totalSold}</div>
                     <p className="text-xs text-muted-foreground">{t('member.items_sold')}</p>
                 </CardContent>
             </Card>

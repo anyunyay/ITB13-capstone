@@ -1,6 +1,6 @@
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Package, XCircle, CheckCircle, AlertCircle, TrendingUp } from 'lucide-react';
+import { Package, PackageOpen, PackageCheck, PackageX, TrendingUp } from 'lucide-react';
 import { useTranslation } from '@/hooks/use-translation';
 
 interface Product {
@@ -50,18 +50,18 @@ export function StockOverviewCards({ data }: StockOverviewCardsProps) {
                     {/* Status Badge - Top Right */}
                     <div className="absolute top-3 right-3 z-10">
                         {item.balance_quantity > 0 ? (
-                            <Badge variant="default" className="flex items-center gap-1 shadow-md">
-                                <CheckCircle className="h-4 w-4" />
+                            <Badge variant="default" className="flex items-center gap-1 shadow-md bg-green-600 hover:bg-green-700">
+                                <PackageCheck className="h-4 w-4" />
                                 {t('member.available')}
                             </Badge>
                         ) : item.sold_quantity > 0 ? (
-                            <Badge variant="destructive" className="flex items-center gap-1 shadow-md">
-                                <XCircle className="h-4 w-4" />
+                            <Badge variant="secondary" className="flex items-center gap-1 shadow-md bg-gray-600 hover:bg-gray-700 text-white">
+                                <PackageOpen className="h-4 w-4" />
                                 {t('member.sold_out')}
                             </Badge>
                         ) : (
-                            <Badge variant="secondary" className="flex items-center gap-1 shadow-md">
-                                <AlertCircle className="h-4 w-4" />
+                            <Badge variant="destructive" className="flex items-center gap-1 shadow-md">
+                                <PackageX className="h-4 w-4" />
                                 {t('member.no_stock')}
                             </Badge>
                         )}
@@ -86,17 +86,17 @@ export function StockOverviewCards({ data }: StockOverviewCardsProps) {
                                 <p className="font-semibold text-foreground">{item.total_quantity}</p>
                             </div>
                             <div className="flex flex-col items-center text-center">
-                                <XCircle className="h-4 w-4 text-red-400 mb-1 flex-shrink-0" />
+                                <PackageOpen className="h-4 w-4 text-gray-400 mb-1 flex-shrink-0" />
                                 <p className="text-xs text-muted-foreground mb-0.5">{t('member.sold_quantity')}</p>
                                 <p className="font-semibold text-foreground">{item.sold_quantity}</p>
                             </div>
                             <div className="flex flex-col items-center text-center">
-                                <CheckCircle className="h-4 w-4 text-green-400 mb-1 flex-shrink-0" />
+                                <PackageCheck className="h-4 w-4 text-green-400 mb-1 flex-shrink-0" />
                                 <p className="text-xs text-muted-foreground mb-0.5">{t('member.available_balance')}</p>
                                 <p className="font-semibold text-foreground">{item.balance_quantity}</p>
                             </div>
                             <div className="flex flex-col items-center text-center">
-                                <AlertCircle className="h-4 w-4 text-orange-400 mb-1 flex-shrink-0" />
+                                <PackageX className="h-4 w-4 text-red-400 mb-1 flex-shrink-0" />
                                 <p className="text-xs text-muted-foreground mb-0.5">{t('member.damaged_defective_count') || 'Damaged'}</p>
                                 <p className="font-semibold text-foreground">{item.damaged_defective_count || 0}</p>
                             </div>
@@ -108,28 +108,28 @@ export function StockOverviewCards({ data }: StockOverviewCardsProps) {
                                 <TrendingUp className="h-4 w-4 text-yellow-400 mb-1 flex-shrink-0" />
                                 <p className="text-xs text-muted-foreground mb-0.5">{t('member.total_revenue')}</p>
                                 <p className="font-semibold text-foreground text-sm">
-                                    <span className="text-yellow-500">₱</span>{item.total_revenue.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                                    <span className="text-black dark:text-white">₱</span>{item.total_revenue.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
                                 </p>
                             </div>
                             <div className="flex flex-col items-center text-center">
                                 <TrendingUp className="h-4 w-4 text-orange-400 mb-1 flex-shrink-0" />
                                 <p className="text-xs text-muted-foreground mb-0.5">{t('member.cogs')}</p>
                                 <p className="font-semibold text-orange-400 text-sm">
-                                    <span className="text-yellow-500">₱</span>{((item.total_cogs || 0)).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                                    <span className="text-black dark:text-white">₱</span>{((item.total_cogs || 0)).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
                                 </p>
                             </div>
                             <div className="flex flex-col items-center text-center">
                                 <TrendingUp className="h-4 w-4 text-green-400 mb-1 flex-shrink-0" />
                                 <p className="text-xs text-muted-foreground mb-0.5">{t('member.gross_profit')}</p>
                                 <p className="font-semibold text-green-400 text-sm">
-                                    <span className="text-yellow-500">₱</span>{((item.total_gross_profit || 0)).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                                    <span className="text-black dark:text-white">₱</span>{((item.total_gross_profit || 0)).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
                                 </p>
                             </div>
                             <div className="flex flex-col items-center text-center">
-                                <AlertCircle className="h-4 w-4 text-red-400 mb-1 flex-shrink-0" />
+                                <PackageX className="h-4 w-4 text-red-400 mb-1 flex-shrink-0" />
                                 <p className="text-xs text-muted-foreground mb-0.5">{t('member.loss') || 'Loss'}</p>
                                 <p className="font-semibold text-red-600 dark:text-red-400 text-sm">
-                                    <span className="text-yellow-500">₱</span>{((item.damaged_defective_loss || 0)).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                                    <span className="text-black dark:text-white">₱</span>{((item.damaged_defective_loss || 0)).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
                                 </p>
                             </div>
                         </div>

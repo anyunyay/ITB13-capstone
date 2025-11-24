@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
+import { ArrowUpDown, ArrowUp, ArrowDown, PackageCheck, PackageOpen, PackageX } from 'lucide-react';
 import dayjs from 'dayjs';
 import { useTranslation } from '@/hooks/use-translation';
 import { Stock } from '@/types/inventory-report';
@@ -50,11 +50,11 @@ export function StockTable({ stocks }: StockTableProps) {
 
   const getStatusBadge = (stock: Stock) => {
     if (stock.removed_at) {
-      return <Badge variant="destructive" className="bg-destructive/10 text-destructive border-destructive/20">{t('admin.removed')}</Badge>;
+      return <Badge variant="destructive" className="bg-red-600 text-white flex items-center gap-1"><PackageX className="h-3 w-3" />{t('admin.removed')}</Badge>;
     } else if (stock.quantity == 0) {
-      return <Badge variant="default" className="bg-secondary/10 text-secondary border-secondary/20">{t('admin.sold')}</Badge>;
+      return <Badge variant="secondary" className="bg-gray-600 text-white flex items-center gap-1"><PackageOpen className="h-3 w-3" />{t('admin.sold')}</Badge>;
     } else {
-      return <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20">{t('admin.available')}</Badge>;
+      return <Badge variant="default" className="bg-green-600 text-white flex items-center gap-1"><PackageCheck className="h-3 w-3" />{t('admin.available')}</Badge>;
     }
   };
 

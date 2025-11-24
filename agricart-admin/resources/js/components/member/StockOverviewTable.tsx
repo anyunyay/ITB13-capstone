@@ -1,6 +1,6 @@
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Package, XCircle, CheckCircle, AlertCircle, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
+import { Package, PackageOpen, PackageCheck, PackageX, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
 import { useTranslation } from '@/hooks/use-translation';
 import { Button } from '@/components/ui/button';
 
@@ -118,7 +118,7 @@ export function StockOverviewTable({ data, sortBy, sortDir, onSort }: StockOverv
                             <TableCell className="whitespace-nowrap">
                                 <div className="flex justify-center min-h-[40px] py-2 w-full">
                                     <div className="w-full max-w-[120px] text-left flex items-center gap-2">
-                                        <XCircle className="h-4 w-4 text-red-400" />
+                                        <PackageOpen className="h-4 w-4 text-gray-400" />
                                         <span className="font-semibold text-black dark:text-white">{item.sold_quantity}</span>
                                     </div>
                                 </div>
@@ -126,7 +126,7 @@ export function StockOverviewTable({ data, sortBy, sortDir, onSort }: StockOverv
                             <TableCell className="whitespace-nowrap">
                                 <div className="flex justify-center min-h-[40px] py-2 w-full">
                                     <div className="w-full max-w-[120px] text-left flex items-center gap-2">
-                                        <CheckCircle className="h-4 w-4 text-green-400" />
+                                        <PackageCheck className="h-4 w-4 text-green-400" />
                                         <span className="font-semibold text-black dark:text-white">
                                             {item.balance_quantity}
                                         </span>
@@ -136,7 +136,7 @@ export function StockOverviewTable({ data, sortBy, sortDir, onSort }: StockOverv
                             <TableCell className="whitespace-nowrap">
                                 <div className="flex justify-center min-h-[40px] py-2 w-full">
                                     <div className="w-full max-w-[120px] text-left flex items-center gap-2">
-                                        <AlertCircle className="h-4 w-4 text-orange-400" />
+                                        <PackageX className="h-4 w-4 text-red-400" />
                                         <span className="font-semibold text-black dark:text-white">
                                             {item.damaged_defective_count || 0}
                                         </span>
@@ -147,7 +147,7 @@ export function StockOverviewTable({ data, sortBy, sortDir, onSort }: StockOverv
                                 <div className="flex justify-center min-h-[40px] py-2 w-full">
                                     <div className="w-full max-w-[120px] text-right">
                                         <span className="font-semibold text-black dark:text-white">
-                                            <span className="text-yellow-500">₱</span>{item.total_revenue.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                                            <span className="text-black dark:text-white">₱</span>{item.total_revenue.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
                                         </span>
                                     </div>
                                 </div>
@@ -156,7 +156,7 @@ export function StockOverviewTable({ data, sortBy, sortDir, onSort }: StockOverv
                                 <div className="flex justify-center min-h-[40px] py-2 w-full">
                                     <div className="w-full max-w-[120px] text-right">
                                         <span className="font-semibold text-black dark:text-white">
-                                            <span className="text-yellow-500">₱</span>{((item.total_cogs || 0)).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                                            <span className="text-black dark:text-white">₱</span>{((item.total_cogs || 0)).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
                                         </span>
                                     </div>
                                 </div>
@@ -165,7 +165,7 @@ export function StockOverviewTable({ data, sortBy, sortDir, onSort }: StockOverv
                                 <div className="flex justify-center min-h-[40px] py-2 w-full">
                                     <div className="w-full max-w-[120px] text-right">
                                         <span className="font-semibold text-black dark:text-white">
-                                            <span className="text-yellow-500">₱</span>{((item.total_gross_profit || 0)).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                                            <span className="text-black dark:text-white">₱</span>{((item.total_gross_profit || 0)).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
                                         </span>
                                     </div>
                                 </div>
@@ -174,7 +174,7 @@ export function StockOverviewTable({ data, sortBy, sortDir, onSort }: StockOverv
                                 <div className="flex justify-center min-h-[40px] py-2 w-full">
                                     <div className="w-full max-w-[120px] text-right">
                                         <span className="font-semibold text-red-600 dark:text-red-400">
-                                            <span className="text-yellow-500">₱</span>{((item.damaged_defective_loss || 0)).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                                            <span className="text-black dark:text-white">₱</span>{((item.damaged_defective_loss || 0)).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
                                         </span>
                                     </div>
                                 </div>
@@ -183,18 +183,18 @@ export function StockOverviewTable({ data, sortBy, sortDir, onSort }: StockOverv
                                 <div className="flex justify-center min-h-[40px] py-2 w-full">
                                     <div className="w-full max-w-[120px] text-center flex justify-center">
                                         {item.balance_quantity > 0 ? (
-                                            <Badge variant="default" className="flex items-center gap-1 w-fit">
-                                                <CheckCircle className="h-4 w-4" />
+                                            <Badge variant="default" className="flex items-center gap-1 w-fit bg-green-600 hover:bg-green-700">
+                                                <PackageCheck className="h-4 w-4" />
                                                 {t('member.available')}
                                             </Badge>
                                         ) : item.sold_quantity > 0 ? (
-                                            <Badge variant="destructive" className="flex items-center gap-1 w-fit">
-                                                <XCircle className="h-4 w-4" />
+                                            <Badge variant="secondary" className="flex items-center gap-1 w-fit bg-gray-600 hover:bg-gray-700 text-white">
+                                                <PackageOpen className="h-4 w-4" />
                                                 {t('member.sold_out')}
                                             </Badge>
                                         ) : (
-                                            <Badge variant="secondary" className="flex items-center gap-1 w-fit">
-                                                <AlertCircle className="h-4 w-4" />
+                                            <Badge variant="destructive" className="flex items-center gap-1 w-fit">
+                                                <PackageX className="h-4 w-4" />
                                                 {t('member.no_stock')}
                                             </Badge>
                                         )}

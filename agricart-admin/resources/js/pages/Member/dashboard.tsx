@@ -5,7 +5,7 @@ import { type SharedData } from '@/types';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Package, History, TrendingUp, CheckCircle, DollarSign } from 'lucide-react';
+import { Package, History, TrendingUp, PackageCheck, PackageOpen, DollarSign } from 'lucide-react';
 import { Link } from '@inertiajs/react';
 import { MemberHeader } from '@/components/member/member-header';
 import { useTranslation } from '@/hooks/use-translation';
@@ -214,7 +214,7 @@ export default function MemberDashboard({ availableStocks, soldStocks, salesData
                                                 </p>
                                             </div>
                                             <Badge className="bg-green-600 text-white shadow-md text-xs">
-                                                <CheckCircle className="h-3 w-3 mr-1" />
+                                                <PackageCheck className="h-3 w-3 mr-1" />
                                                 {t('member.available')}
                                             </Badge>
                                         </div>
@@ -250,8 +250,8 @@ export default function MemberDashboard({ availableStocks, soldStocks, salesData
                                                 </p>
                                             </div>
                                             <div className="text-right">
-                                                <Badge className="bg-red-600 text-white shadow-md text-xs mb-1">
-                                                    <TrendingUp className="h-3 w-3 mr-1" />
+                                                <Badge className="bg-gray-600 text-white shadow-md text-xs mb-1">
+                                                    <PackageOpen className="h-3 w-3 mr-1" />
                                                     Sold
                                                 </Badge>
                                                 <p className="text-xs text-green-400">₱{sale.total_revenue.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}</p>
