@@ -25,7 +25,12 @@ interface StockTrail {
         id: number;
         name: string;
     };
-    performedByUser: {
+    performedByUser?: {
+        id: number;
+        name: string;
+        type: string;
+    } | null;
+    performed_by_user?: {
         id: number;
         name: string;
         type: string;
@@ -181,15 +186,30 @@ export const StockTrailCards = ({ trails, from, to, total }: StockTrailCardsProp
                             </div>
 
                             {/* Performed By */}
-                            <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
-                                <User className="h-3.5 w-3.5" />
-                                <span>
-                                    {trail.performedByUser?.name || t('member.system')}
-                                    {trail.performed_by_type && (
-                                        <span className="capitalize"> ({trail.performed_by_type})</span>
-                                    )}
-                                </span>
-                            </div>
+                            {(() => {
+                                const user = trail.performedByUser || trail.performed_by_user;
+                                const userName = user?.name || t('member.system');
+                                const userType = user?.type || trail.performed_by_type;
+                                
+                                return (
+                                    <div className="mb-3">
+                                        <div className="text-xs text-muted-foreground mb-1">{t('member.performed_by')}</div>
+                                        <div className="flex items-center gap-2">
+                                            <User className="h-4 w-4 text-muted-foreground" />
+                                            <div>
+                                                <div className="text-sm font-medium">
+                                                    {userName}
+                                                </div>
+                                                {userType && (
+                                                    <Badge variant="outline" className="text-xs capitalize mt-1">
+                                                        {userType}
+                                                    </Badge>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+                                );
+                            })()}
 
                             {/* Notes */}
                             {trail.notes && (

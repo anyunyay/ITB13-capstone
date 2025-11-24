@@ -26,7 +26,12 @@ interface StockTrail {
         id: number;
         name: string;
     };
-    performedByUser: {
+    performedByUser?: {
+        id: number;
+        name: string;
+        type: string;
+    } | null;
+    performed_by_user?: {
         id: number;
         name: string;
         type: string;
@@ -42,6 +47,16 @@ interface StockTrailTableProps {
 
 export const StockTrailTable = ({ trails, from, to, total }: StockTrailTableProps) => {
     const t = useTranslation();
+
+    // Debug: Log the first trail to see what data we're receiving
+    if (trails.length > 0) {
+        console.log('Stock Trail Sample:', trails[0]);
+        console.log('performedByUser (camelCase):', trails[0].performedByUser);
+        console.log('performed_by_user (snake_case):', (trails[0] as any).performed_by_user);
+        console.log('performed_by:', trails[0].performed_by);
+        console.log('performed_by_type:', trails[0].performed_by_type);
+        console.log('All keys:', Object.keys(trails[0]));
+    }
 
     const getActionIcon = (actionType: string) => {
         switch (actionType.toLowerCase()) {
@@ -186,14 +201,24 @@ export const StockTrailTable = ({ trails, from, to, total }: StockTrailTableProp
                                         </span>
                                     </TableCell>
                                     <TableCell>
-                                        <div className="text-sm">
-                                            {trail.performedByUser?.name || t('member.system')}
-                                        </div>
-                                        {trail.performed_by_type && (
-                                            <div className="text-xs text-muted-foreground capitalize">
-                                                {trail.performed_by_type}
-                                            </div>
-                                        )}
+                                        {(() => {
+                                            const user = trail.performedByUser || trail.performed_by_user;
+                                            const userName = user?.name || t('member.system');
+                                            const userType = user?.type || trail.performed_by_type;
+                                            
+                                            return (
+                                                <>
+                                                    <div className="text-sm font-medium">
+                                                        {userName}
+                                                    </div>
+                                                    {userType && (
+                                                        <Badge variant="outline" className="text-xs capitalize mt-1">
+                                                            {userType}
+                                                        </Badge>
+                                                    )}
+                                                </>
+                                            );
+                                        })()}
                                     </TableCell>
                                     <TableCell>
                                         <div className="max-w-xs truncate text-sm text-muted-foreground" title={trail.notes || ''}>
