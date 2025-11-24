@@ -34,10 +34,15 @@ class TrendAnalysisController extends Controller
                     $priceCategories[] = 'per_pc';
                 }
                 
+                // Get product type from products table
+                $product = Product::where('name', $productName)->first();
+                $produceType = $product ? $product->produce_type : null;
+                
                 return [
                     'name' => $productName,
                     'price_categories' => $priceCategories,
-                    'unit_types' => $unitTypes
+                    'unit_types' => $unitTypes,
+                    'produce_type' => $produceType
                 ];
             })
             ->values();

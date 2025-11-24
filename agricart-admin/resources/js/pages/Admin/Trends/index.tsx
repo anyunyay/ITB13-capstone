@@ -24,7 +24,8 @@ dayjs.extend(isSameOrAfter);
 type ProductOption = { 
     name: string; 
     price_categories: string[]; 
-    unit_types: string[]; 
+    unit_types: string[];
+    produce_type?: string | null;
 };
 
 interface DateRange {
@@ -91,9 +92,8 @@ export default function TrendsIndex({ products, dateRange }: PageProps) {
     // Store latest data for selected products - updates based on selected products
     const [latestProductData, setLatestProductData] = useState<Record<string, any>>(persistedState?.latestProductData || {});
 
-    // Define product categories
-    const fruitProducts = ['Pakwan', 'Mais'];
-    const vegetableProducts = ['Ampalaya', 'Kalabasa', 'Sitaw', 'Talong', 'Pipino', 'Pechay', 'Siling Labuyo', 'Siling Haba', 'Kamatis', 'Tanglad', 'Talbos ng Kamote', 'Alugbati', 'Kangkong'];
+    // Product categories are now determined by produce_type from backend
+    // No need for hardcoded arrays
 
     // Fetch latest data for selected products
     const fetchLatestProductData = useCallback(async () => {
@@ -252,12 +252,12 @@ export default function TrendsIndex({ products, dateRange }: PageProps) {
         return interpolatedData;
     }, [latestProductData, selectedProducts, priceCategoryToggles]);
 
-    // Filter products based on selected category
+    // Filter products based on selected category using produce_type
     const getFilteredProducts = (category: string) => {
         if (category === 'fruit') {
-            return products.filter(p => fruitProducts.includes(p.name));
+            return products.filter(p => p.produce_type === 'fruit');
         } else if (category === 'vegetable') {
-            return products.filter(p => vegetableProducts.includes(p.name));
+            return products.filter(p => p.produce_type === 'vegetable');
         } else if (category === 'all') {
             return products;
         }
