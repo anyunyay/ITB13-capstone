@@ -89,17 +89,29 @@ export function AreaAssignmentModal({ isOpen, onClose, logistic }: AreaAssignmen
                 <form onSubmit={handleSubmit}>
                     <div className="space-y-4 py-4">
                         <div className="space-y-2">
-                            <Label htmlFor="assigned_area">
-                                Assigned Area <span className="text-destructive">*</span>
-                            </Label>
+                            <div className="flex items-center justify-between">
+                                <Label htmlFor="assigned_area">
+                                    Assigned Area <span className="text-destructive">*</span>
+                                </Label>
+                                <p className="text-xs text-muted-foreground">
+                                    Current: {logistic.assigned_area || 'Not assigned'}
+                                </p>
+                            </div>
                             <Select
                                 value={data.assigned_area}
                                 onValueChange={(value) => setData('assigned_area', value)}
                             >
-                                <SelectTrigger id="assigned_area">
+                                <SelectTrigger id="assigned_area" className="w-full">
                                     <SelectValue placeholder="Select an area..." />
                                 </SelectTrigger>
-                                <SelectContent>
+                                <SelectContent
+                                    position="popper"
+                                    side="bottom"
+                                    align="start"
+                                    sideOffset={4}
+                                    avoidCollisions={false}
+                                    className="max-h-[300px]"
+                                >
                                     {CABUYAO_AREAS.map((area) => (
                                         <SelectItem key={area} value={area}>
                                             {area}
@@ -107,9 +119,6 @@ export function AreaAssignmentModal({ isOpen, onClose, logistic }: AreaAssignmen
                                     ))}
                                 </SelectContent>
                             </Select>
-                            <p className="text-xs text-muted-foreground">
-                                Current: {logistic.assigned_area || 'Not assigned'}
-                            </p>
                         </div>
                     </div>
 

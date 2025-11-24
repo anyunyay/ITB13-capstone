@@ -213,7 +213,6 @@ export const createLogisticsTableColumns = (
               {logistic.assigned_area && (
                 <TooltipContent>
                   <p>Assigned to: {logistic.assigned_area}</p>
-                  <p className="text-xs text-muted-foreground">Click to change</p>
                 </TooltipContent>
               )}
               {!logistic.assigned_area && (
