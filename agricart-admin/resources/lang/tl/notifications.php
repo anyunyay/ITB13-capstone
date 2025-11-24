@@ -32,6 +32,7 @@ return [
     'earnings_update' => 'Bagong :period kita: ₱:amount',
     'low_stock_alert' => 'Babala sa mababang :stock_type stock: :product_name ay may :quantity units na lang',
     'stock_added' => 'Idinagdag ang stock para sa :product_name ni :admin_name',
+    'stock_removed' => ':quantity_removed :category ng :product_name ay inalis. Dahilan: :reason',
 
     // Logistic Notifications
     'delivery_task' => 'Bagong delivery task para sa order #:order_id',

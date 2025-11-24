@@ -89,6 +89,8 @@ export function NotificationBell({ notifications, userType, isScrolled = false }
           router.visit('/member/all-stocks?view=transactions');
         } else if (notification.type === 'stock_added') {
           router.visit('/member/all-stocks?view=stocks');
+        } else if (notification.type === 'stock_removed') {
+          router.visit('/member/all-stocks?view=stocks');
         } else if (notification.type === 'earnings_update') {
           router.visit('/member/dashboard');
         } else if (notification.type === 'low_stock_alert') {
@@ -214,6 +216,10 @@ export function NotificationBell({ notifications, userType, isScrolled = false }
         return '🔐';
       case 'product_sale':
         return '💰';
+      case 'stock_added':
+        return '📦';
+      case 'stock_removed':
+        return '⚠️';
       case 'earnings_update':
         return '💵';
       case 'low_stock_alert':
@@ -249,11 +255,13 @@ export function NotificationBell({ notifications, userType, isScrolled = false }
       case 'logistic_order_picked_up':
         return 'text-teal-700 dark:text-teal-200';
       case 'low_stock_alert':
+      case 'stock_removed':
       case 'order_rejection':
         return 'text-red-600 dark:text-red-300';
       case 'product_sale':
       case 'earnings_update':
         return 'text-amber-700 dark:text-amber-200';
+      case 'stock_added':
       case 'inventory_update':
       case 'membership_update':
       case 'password_change_request':

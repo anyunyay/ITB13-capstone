@@ -10,6 +10,7 @@ use App\Models\Stock;
 use App\Models\StockTrail;
 use App\Notifications\InventoryUpdateNotification;
 use App\Notifications\StockAddedNotification;
+use App\Notifications\StockRemovedNotification;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -244,11 +245,16 @@ class InventoryStockController extends Controller
             'reason' => 'required|string|in:Sold Outside,Damaged / Defective,Listing Error',
         ]);
 
-        $stock = Stock::findOrFail($request->stock_id);
+        $stock = Stock::with(['member', 'product'])->findOrFail($request->stock_id);
         
         // Verify the stock belongs to this product
         if ($stock->product_id !== $product->id) {
             return redirect()->back()->withErrors(['stock_id' => 'Invalid stock selected.']);
+        }
+        
+        // Verify the stock has a member
+        if (!$stock->member) {
+            return redirect()->back()->withErrors(['stock_id' => 'Stock has no associated member.']);
         }
 
         // Prevent removing stocks that have reached zero quantity
@@ -341,6 +347,24 @@ class InventoryStockController extends Controller
             'stock_removed',
             $logData
         );
+
+        // Notify the member about the stock removal
+        try {
+            $stock->member->notify(new StockRemovedNotification($stock, $quantityToRemove, $reason, $request->user()));
+            \Log::info('Stock removal notification sent', [
+                'member_id' => $stock->member_id,
+                'member_name' => $stock->member->name,
+                'product_name' => $product->name,
+                'quantity_removed' => $quantityToRemove,
+                'reason' => $reason
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Failed to send stock removal notification', [
+                'error' => $e->getMessage(),
+                'member_id' => $stock->member_id,
+                'stock_id' => $stock->id
+            ]);
+        }
 
         // Notify admin and staff about inventory update (optimized with caching)
         $adminUsers = cache()->remember('admin_staff_users', 300, function () {

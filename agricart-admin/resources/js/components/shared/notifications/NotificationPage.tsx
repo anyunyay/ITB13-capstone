@@ -105,6 +105,8 @@ export function NotificationPage({ notifications, userType }: NotificationPagePr
         return <DollarSign className="h-5 w-5 text-green-600" />;
       case 'stock_added':
         return <Package className="h-5 w-5 text-blue-600" />;
+      case 'stock_removed':
+        return <AlertTriangle className="h-5 w-5 text-orange-600" />;
       case 'earnings_update':
         return <DollarSign className="h-5 w-5 text-green-600" />;
       case 'low_stock_alert':
@@ -142,6 +144,8 @@ export function NotificationPage({ notifications, userType }: NotificationPagePr
         return t('ui.product_sale');
       case 'stock_added':
         return t('ui.stock_added');
+      case 'stock_removed':
+        return 'Stock Removed';
       case 'earnings_update':
         return t('ui.earnings_update');
       case 'low_stock_alert':
@@ -180,6 +184,8 @@ export function NotificationPage({ notifications, userType }: NotificationPagePr
       case 'earnings_update':
       case 'order_confirmation':
         return 'border-l-primary bg-primary/5';
+      case 'stock_removed':
+        return 'border-l-orange-500 bg-orange-50';
       case 'inventory_update':
       case 'membership_update':
       case 'password_change_request':

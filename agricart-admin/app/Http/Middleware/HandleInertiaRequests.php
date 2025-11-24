@@ -112,6 +112,7 @@ class HandleInertiaRequests extends Middleware
                     $notificationTypes = [
                         'App\\Notifications\\ProductSaleNotification',
                         'App\\Notifications\\StockAddedNotification',
+                        'App\\Notifications\\StockRemovedNotification',
                         'App\\Notifications\\EarningsUpdateNotification',
                         'App\\Notifications\\LowStockAlertNotification'
                     ];

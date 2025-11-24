@@ -106,6 +106,7 @@ class NotificationService
                 'App\\Notifications\\EarningsUpdateNotification',
                 'App\\Notifications\\LowStockAlertNotification',
                 'App\\Notifications\\StockAddedNotification',
+                'App\\Notifications\\StockRemovedNotification',
             ],
             'logistic' => [
                 'App\\Notifications\\DeliveryTaskNotification',

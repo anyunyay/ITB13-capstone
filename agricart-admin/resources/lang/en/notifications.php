@@ -32,6 +32,7 @@ return [
     'earnings_update' => 'New :period earnings: ₱:amount',
     'low_stock_alert' => 'Low :stock_type stock alert: :product_name has only :quantity units left',
     'stock_added' => 'Stock added for :product_name by :admin_name',
+    'stock_removed' => ':quantity_removed :category of :product_name was removed. Reason: :reason',
 
     // Logistic Notifications
     'delivery_task' => 'New delivery task for order #:order_id',
