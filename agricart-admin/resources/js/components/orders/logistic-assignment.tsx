@@ -1,8 +1,11 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, SelectGroup, SelectLabel } from '@/components/ui/select';
 import { useTranslation } from '@/hooks/use-translation';
 import { useEffect } from 'react';
+import { Truck, MapPin, Star, Phone, AlertCircle, CheckCircle2 } from 'lucide-react';
 
 interface Logistic {
   id: number;
@@ -109,82 +112,136 @@ export const LogisticAssignment = ({
                 {t('admin.assign_logistic')}
               </Button>
             </DialogTrigger>
-            <DialogContent>
+            <DialogContent className="sm:max-w-[500px]">
               <DialogHeader>
-                <DialogTitle>{t('admin.assign_logistic_to_order', { id: orderId })}</DialogTitle>
+                <DialogTitle className="flex items-center gap-2">
+                  <Truck className="h-5 w-5 text-primary" />
+                  {t('admin.assign_logistic_to_order', { id: orderId })}
+                </DialogTitle>
                 <DialogDescription>
                   {t('admin.order_approved_ready_delivery')}
-                  {customerBarangay && (
-                    <span className="block mt-2 text-sm">
-                      {t('admin.customer_location')}: <strong>{customerBarangay}</strong>
-                    </span>
-                  )}
                 </DialogDescription>
               </DialogHeader>
-              <div className="space-y-4">
+              
+              <div className="space-y-4 py-4">
+                {/* Customer Location Info */}
+                {customerBarangay && (
+                  <div className="p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+                    <div className="flex items-center gap-2 text-sm font-medium text-blue-800 dark:text-blue-300">
+                      <MapPin className="h-4 w-4" />
+                      {t('admin.customer_location')}: <strong>{customerBarangay}</strong>
+                    </div>
+                  </div>
+                )}
+
+                {/* Recommended Logistic Banner */}
                 {recommendedLogistic && (
                   <div className="p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
-                    <p className="text-sm font-medium text-green-800 dark:text-green-300 flex items-center gap-2">
-                      <span className="text-lg">✓</span>
-                      {t('admin.recommended_logistic')}: {recommendedLogistic.name}
-                    </p>
-                    <p className="text-xs text-green-600 dark:text-green-400 mt-1">
-                      {t('admin.assigned_to_area')}: {recommendedLogistic.assigned_area}
-                    </p>
-                    {recommendedLogistic.average_rating && (
-                      <p className="text-xs text-green-600 dark:text-green-400 mt-1 flex items-center gap-1">
-                        <span className="text-yellow-500">★</span>
-                        <span className="font-semibold">{recommendedLogistic.average_rating.toFixed(1)}</span>
-                        <span>/ 5</span>
-                        {recommendedLogistic.total_ratings && (
-                          <span className="text-green-500 dark:text-green-400">
-                            ({recommendedLogistic.total_ratings} {recommendedLogistic.total_ratings === 1 ? t('admin.rating') : t('admin.ratings')})
+                    <div className="flex items-start gap-2">
+                      <CheckCircle2 className="h-5 w-5 text-green-600 dark:text-green-400 flex-shrink-0 mt-0.5" />
+                      <div className="flex-1">
+                        <p className="text-sm font-medium text-green-800 dark:text-green-300">
+                          {t('admin.recommended_logistic')}: {recommendedLogistic.name}
+                        </p>
+                        <div className="flex items-center gap-3 mt-1 text-xs text-green-600 dark:text-green-400">
+                          <span className="flex items-center gap-1">
+                            <MapPin className="h-3 w-3" />
+                            {recommendedLogistic.assigned_area}
                           </span>
-                        )}
-                      </p>
-                    )}
+                          {recommendedLogistic.average_rating && (
+                            <span className="flex items-center gap-1">
+                              <Star className="h-3 w-3 fill-yellow-500 text-yellow-500" />
+                              <span className="font-semibold">{recommendedLogistic.average_rating.toFixed(1)}</span>
+                              {recommendedLogistic.total_ratings && (
+                                <span>({recommendedLogistic.total_ratings})</span>
+                              )}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 )}
+
+                {/* No Logistic Warning */}
                 {customerBarangay && sortedRecommendedLogistics.length === 0 && (
                   <div className="p-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
-                    <p className="text-sm text-yellow-800 dark:text-yellow-300">
-                      ⚠️ {t('admin.no_logistic_for_area', { area: customerBarangay })}
-                    </p>
+                    <div className="flex items-center gap-2 text-sm text-yellow-800 dark:text-yellow-300">
+                      <AlertCircle className="h-4 w-4 flex-shrink-0" />
+                      {t('admin.no_logistic_for_area', { area: customerBarangay })}
+                    </div>
                   </div>
                 )}
-                <div>
-                  <label className="text-sm font-medium">{t('admin.select_logistic_provider')}</label>
-                  <select
+
+                {/* Logistic Selection */}
+                <div className="space-y-2">
+                  <Label htmlFor="logistic_select">
+                    {t('admin.select_logistic_provider')} <span className="text-destructive">*</span>
+                  </Label>
+                  <Select
                     value={assignLogisticForm.data.logistic_id}
-                    onChange={(e) => assignLogisticForm.setData('logistic_id', e.target.value)}
-                    className="mt-1 w-full p-2 border rounded"
-                    required
+                    onValueChange={(value) => assignLogisticForm.setData('logistic_id', value)}
                   >
-                    <option value="">{t('admin.choose_logistic_provider')}</option>
-                    {sortedRecommendedLogistics.length > 0 && (
-                      <optgroup label={t('admin.recommended_for_area')}>
-                        {sortedRecommendedLogistics.map((logistic) => (
-                          <option key={logistic.id} value={logistic.id}>
-                            ⭐ {logistic.name} {logistic.contact_number && `(${logistic.contact_number})`} - {logistic.assigned_area}
-                            {logistic.average_rating && ` ★${logistic.average_rating.toFixed(1)}`}
-                          </option>
-                        ))}
-                      </optgroup>
-                    )}
-                    <optgroup label={sortedRecommendedLogistics.length > 0 ? t('admin.other_logistics') : t('admin.all_logistics')}>
-                      {logistics
-                        .filter(l => !sortedRecommendedLogistics.includes(l))
-                        .map((logistic) => (
-                          <option key={logistic.id} value={logistic.id}>
-                            {logistic.name} {logistic.contact_number && `(${logistic.contact_number})`}
-                            {logistic.assigned_area && ` - ${logistic.assigned_area}`}
-                            {logistic.average_rating && ` ★${logistic.average_rating.toFixed(1)}`}
-                          </option>
-                        ))}
-                    </optgroup>
-                  </select>
+                    <SelectTrigger id="logistic_select" className="w-full">
+                      <SelectValue placeholder={t('admin.choose_logistic_provider')} />
+                    </SelectTrigger>
+                    <SelectContent 
+                      position="popper" 
+                      side="bottom" 
+                      align="start" 
+                      sideOffset={4}
+                      avoidCollisions={false}
+                      className="max-h-[300px]"
+                    >
+                      {sortedRecommendedLogistics.length > 0 && (
+                        <SelectGroup>
+                          <SelectLabel className="flex items-center gap-1">
+                            <Star className="h-3 w-3 fill-yellow-500 text-yellow-500" />
+                            {t('admin.recommended_for_area')}
+                          </SelectLabel>
+                          {sortedRecommendedLogistics.map((logistic) => (
+                            <SelectItem key={logistic.id} value={logistic.id.toString()}>
+                              <div className="flex items-center gap-2">
+                                <span className="font-medium">{logistic.name}</span>
+                                {logistic.average_rating && (
+                                  <span className="text-xs text-muted-foreground">
+                                    ★{logistic.average_rating.toFixed(1)}
+                                  </span>
+                                )}
+                              </div>
+                            </SelectItem>
+                          ))}
+                        </SelectGroup>
+                      )}
+                      <SelectGroup>
+                        <SelectLabel>
+                          {sortedRecommendedLogistics.length > 0 ? t('admin.other_logistics') : t('admin.all_logistics')}
+                        </SelectLabel>
+                        {logistics
+                          .filter(l => !sortedRecommendedLogistics.includes(l))
+                          .map((logistic) => (
+                            <SelectItem key={logistic.id} value={logistic.id.toString()}>
+                              <div className="flex items-center gap-2">
+                                <span>{logistic.name}</span>
+                                {logistic.assigned_area && (
+                                  <span className="text-xs text-muted-foreground">
+                                    - {logistic.assigned_area}
+                                  </span>
+                                )}
+                                {logistic.average_rating && (
+                                  <span className="text-xs text-muted-foreground">
+                                    ★{logistic.average_rating.toFixed(1)}
+                                  </span>
+                                )}
+                              </div>
+                            </SelectItem>
+                          ))}
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
+
               <DialogFooter>
                 <Button variant="outline" onClick={() => setAssignLogisticDialogOpen(false)}>
                   {t('ui.cancel')}
