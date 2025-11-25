@@ -53,8 +53,11 @@ class OrderController extends Controller
             'auditTrail.product' => function ($query) {
                 $query->select('id', 'name', 'price_kilo', 'price_pc', 'price_tali');
             },
+            'auditTrail.stock' => function ($query) {
+                $query->select('id', 'product_id', 'member_id', 'quantity', 'pending_order_qty', 'category', 'removed_at');
+            },
             'auditTrail.product.stocks' => function ($query) {
-                $query->where('quantity', '>', 0)->whereNull('removed_at');
+                $query->whereNull('removed_at');
             }
         ])
             ->select('id', 'customer_id', 'address_id', 'admin_id', 'logistic_id', 'total_amount', 'status', 'delivery_status', 'delivery_packed_time', 'delivered_time', 'created_at', 'admin_notes', 'is_urgent', 'is_suspicious', 'suspicious_reason')
@@ -195,8 +198,11 @@ class OrderController extends Controller
             'auditTrail.product' => function ($query) {
                 $query->select('id', 'name', 'price_kilo', 'price_pc', 'price_tali');
             },
+            'auditTrail.stock' => function ($query) {
+                $query->select('id', 'product_id', 'member_id', 'quantity', 'pending_order_qty', 'category', 'removed_at');
+            },
             'auditTrail.product.stocks' => function ($query) {
-                $query->where('quantity', '>', 0)->whereNull('removed_at');
+                $query->whereNull('removed_at');
             }
         ])
             ->select('id', 'customer_id', 'address_id', 'admin_id', 'logistic_id', 'total_amount', 'status', 'delivery_status', 'delivery_packed_time', 'delivered_time', 'created_at', 'admin_notes', 'is_urgent', 'is_suspicious', 'suspicious_reason')
@@ -794,6 +800,24 @@ class OrderController extends Controller
             return redirect()->back()->with('error', $errorMessage);
         }
 
+        // Ensure audit trail with stock is loaded
+        $order->load(['auditTrail.stock', 'auditTrail.product']);
+        
+        // Validate that all audit trail items have stock assigned
+        $missingStocks = $order->auditTrail->filter(function($trail) {
+            return !$trail->stock_id || !$trail->stock;
+        });
+        
+        if ($missingStocks->isNotEmpty()) {
+            Log::error('Order approval failed: Missing stock assignments', [
+                'order_id' => $order->id,
+                'missing_stock_count' => $missingStocks->count(),
+                'audit_trail_ids' => $missingStocks->pluck('id')->toArray()
+            ]);
+            
+            return redirect()->back()->with('error', 'Cannot approve order: Some items are not properly linked to stock. Please contact support.');
+        }
+        
         // Get multi-member order summary before processing
         $orderSummary = AuditTrailService::getMultiMemberOrderSummary($order);
         $involvedMembers = collect($orderSummary['members'])->pluck('member_id');
@@ -809,6 +833,16 @@ class OrderController extends Controller
         $processedStocks = collect();
 
         foreach ($order->auditTrail as $trail) {
+            // Stock should always exist at this point due to validation above
+            if (!$trail->stock) {
+                Log::error('Stock missing during approval processing', [
+                    'order_id' => $order->id,
+                    'audit_trail_id' => $trail->id,
+                    'stock_id' => $trail->stock_id
+                ]);
+                continue;
+            }
+            
             if ($trail->stock) {
                 // Validate no duplicate processing
                 $memberStockKey = $trail->stock->member_id . '_' . $trail->stock->id;

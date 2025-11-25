@@ -19,6 +19,9 @@ class SuspiciousOrderSeeder extends Seeder
      * 
      * Creates multiple orders from the same customer within a 10-minute window
      * to simulate suspicious order patterns for testing the grouping functionality.
+     * 
+     * IMPORTANT: Only generates orders for products with available stock to ensure
+     * all seeded orders can be approved without validation failures.
      */
     public function run(): void
     {
@@ -36,9 +39,9 @@ class SuspiciousOrderSeeder extends Seeder
         // Get admin
         $admin = User::where('type', 'admin')->first();
 
-        // Find member with stocks
+        // Find member with stocks - only members with available stock
         $member = User::where('type', 'member')->whereHas('stocks', function($query) {
-            $query->where('quantity', '>', 0);
+            $query->where('quantity', '>', 0)->whereNull('removed_at');
         })->first();
 
         if (!$member) {
@@ -46,21 +49,29 @@ class SuspiciousOrderSeeder extends Seeder
             return;
         }
 
-        // Get products with available stocks - be more flexible with quantity
+        // Get products with available stocks only
+        // Filter products that have at least one stock entry with actual available quantity
+        // (quantity - pending_order_qty > 0)
         $products = Product::with(['stocks' => function($query) use ($member) {
-            $query->where('member_id', $member->id)->where('quantity', '>', 0);
+            $query->where('member_id', $member->id)
+                  ->whereNull('removed_at')
+                  ->whereRaw('quantity - pending_order_qty > 0');
         }])->whereHas('stocks', function($query) use ($member) {
-            $query->where('member_id', $member->id)->where('quantity', '>', 0);
+            $query->where('member_id', $member->id)
+                  ->whereNull('removed_at')
+                  ->whereRaw('quantity - pending_order_qty > 0');
         })->take(20)->get();
         
         if ($products->isEmpty()) {
             $this->command->error('No products with available stock found. Please seed products and stocks first.');
+            $this->command->info('');
+            $this->command->info('⚠️  Skipping suspicious order generation to avoid creating un-approvable orders.');
             return;
         }
 
         $this->command->info('Found:');
         $this->command->info("  - {$customers->count()} customers");
-        $this->command->info("  - {$products->count()} products with stock");
+        $this->command->info("  - {$products->count()} products with available stock");
         $this->command->info('');
 
         // Scenario 1: Customer 1 - 3 orders within 8 minutes (SUSPICIOUS)
@@ -128,6 +139,7 @@ class SuspiciousOrderSeeder extends Seeder
         $this->command->info('Summary:');
         $this->command->info('  - 4 suspicious order groups created');
         $this->command->info('  - 13 total orders created');
+        $this->command->info('  - All orders use products with available stock');
         $this->command->info('  - Groups will be detected on frontend (10-minute window)');
         $this->command->info('');
         $this->command->info('To view:');
@@ -137,6 +149,7 @@ class SuspiciousOrderSeeder extends Seeder
 
     /**
      * Create a single order with random products
+     * Only uses products with available stock to ensure orders can be approved
      */
     private function createOrder($customer, $products, $member, $admin, $createdAt, $description)
     {
@@ -150,18 +163,59 @@ class SuspiciousOrderSeeder extends Seeder
             return null;
         }
 
-        // Select 1-3 random products for this order
-        $selectedProducts = $products->random(rand(1, 3));
+        // Refresh products to get latest stock quantities (important as pending_order_qty changes)
+        $products = $products->fresh(['stocks' => function($query) use ($member) {
+            $query->where('member_id', $member->id)
+                  ->whereNull('removed_at')
+                  ->whereRaw('quantity - pending_order_qty > 0');
+        }]);
+
+        // Filter products to only those with actual available stock (considering pending orders)
+        $availableProducts = $products->filter(function($product) use ($member) {
+            $stock = $product->stocks->where('member_id', $member->id)
+                                     ->whereNull('removed_at')
+                                     ->first();
+            
+            if (!$stock) return false;
+            
+            // Check if there's actual available quantity after pending orders
+            $availableQty = $stock->quantity - $stock->pending_order_qty;
+            return $availableQty > 0;
+        });
+
+        if ($availableProducts->isEmpty()) {
+            $this->command->warn("No products with available stock found for order: {$description}");
+            return null;
+        }
+
+        // Select exactly 1 random product for this order from available products only
+        $selectedProducts = $availableProducts->random(1);
         
         $subtotal = 0;
         $orderItems = [];
 
         // Create order with selected products
         foreach ($selectedProducts as $product) {
-            $stock = $product->stocks->where('member_id', $member->id)->first();
-            if (!$stock || $stock->quantity <= 0) continue;
+            // Refresh stock to get latest quantities
+            $stock = Stock::where('product_id', $product->id)
+                         ->where('member_id', $member->id)
+                         ->whereNull('removed_at')
+                         ->first();
+            
+            if (!$stock) {
+                continue; // Skip if stock not found
+            }
+            
+            // Calculate actual available quantity (considering pending orders)
+            $availableQty = $stock->quantity - $stock->pending_order_qty;
+            
+            if ($availableQty <= 0) {
+                $this->command->warn("  ⚠️  Product {$product->name} has no available stock (pending orders: {$stock->pending_order_qty})");
+                continue; // Skip products without available stock
+            }
 
-            $quantity = rand(1, min(5, (int)$stock->quantity)); // Order 1-5 units
+            // Order exactly 1 unit
+            $quantity = 1;
             
             // Determine price and category - use stock's category and match with product price
             $price = 0;
