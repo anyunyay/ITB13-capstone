@@ -17,6 +17,31 @@ interface OrderCardProps {
 
 export const OrderCard = ({ order, highlight = false, isUrgent = false }: OrderCardProps) => {
     const t = useTranslation();
+    
+    // Extract connected order ID from admin_notes if this order is suspicious
+    const getConnectedOrderId = (order: Order): number | null => {
+        if (!order.admin_notes) return null;
+        
+        // Check if this order was merged into another order
+        const mergedIntoMatch = order.admin_notes.match(/Merged into order #(\d+)/i);
+        if (mergedIntoMatch) {
+            return parseInt(mergedIntoMatch[1], 10);
+        }
+        
+        // Check if this order has other orders merged into it
+        const mergedFromMatch = order.admin_notes.match(/Merged from orders: ([\d, ]+)/i);
+        if (mergedFromMatch) {
+            const orderIds = mergedFromMatch[1].split(',').map(id => parseInt(id.trim(), 10));
+            // Return the first connected order ID (excluding itself)
+            const connectedId = orderIds.find(id => id !== order.id);
+            return connectedId || null;
+        }
+        
+        return null;
+    };
+    
+    const connectedOrderId = order.is_suspicious ? getConnectedOrderId(order) : null;
+    
     const getStatusBadge = (status: string) => {
         switch (status) {
             case 'pending':
@@ -80,6 +105,11 @@ export const OrderCard = ({ order, highlight = false, isUrgent = false }: OrderC
                     {order.is_suspicious && (
                         <Badge variant="destructive" className="bg-red-600 text-white animate-pulse">
                             ⚠️ Suspicious
+                        </Badge>
+                    )}
+                    {order.is_suspicious && connectedOrderId && (
+                        <Badge variant="outline" className="bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400 border-purple-300 dark:border-purple-700">
+                            🔗 Connected to #{connectedOrderId}
                         </Badge>
                     )}
                 </div>

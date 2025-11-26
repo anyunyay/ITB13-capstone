@@ -18,6 +18,9 @@ export const GroupedOrderCard = ({ orders, highlight = false }: GroupedOrderCard
     const t = useTranslation();
     const [isExpanded, setIsExpanded] = useState(false);
     
+    // If only one order remains in the group, render as a normal order card
+    const isSingleOrder = orders.length === 1;
+    
     // Calculate totals
     const totalAmount = orders.reduce((sum, order) => sum + order.total_amount, 0);
     const totalItems = orders.reduce((sum, order) => sum + (order.audit_trail?.length || 0), 0);
@@ -30,6 +33,30 @@ export const GroupedOrderCard = ({ orders, highlight = false }: GroupedOrderCard
     const firstOrderTime = new Date(orders[0].created_at);
     const lastOrderTime = new Date(orders[orders.length - 1].created_at);
     const minutesDiff = Math.round((lastOrderTime.getTime() - firstOrderTime.getTime()) / 60000);
+    
+    // Extract connected order ID from admin_notes if this is a single suspicious order
+    const getConnectedOrderId = (order: Order): number | null => {
+        if (!order.admin_notes) return null;
+        
+        // Check if this order was merged into another order
+        const mergedIntoMatch = order.admin_notes.match(/Merged into order #(\d+)/i);
+        if (mergedIntoMatch) {
+            return parseInt(mergedIntoMatch[1], 10);
+        }
+        
+        // Check if this order has other orders merged into it
+        const mergedFromMatch = order.admin_notes.match(/Merged from orders: ([\d, ]+)/i);
+        if (mergedFromMatch) {
+            const orderIds = mergedFromMatch[1].split(',').map(id => parseInt(id.trim(), 10));
+            // Return the first connected order ID (excluding itself)
+            const connectedId = orderIds.find(id => id !== order.id);
+            return connectedId || null;
+        }
+        
+        return null;
+    };
+    
+    const connectedOrderId = isSingleOrder ? getConnectedOrderId(orders[0]) : null;
 
     const formatTimeSpan = (timeSpanInMinutes: number) => {
         if (timeSpanInMinutes < 1) {
@@ -59,38 +86,46 @@ export const GroupedOrderCard = ({ orders, highlight = false }: GroupedOrderCard
     };
 
     return (
-        <div className={`bg-card border border-border rounded-lg shadow-sm transition-all duration-300 overflow-hidden flex flex-col h-full box-border hover:shadow-md hover:-translate-y-0.5 ${highlight ? 'border-2 border-primary shadow-lg' : 'border-2 border-red-500'}`}>
+        <div className={`bg-card border border-border rounded-lg shadow-sm transition-all duration-300 overflow-hidden flex flex-col h-full box-border hover:shadow-md hover:-translate-y-0.5 ${highlight ? 'border-2 border-primary shadow-lg' : isSingleOrder ? 'border-2 border-orange-500' : 'border-2 border-red-500'}`}>
             {/* Header with Suspicious Badge */}
             <div className="p-5 border-b border-border flex items-center justify-between gap-4 flex-shrink-0">
                 <div className="min-w-0 flex-1">
                     <h3 className="text-lg font-semibold text-card-foreground m-0 mb-1 leading-tight">
-                        {orders.length > 1 
-                            ? `${orders.length} Orders from Same Customer` 
-                            : `Order #${orders[0].id}`}
+                        {isSingleOrder 
+                            ? `Order #${orders[0].id}` 
+                            : `${orders.length} Orders from Same Customer`}
                     </h3>
                     <p className="text-sm text-muted-foreground m-0 leading-snug">
-                        {orders.length > 1 
-                            ? `${format(firstOrderTime, 'MMM dd, yyyy HH:mm')} - ${format(lastOrderTime, 'HH:mm')} (${formatTimeSpan(minutesDiff)})`
-                            : format(firstOrderTime, 'MMM dd, yyyy HH:mm')}
+                        {isSingleOrder 
+                            ? format(firstOrderTime, 'MMM dd, yyyy HH:mm')
+                            : `${format(firstOrderTime, 'MMM dd, yyyy HH:mm')} - ${format(lastOrderTime, 'HH:mm')} (${formatTimeSpan(minutesDiff)})`}
                     </p>
                 </div>
                 <div className="flex gap-2 flex-wrap items-center flex-shrink-0">
                     <Badge variant="destructive" className="bg-red-600 text-white animate-pulse">
-                        ⚠️ {orders.length > 1 ? 'Suspicious Group' : 'Suspicious'}
+                        ⚠️ Suspicious
                     </Badge>
+                    {isSingleOrder && connectedOrderId && (
+                        <Badge variant="outline" className="bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400 border-purple-300 dark:border-purple-700">
+                            🔗 Connected to #{connectedOrderId}
+                        </Badge>
+                    )}
+                    {isSingleOrder && getStatusBadge(orders[0].status)}
                 </div>
             </div>
             
             {/* Customer Info & Summary */}
             <div className="p-5 flex flex-col gap-4 flex-1 overflow-hidden">
                 {/* Warning Message */}
-                <div className="p-3 bg-red-50 dark:bg-red-900/20 border border-red-300 dark:border-red-700 rounded-lg">
-                    <p className="text-red-800 dark:text-red-300 text-sm font-semibold m-0 flex items-start gap-2">
+                <div className={`p-3 border rounded-lg ${isSingleOrder ? 'bg-orange-50 dark:bg-orange-900/20 border-orange-300 dark:border-orange-700' : 'bg-red-50 dark:bg-red-900/20 border-red-300 dark:border-red-700'}`}>
+                    <p className={`text-sm font-semibold m-0 flex items-start gap-2 ${isSingleOrder ? 'text-orange-800 dark:text-orange-300' : 'text-red-800 dark:text-red-300'}`}>
                         <span className="text-lg flex-shrink-0 mt-0.5">⚠️</span>
                         <span>
-                            {orders.length > 1 
-                                ? `${orders.length} orders placed within ${formatTimeSpan(minutesDiff)} (Total: ₱${totalAmount.toFixed(2)})`
-                                : orders[0].suspicious_reason || `Flagged as suspicious (Total: ₱${totalAmount.toFixed(2)})`
+                            {isSingleOrder 
+                                ? (connectedOrderId 
+                                    ? `Part of suspicious group - other order(s) already processed. Connected to Order #${connectedOrderId}.`
+                                    : orders[0].suspicious_reason || `Flagged as suspicious (Total: ₱${totalAmount.toFixed(2)})`)
+                                : `${orders.length} orders placed within ${formatTimeSpan(minutesDiff)} (Total: ₱${totalAmount.toFixed(2)})`
                             }
                         </span>
                     </p>
@@ -132,10 +167,10 @@ export const GroupedOrderCard = ({ orders, highlight = false }: GroupedOrderCard
                     <div className="flex flex-col gap-3">
                         <h4 className="text-sm font-semibold text-foreground flex items-center m-0 leading-tight">
                             <Package className="h-4 w-4 inline mr-2 flex-shrink-0" />
-                            {orders.length > 1 ? 'Combined Order Summary' : t('admin.order_summary')}
+                            {isSingleOrder ? t('admin.order_summary') : 'Combined Order Summary'}
                         </h4>
                         <div className="flex flex-col gap-2">
-                            {orders.length > 1 && (
+                            {!isSingleOrder && (
                                 <p className="text-sm text-muted-foreground m-0 leading-snug">
                                     <span className="font-medium text-foreground">Total Orders:</span> {orders.length}
                                 </p>
@@ -144,11 +179,24 @@ export const GroupedOrderCard = ({ orders, highlight = false }: GroupedOrderCard
                                 <span className="font-medium text-foreground">{t('admin.total_amount')}:</span> ₱{totalAmount.toFixed(2)}
                             </p>
                             <p className="text-sm text-muted-foreground m-0 leading-snug">
-                                <span className="font-medium text-foreground">Total {t('admin.items')}:</span> {totalItems}
+                                <span className="font-medium text-foreground">{isSingleOrder ? t('admin.items') : `Total ${t('admin.items')}`}:</span> {totalItems}
                             </p>
-                            {orders.length > 1 && (
+                            {!isSingleOrder && (
                                 <p className="text-sm text-muted-foreground m-0 leading-snug">
                                     <span className="font-medium text-foreground">Time Span:</span> {formatTimeSpan(minutesDiff)}
+                                </p>
+                            )}
+                            {isSingleOrder && orders[0].admin && (
+                                <p className="text-sm text-muted-foreground m-0 leading-snug">
+                                    <span className="font-medium text-foreground">{t('admin.processed_by')}:</span> {orders[0].admin.name}
+                                </p>
+                            )}
+                            {isSingleOrder && orders[0].logistic && (
+                                <p className="text-sm text-muted-foreground m-0 leading-snug">
+                                    <span className="font-medium text-foreground">{t('admin.assigned_to')}:</span> {orders[0].logistic.name}
+                                    {orders[0].logistic.contact_number && (
+                                        <span className="text-muted-foreground ml-2">({orders[0].logistic.contact_number})</span>
+                                    )}
                                 </p>
                             )}
                         </div>
@@ -266,12 +314,21 @@ export const GroupedOrderCard = ({ orders, highlight = false }: GroupedOrderCard
             {/* Action Buttons */}
             <div className="p-3 sm:p-5 pt-0 flex gap-2 flex-wrap flex-shrink-0 w-full box-border overflow-hidden border-t border-border bg-muted/20">
                 <PermissionGate permission="view orders">
-                    <Button asChild variant="default" size="sm" className="flex-1 min-w-[120px] text-xs sm:text-sm">
-                        <Link href={route('admin.orders.group', { orders: orders.map(o => o.id).join(',') })}>
-                            <Eye className="h-3 w-3 sm:h-4 sm:w-4 mr-2" />
-                            View Group Details
-                        </Link>
-                    </Button>
+                    {isSingleOrder ? (
+                        <Button asChild variant="outline" className="flex-1 min-w-[120px] py-2 px-4 text-sm font-medium rounded-lg transition-all duration-200 min-h-[2.625rem] hover:-translate-y-0.5 hover:shadow-sm">
+                            <Link href={route('admin.orders.show', orders[0].id)}>
+                                <Eye className="h-4 w-4 mr-2 flex-shrink-0" />
+                                {t('admin.view_details')}
+                            </Link>
+                        </Button>
+                    ) : (
+                        <Button asChild variant="default" size="sm" className="flex-1 min-w-[120px] text-xs sm:text-sm">
+                            <Link href={route('admin.orders.group', { orders: orders.map(o => o.id).join(',') })}>
+                                <Eye className="h-3 w-3 sm:h-4 sm:w-4 mr-2" />
+                                View Group Details
+                            </Link>
+                        </Button>
+                    )}
                 </PermissionGate>
             </div>
         </div>
