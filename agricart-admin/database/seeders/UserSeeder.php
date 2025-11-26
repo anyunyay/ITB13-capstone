@@ -170,7 +170,7 @@ class UserSeeder extends Seeder
             ],
             [
                 'name' => 'John Doe',
-                'email' => 'john.doe@customer.com',
+                'email' => 'customer2@customer.com',
                 'contact_number' => '09123456789',
                 'street' => '456 Main Street',
                 'barangay' => 'Pulo',
@@ -179,7 +179,7 @@ class UserSeeder extends Seeder
             ],
             [
                 'name' => 'Jane Smith',
-                'email' => 'jane.smith@customer.com',
+                'email' => 'customer3@customer.com',
                 'contact_number' => '09234567890',
                 'street' => '789 Oak Avenue',
                 'barangay' => 'Banlic',
@@ -188,7 +188,7 @@ class UserSeeder extends Seeder
             ],
             [
                 'name' => 'Bob Johnson',
-                'email' => 'bob.johnson@customer.com',
+                'email' => 'customer4@customer.com',
                 'contact_number' => '09345678901',
                 'street' => '101 Pine Road',
                 'barangay' => 'Mamatid',
