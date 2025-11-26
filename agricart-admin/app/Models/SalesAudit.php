@@ -147,8 +147,8 @@ class SalesAudit extends Model
      */
     public function getAggregatedAuditTrail()
     {
-        $auditTrail = $this->auditTrail()->with(['product', 'stock', 'product.stocks' => function($query) {
-            $query->whereNull('removed_at');
+        $auditTrail = $this->auditTrail()->with(['product', 'product.stocks' => function($query) {
+            $query->where('quantity', '>', 0)->whereNull('removed_at');
         }])->get();
         
         // Group by product_id and category, then sum quantities
@@ -159,42 +159,11 @@ class SalesAudit extends Model
             $product = $firstItem->product;
             
             // Calculate available stock for this product and category
-            // For pending/delayed orders: check the specific stock assigned to this order
-            $orderStatus = $this->status;
-            $currentOrderQuantity = $items->sum('quantity');
-            
-            if ($orderStatus === 'pending' || $orderStatus === 'delayed') {
-                // For pending orders, check the specific stock that was assigned
-                $assignedStocks = $items->pluck('stock')->filter();
-                
-                if ($assignedStocks->isNotEmpty()) {
-                    // Get unique stocks (in case same stock appears multiple times)
-                    $uniqueStocks = $assignedStocks->unique('id');
-                    
-                    // Calculate available stock from assigned stocks
-                    // For each stock, the available quantity is: quantity (since pending_order_qty already includes this order)
-                    $availableStock = $uniqueStocks->sum(function($stock) {
-                        if (!$stock) return 0;
-                        // Stock quantity is what's available
-                        // pending_order_qty includes THIS order's quantity
-                        // So the stock can fulfill this order if quantity >= order_quantity
-                        return $stock->quantity;
-                    });
-                } else {
-                    // Fallback: sum all stocks for this product/category
-                    // This handles orders created before stock_id was tracked
-                    $availableStock = $product->stocks
-                        ->where('category', $firstItem->category)
-                        ->whereNull('removed_at')
-                        ->sum('quantity');
-                }
-            } else {
-                // For approved/other orders, sum all available stocks
-                $availableStock = $product->stocks
-                    ->where('category', $firstItem->category)
-                    ->whereNull('removed_at')
-                    ->sum('quantity');
-            }
+            $availableStock = $product->stocks
+                ->where('category', $firstItem->category)
+                ->where('quantity', '>', 0)
+                ->whereNull('removed_at')
+                ->sum('quantity');
             
             // Get unit price - try stored prices first, then fallback to product prices
             $unitPrice = $firstItem->getSalePrice();
