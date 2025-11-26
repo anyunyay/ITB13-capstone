@@ -66,6 +66,7 @@ export const OrderActions = ({
     );
   }
 
+  // Show actions for pending, delayed orders (including merged orders that remain pending)
   if (status !== 'pending' && status !== 'delayed') return null;
 
   return (

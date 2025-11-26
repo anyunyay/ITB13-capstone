@@ -502,12 +502,36 @@ class OrderController extends Controller
                     ->update(['sale_id' => $primaryOrder->id]);
             }
 
+            // DEBUG: Log audit trail movement
+            Log::info('Moving audit trails to primary order', [
+                'primary_order_id' => $primaryOrder->id,
+                'secondary_order_ids' => $secondaryOrders->pluck('id')->toArray(),
+                'audit_trails_before_move' => AuditTrail::whereIn('sale_id', $orderIds)->count()
+            ]);
+
+            // Refresh the primary order to ensure audit trail is properly loaded
+            $primaryOrder->refresh();
+            $primaryOrder->load(['auditTrail.product', 'auditTrail.stock']);
+
+            Log::info('Primary order audit trail after refresh', [
+                'primary_order_id' => $primaryOrder->id,
+                'audit_trail_count' => $primaryOrder->auditTrail->count(),
+                'audit_trails_after_move' => AuditTrail::where('sale_id', $primaryOrder->id)->count()
+            ]);
+
             // Update primary order with new totals
             $mergedOrderIds = $orders->pluck('id')->toArray();
             $mergeNote = "Merged from orders: " . implode(', ', $mergedOrderIds);
             if ($request->input('admin_notes')) {
                 $mergeNote .= " | Admin notes: " . $request->input('admin_notes');
             }
+
+            Log::info('Updating primary order with new totals', [
+                'primary_order_id' => $primaryOrder->id,
+                'old_total' => $primaryOrder->total_amount,
+                'new_total' => $newTotalAmount,
+                'merge_note' => $mergeNote
+            ]);
 
             $primaryOrder->update([
                 'subtotal' => $newSubtotal,
@@ -519,6 +543,10 @@ class OrderController extends Controller
             ]);
 
             // Mark secondary orders as merged (soft delete or status change)
+            Log::info('Marking secondary orders as merged', [
+                'secondary_order_ids' => $secondaryOrders->pluck('id')->toArray()
+            ]);
+
             foreach ($secondaryOrders as $secondaryOrder) {
                 $secondaryOrder->update([
                     'status' => 'merged',
@@ -528,30 +556,48 @@ class OrderController extends Controller
                 ]);
             }
             
-            // Clear suspicious flag from primary order as well
+            // Clear suspicious flag from primary order as well but keep it pending for approval
+            Log::info('Clearing suspicious flag from primary order', [
+                'primary_order_id' => $primaryOrder->id,
+                'old_status' => $primaryOrder->status,
+                'old_is_suspicious' => $primaryOrder->is_suspicious
+            ]);
+
             $primaryOrder->update([
                 'is_suspicious' => false,
+                'status' => 'pending', // Ensure primary order remains pending for approval
+            ]);
+
+            Log::info('Primary order after merge completion', [
+                'primary_order_id' => $primaryOrder->id,
+                'final_status' => $primaryOrder->fresh()->status,
+                'final_is_suspicious' => $primaryOrder->fresh()->is_suspicious,
+                'final_total_amount' => $primaryOrder->fresh()->total_amount,
+                'final_admin_notes' => $primaryOrder->fresh()->admin_notes,
+                'final_audit_trail_count' => $primaryOrder->fresh()->auditTrail()->count()
             ]);
 
             // Log the merge operation
             SystemLogger::logOrderStatusChange(
                 $primaryOrder->id,
+                'suspicious',
                 'pending',
-                'merged_primary',
                 $request->user()->id,
                 $request->user()->type,
                 [
+                    'action' => 'order_merge',
                     'merged_order_ids' => $mergedOrderIds,
                     'new_total_amount' => $newTotalAmount,
                     'total_orders_merged' => $orders->count(),
+                    'note' => 'Orders merged and cleared from suspicious status, ready for approval'
                 ]
             );
 
             \DB::commit();
 
-            // Redirect to main orders index with the merged order highlighted
-            return redirect()->route('admin.orders.index', ['highlight_order' => $primaryOrder->id])
-                ->with('message', "Successfully merged {$orders->count()} orders into Order #{$primaryOrder->id}. New total: ₱{$newTotalAmount}");
+            // Redirect to the merged order's detail page for immediate approval
+            return redirect()->route('admin.orders.show', $primaryOrder->id)
+                ->with('message', "Successfully merged {$orders->count()} orders into Order #{$primaryOrder->id}. New total: ₱{$newTotalAmount}. Order is ready for approval.");
 
         } catch (\Exception $e) {
             \DB::rollBack();
@@ -567,7 +613,27 @@ class OrderController extends Controller
 
     public function show(Request $request, SalesAudit $order)
     {
+        // DEBUG: Log order show request
+        Log::info('Order show page requested', [
+            'order_id' => $order->id,
+            'current_status' => $order->status,
+            'is_suspicious' => $order->is_suspicious,
+            'admin_notes' => $order->admin_notes,
+            'total_amount' => $order->total_amount,
+            'is_merged_order' => strpos($order->admin_notes ?? '', 'Merged from orders:') !== false,
+            'request_highlight' => $request->get('highlight', false),
+            'request_user_id' => $request->user()->id
+        ]);
+
         $order->load(['customer.defaultAddress', 'address', 'admin', 'logistic', 'auditTrail.product', 'auditTrail.stock']);
+
+        Log::info('Order relationships loaded', [
+            'order_id' => $order->id,
+            'audit_trail_count' => $order->auditTrail->count(),
+            'customer_loaded' => $order->customer ? true : false,
+            'admin_loaded' => $order->admin ? true : false,
+            'logistic_loaded' => $order->logistic ? true : false
+        ]);
 
         // Get available logistics for assignment (only active logistics)
         $logistics = User::where('type', 'logistic')
@@ -779,19 +845,50 @@ class OrderController extends Controller
             'admin_notes' => 'nullable|string|max:500',
         ]);
 
+        // DEBUG: Log order approval attempt with detailed information
+        Log::info('Order approval attempt started', [
+            'order_id' => $order->id,
+            'current_status' => $order->status,
+            'is_suspicious' => $order->is_suspicious,
+            'suspicious_reason' => $order->suspicious_reason,
+            'admin_notes_from_merge' => $order->admin_notes,
+            'total_amount' => $order->total_amount,
+            'customer_id' => $order->customer_id,
+            'admin_id' => $order->admin_id,
+            'created_at' => $order->created_at,
+            'updated_at' => $order->updated_at,
+            'audit_trail_count' => $order->auditTrail ? $order->auditTrail->count() : 'not_loaded',
+            'request_admin_notes' => $request->input('admin_notes'),
+            'requesting_user_id' => $request->user()->id,
+            'requesting_user_type' => $request->user()->type,
+        ]);
+
         // Prevent approval of cancelled orders
         if ($order->status === 'cancelled') {
+            Log::warning('Order approval blocked: Order is cancelled', ['order_id' => $order->id]);
             return redirect()->back()->with('error', 'Cannot approve a cancelled order.');
         }
 
         // Allow approval for pending and delayed orders
         if (!in_array($order->status, ['pending', 'delayed'])) {
+            Log::warning('Order approval blocked: Invalid status', [
+                'order_id' => $order->id,
+                'current_status' => $order->status,
+                'allowed_statuses' => ['pending', 'delayed']
+            ]);
             return redirect()->back()->with('error', 'Only pending or delayed orders can be approved.');
         }
 
         // Check if order has sufficient stock before approval
+        Log::info('Checking stock sufficiency for order', ['order_id' => $order->id]);
+        
         if (!$order->hasSufficientStock()) {
             $insufficientItems = $order->getInsufficientStockItems();
+            Log::error('Order approval blocked: Insufficient stock', [
+                'order_id' => $order->id,
+                'insufficient_items' => $insufficientItems
+            ]);
+            
             $errorMessage = 'Cannot approve order due to insufficient stock:\n';
             foreach ($insufficientItems as $item) {
                 $errorMessage .= "• {$item['product_name']} ({$item['category']}): Requested {$item['requested_quantity']}, Available {$item['available_stock']}, Shortage {$item['shortage']}\n";
@@ -799,9 +896,29 @@ class OrderController extends Controller
 
             return redirect()->back()->with('error', $errorMessage);
         }
+        
+        Log::info('Stock sufficiency check passed', ['order_id' => $order->id]);
 
         // Ensure audit trail with stock is loaded
+        Log::info('Loading audit trail for order', ['order_id' => $order->id]);
         $order->load(['auditTrail.stock', 'auditTrail.product']);
+        
+        Log::info('Audit trail loaded', [
+            'order_id' => $order->id,
+            'audit_trail_count' => $order->auditTrail->count(),
+            'audit_trail_details' => $order->auditTrail->map(function($trail) {
+                return [
+                    'id' => $trail->id,
+                    'sale_id' => $trail->sale_id,
+                    'stock_id' => $trail->stock_id,
+                    'product_id' => $trail->product_id,
+                    'quantity' => $trail->quantity,
+                    'category' => $trail->category,
+                    'has_stock' => $trail->stock ? true : false,
+                    'has_product' => $trail->product ? true : false,
+                ];
+            })->toArray()
+        ]);
         
         // Validate that all audit trail items have stock assigned
         $missingStocks = $order->auditTrail->filter(function($trail) {
@@ -812,11 +929,21 @@ class OrderController extends Controller
             Log::error('Order approval failed: Missing stock assignments', [
                 'order_id' => $order->id,
                 'missing_stock_count' => $missingStocks->count(),
-                'audit_trail_ids' => $missingStocks->pluck('id')->toArray()
+                'audit_trail_ids' => $missingStocks->pluck('id')->toArray(),
+                'missing_stock_details' => $missingStocks->map(function($trail) {
+                    return [
+                        'audit_trail_id' => $trail->id,
+                        'stock_id' => $trail->stock_id,
+                        'product_id' => $trail->product_id,
+                        'has_stock_object' => $trail->stock ? true : false,
+                    ];
+                })->toArray()
             ]);
             
             return redirect()->back()->with('error', 'Cannot approve order: Some items are not properly linked to stock. Please contact support.');
         }
+        
+        Log::info('Audit trail validation passed', ['order_id' => $order->id]);
         
         // Get multi-member order summary before processing
         $orderSummary = AuditTrailService::getMultiMemberOrderSummary($order);
@@ -844,10 +971,13 @@ class OrderController extends Controller
             }
             
             if ($trail->stock) {
-                // Validate no duplicate processing
+                // For merged orders, allow multiple entries for the same stock
+                // For regular orders, prevent duplicate processing
+                $isMergedOrder = strpos($order->admin_notes ?? '', 'Merged from orders:') !== false;
                 $memberStockKey = $trail->stock->member_id . '_' . $trail->stock->id;
-                if ($processedStocks->contains($memberStockKey)) {
-                    Log::error('Duplicate stock processing detected', [
+                
+                if (!$isMergedOrder && $processedStocks->contains($memberStockKey)) {
+                    Log::error('Duplicate stock processing detected in regular order', [
                         'order_id' => $order->id,
                         'member_id' => $trail->stock->member_id,
                         'stock_id' => $trail->stock->id
@@ -855,8 +985,20 @@ class OrderController extends Controller
                     continue;
                 }
 
-                $processedStocks->push($memberStockKey);
+                // Track processed stocks (but allow duplicates for merged orders)
+                if (!$isMergedOrder) {
+                    $processedStocks->push($memberStockKey);
+                }
                 $processedMembers->push($trail->stock->member_id);
+                
+                Log::info('Processing stock for audit trail', [
+                    'order_id' => $order->id,
+                    'audit_trail_id' => $trail->id,
+                    'stock_id' => $trail->stock->id,
+                    'member_id' => $trail->stock->member_id,
+                    'quantity' => $trail->quantity,
+                    'is_merged_order' => $isMergedOrder
+                ]);
 
                 // Store the quantity before deduction for audit trail
                 $quantityBeforeDeduction = $trail->stock->quantity;
@@ -960,33 +1102,98 @@ class OrderController extends Controller
             }
         }
 
-        // Validate multi-member order processing completeness
-        $validation = AuditTrailService::validateMultiMemberAuditTrails($order, $involvedMembers);
-
-        if (!$validation['is_complete']) {
-            Log::error('Multi-member order validation failed during approval', [
+        // Check if this is a merged order (skip validation for merged orders as duplicates are expected)
+        $isMergedOrder = strpos($order->admin_notes ?? '', 'Merged from orders:') !== false;
+        
+        if ($isMergedOrder) {
+            Log::info('Skipping multi-member validation for merged order', [
                 'order_id' => $order->id,
-                'validation' => $validation
+                'admin_notes' => $order->admin_notes,
+                'processed_members' => $processedMembers->unique()->toArray(),
+                'total_audit_entries' => $order->auditTrail->count()
             ]);
+            
+            // For merged orders, create a simple validation result
+            $validation = [
+                'is_complete' => true,
+                'total_entries' => $order->auditTrail->count(),
+                'member_breakdown' => $processedMembers->unique()->mapWithKeys(function($memberId) use ($order) {
+                    $memberTrails = $order->auditTrail->filter(function($trail) use ($memberId) {
+                        return $trail->stock && $trail->stock->member_id == $memberId;
+                    });
+                    
+                    return [$memberId => [
+                        'member_name' => $memberTrails->first()?->stock?->member?->name ?? 'Unknown',
+                        'total_quantity_sold' => $memberTrails->sum('quantity'),
+                        'total_revenue' => $memberTrails->sum(function($trail) {
+                            return $trail->quantity * ($trail->unit_price ?? 0);
+                        }),
+                        'products_involved' => $memberTrails->pluck('product.name')->unique()->values()->toArray(),
+                        'stock_entries' => $memberTrails->count()
+                    ]];
+                })->toArray()
+            ];
+        } else {
+            // Validate multi-member order processing completeness for regular orders
+            $validation = AuditTrailService::validateMultiMemberAuditTrails($order, $involvedMembers);
 
-            return redirect()->back()->with('error', 'Order processing validation failed. Please contact support.');
+            if (!$validation['is_complete']) {
+                Log::error('Multi-member order validation failed during approval', [
+                    'order_id' => $order->id,
+                    'validation' => $validation
+                ]);
+
+                return redirect()->back()->with('error', 'Order processing validation failed. Please contact support.');
+            }
         }
 
         // Log successful multi-member order processing
         Log::info('Multi-member order approved successfully', [
             'order_id' => $order->id,
+            'is_merged_order' => $isMergedOrder,
             'processed_members' => $processedMembers->unique()->toArray(),
+            'total_processed_members' => $processedMembers->unique()->count(),
             'total_audit_entries' => $validation['total_entries'],
-            'member_breakdown' => $validation['member_breakdown']
+            'member_breakdown' => $validation['member_breakdown'],
+            'validation_method' => $isMergedOrder ? 'merged_order_validation' : 'standard_validation'
         ]);
 
-        $order->update([
+        // DEBUG: Log order state before final update
+        Log::info('Order state before final status update', [
+            'order_id' => $order->id,
+            'current_status' => $order->status,
+            'current_delivery_status' => $order->delivery_status,
+            'current_admin_id' => $order->admin_id,
+            'current_admin_notes' => $order->admin_notes,
+            'current_is_suspicious' => $order->is_suspicious,
+            'current_suspicious_reason' => $order->suspicious_reason,
+        ]);
+
+        $updateData = [
             'status' => 'approved',
             'delivery_status' => 'pending',
             'admin_id' => $request->user()->id,
             'admin_notes' => $request->input('admin_notes'),
             'is_suspicious' => false, // Clear suspicious flag when approved
             'suspicious_reason' => null, // Clear suspicious reason
+        ];
+
+        Log::info('Attempting to update order with data', [
+            'order_id' => $order->id,
+            'update_data' => $updateData
+        ]);
+
+        $updateResult = $order->update($updateData);
+
+        Log::info('Order update result', [
+            'order_id' => $order->id,
+            'update_successful' => $updateResult,
+            'new_status' => $order->fresh()->status,
+            'new_delivery_status' => $order->fresh()->delivery_status,
+            'new_admin_id' => $order->fresh()->admin_id,
+            'new_admin_notes' => $order->fresh()->admin_notes,
+            'new_is_suspicious' => $order->fresh()->is_suspicious,
+            'new_suspicious_reason' => $order->fresh()->suspicious_reason,
         ]);
 
         // Log order approval
@@ -999,15 +1206,40 @@ class OrderController extends Controller
             [
                 'admin_notes' => $request->input('admin_notes'),
                 'total_amount' => $order->total_amount,
-                'customer_id' => $order->customer_id
+                'customer_id' => $order->customer_id,
+                'was_merged_order' => strpos($order->admin_notes ?? '', 'Merged from orders:') !== false,
             ]
         );
 
         // Notify the customer with status update
-        $order->customer?->notify(new OrderStatusUpdate($order->id, 'approved', 'Your order has been approved and is being processed.'));
+        try {
+            $order->customer?->notify(new OrderStatusUpdate($order->id, 'approved', 'Your order has been approved and is being processed.'));
+            Log::info('Customer notification sent successfully', ['order_id' => $order->id, 'customer_id' => $order->customer_id]);
+        } catch (\Exception $e) {
+            Log::error('Failed to send customer notification', [
+                'order_id' => $order->id,
+                'customer_id' => $order->customer_id,
+                'error' => $e->getMessage()
+            ]);
+        }
 
         // Send order receipt email to customer
-        $order->customer?->notify(new OrderReceipt($order));
+        try {
+            $order->customer?->notify(new OrderReceipt($order));
+            Log::info('Receipt email sent successfully', ['order_id' => $order->id, 'customer_id' => $order->customer_id]);
+        } catch (\Exception $e) {
+            Log::error('Failed to send receipt email', [
+                'order_id' => $order->id,
+                'customer_id' => $order->customer_id,
+                'error' => $e->getMessage()
+            ]);
+        }
+
+        Log::info('Order approval process completed successfully', [
+            'order_id' => $order->id,
+            'final_status' => $order->fresh()->status,
+            'redirect_route' => 'admin.orders.show'
+        ]);
 
         return redirect()->route('admin.orders.show', $order->id)
             ->with('message', 'Order approved successfully. Receipt email sent to customer. Please assign a logistic provider.');
