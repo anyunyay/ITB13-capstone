@@ -168,16 +168,29 @@ class SalesAudit extends Model
                 $assignedStocks = $items->pluck('stock')->filter();
                 
                 if ($assignedStocks->isNotEmpty()) {
-                    // Get unique stocks (in case same stock appears multiple times)
+                    // Get unique stocks (in case same stock appears multiple times in merged orders)
                     $uniqueStocks = $assignedStocks->unique('id');
                     
-                    // Calculate available stock from assigned stocks
-                    // For each stock, the available quantity is: quantity (since pending_order_qty already includes this order)
-                    $availableStock = $uniqueStocks->sum(function($stock) {
+                    // For merged orders: multiple audit trails may reference the same stock
+                    // Each audit trail has its quantity, and the stock's pending_order_qty includes all of them
+                    // So we need to check: stock quantity >= total quantity needed from that stock
+                    
+                    // Group audit trail items by stock_id to calculate quantity needed per stock
+                    $quantityPerStock = $items->groupBy('stock_id')->map(function($stockItems) {
+                        return $stockItems->sum('quantity');
+                    });
+                    
+                    // Calculate available stock considering what's needed from each stock
+                    $availableStock = $uniqueStocks->sum(function($stock) use ($quantityPerStock) {
                         if (!$stock) return 0;
-                        // Stock quantity is what's available
-                        // pending_order_qty includes THIS order's quantity
-                        // So the stock can fulfill this order if quantity >= order_quantity
+                        
+                        // Get the total quantity needed from this specific stock
+                        $quantityNeeded = $quantityPerStock->get($stock->id, 0);
+                        
+                        // Stock quantity is what's physically available
+                        // pending_order_qty includes THIS order's quantity (and all merged orders)
+                        // The stock can fulfill this order if quantity >= quantity_needed
+                        // Return the stock quantity as available (it can fulfill the needed amount)
                         return $stock->quantity;
                     });
                 } else {
