@@ -5,7 +5,6 @@ export interface OrderGroup {
     orders: Order[];
     isSuspicious: boolean;
     minutesDiff?: number;
-    connectedMergedOrderId?: number; // ID of the merged order this suspicious order is connected to
 }
 
 /**
@@ -60,32 +59,11 @@ export function groupSuspiciousOrders(orders: Order[], timeWindowMinutes: number
         if (hasProcessedOrdersInWindow) {
             processedOrderIds.add(order.id);
             
-            // Find the connected merged order (approved order from same customer in time window)
-            const connectedMergedOrder = processedOrders.find((processedOrder) => {
-                // Must be from same customer
-                if (order.customer.email !== processedOrder.customer.email) {
-                    return false;
-                }
-
-                // Must be approved (merged orders are approved)
-                if (processedOrder.status !== 'approved') {
-                    return false;
-                }
-
-                // Check time window
-                const orderTime = new Date(order.created_at).getTime();
-                const processedOrderTime = new Date(processedOrder.created_at).getTime();
-                const timeDiffMinutes = Math.abs(orderTime - processedOrderTime) / 60000;
-
-                return timeDiffMinutes <= timeWindowMinutes;
-            });
-            
             groups.push({
                 type: 'suspicious',
                 orders: [order], // Single order only
                 isSuspicious: true,
-                minutesDiff: 0, // Single order, no time diff
-                connectedMergedOrderId: connectedMergedOrder?.id // Link to the merged order
+                minutesDiff: 0 // Single order, no time diff
             });
             
             return; // Don't group with other orders

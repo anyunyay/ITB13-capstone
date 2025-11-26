@@ -121,20 +121,9 @@ class GroupVerdictController extends Controller
         $orderSummary = AuditTrailService::getMultiMemberOrderSummary($order);
         $involvedMembers = collect($orderSummary['members'])->pluck('member_id');
 
-        try {
-            // STEP 1: Update order status to 'approved' FIRST before any stock deduction
-            $order->update([
-                'status' => 'approved',
-                'delivery_status' => 'pending',
-                'admin_id' => $user->id,
-                'admin_notes' => $adminNotes,
-                'is_suspicious' => false, // Clear suspicious flag when approved
-                'suspicious_reason' => null, // Clear suspicious reason
-            ]);
-
-            // STEP 2: Now process stock deduction
-            $processedMembers = collect();
-            $processedStocks = collect();
+        // Process stock
+        $processedMembers = collect();
+        $processedStocks = collect();
 
         foreach ($order->auditTrail as $trail) {
             if ($trail->stock) {
@@ -177,35 +166,34 @@ class GroupVerdictController extends Controller
             }
         }
 
-            // STEP 3: Log approval
-            SystemLogger::logOrderStatusChange(
-                $order->id,
-                'pending',
-                'approved',
-                $user->id,
-                $user->type,
-                [
-                    'admin_notes' => $adminNotes,
-                    'total_amount' => $order->total_amount,
-                    'customer_id' => $order->customer_id,
-                    'group_verdict' => true
-                ]
-            );
+        // Update order status
+        $order->update([
+            'status' => 'approved',
+            'delivery_status' => 'pending',
+            'admin_id' => $user->id,
+            'admin_notes' => $adminNotes,
+        ]);
 
-            // STEP 4: Send notifications after successful processing
-            $order->customer?->notify(new OrderStatusUpdate($order->id, 'approved', 'Your order has been approved and is being processed.'));
-            $order->customer?->notify(new OrderReceipt($order));
+        // Log approval
+        SystemLogger::logOrderStatusChange(
+            $order->id,
+            'pending',
+            'approved',
+            $user->id,
+            $user->type,
+            [
+                'admin_notes' => $adminNotes,
+                'total_amount' => $order->total_amount,
+                'customer_id' => $order->customer_id,
+                'group_verdict' => true
+            ]
+        );
 
-            return ['success' => true, 'message' => 'Order approved successfully'];
+        // Send notifications
+        $order->customer?->notify(new OrderStatusUpdate($order->id, 'approved', 'Your order has been approved and is being processed.'));
+        $order->customer?->notify(new OrderReceipt($order));
 
-        } catch (\Exception $e) {
-            Log::error('Order approval failed in group verdict', [
-                'order_id' => $order->id,
-                'error' => $e->getMessage()
-            ]);
-
-            return ['success' => false, 'message' => 'Failed to approve order: ' . $e->getMessage()];
-        }
+        return ['success' => true, 'message' => 'Order approved successfully'];
     }
 
     /**

@@ -3,7 +3,7 @@ import { Badge } from '@/components/ui/badge';
 import { Link } from '@inertiajs/react';
 import { route } from 'ziggy-js';
 import { format } from 'date-fns';
-import { Eye, Package, User, MapPin, Phone, Mail, ChevronDown, ChevronUp, Link2 } from 'lucide-react';
+import { Eye, Package, User, MapPin, Phone, Mail, ChevronDown, ChevronUp, Link2, CheckCircle } from 'lucide-react';
 import { PermissionGate } from '@/components/common/permission-gate';
 import { Order } from '@/types/orders';
 import { useState } from 'react';
@@ -14,10 +14,9 @@ interface GroupedOrderCardProps {
     highlight?: boolean;
     relatedProcessedOrders?: Order[]; // Approved/rejected orders in the same time window
     minutesDiff?: number; // Time difference for single suspicious orders
-    connectedMergedOrderId?: number; // ID of the merged order this suspicious order is connected to
 }
 
-export const GroupedOrderCard = ({ orders, highlight = false, connectedMergedOrderId }: GroupedOrderCardProps) => {
+export const GroupedOrderCard = ({ orders, highlight = false }: GroupedOrderCardProps) => {
     const t = useTranslation();
     const [isExpanded, setIsExpanded] = useState(false);
     
@@ -81,12 +80,6 @@ export const GroupedOrderCard = ({ orders, highlight = false, connectedMergedOrd
                     <Badge variant="destructive" className="bg-red-600 text-white animate-pulse">
                         ⚠️ {orders.length > 1 ? 'Suspicious Group' : 'Suspicious'}
                     </Badge>
-                    {connectedMergedOrderId && orders.length === 1 && (
-                        <Badge variant="secondary" className="bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400 border border-purple-300 dark:border-purple-700">
-                            <Link2 className="h-3 w-3 mr-1" />
-                            Connected to Order #{connectedMergedOrderId}
-                        </Badge>
-                    )}
                 </div>
             </div>
             
@@ -101,12 +94,6 @@ export const GroupedOrderCard = ({ orders, highlight = false, connectedMergedOrd
                                 ? `${orders.length} orders placed within ${formatTimeSpan(minutesDiff)} (Total: ₱${totalAmount.toFixed(2)})`
                                 : orders[0].suspicious_reason || `Flagged as suspicious (Total: ₱${totalAmount.toFixed(2)})`
                             }
-                            {connectedMergedOrderId && orders.length === 1 && (
-                                <span className="block mt-2 text-purple-800 dark:text-purple-300">
-                                    <Link2 className="h-3 w-3 inline mr-1" />
-                                    This is a 3rd+ order within the same time window. Related orders were merged into Order #{connectedMergedOrderId}.
-                                </span>
-                            )}
                         </span>
                     </p>
                 </div>
@@ -287,14 +274,6 @@ export const GroupedOrderCard = ({ orders, highlight = false, connectedMergedOrd
                             View Group Details
                         </Link>
                     </Button>
-                    {connectedMergedOrderId && orders.length === 1 && (
-                        <Button asChild variant="outline" size="sm" className="flex-1 min-w-[120px] text-xs sm:text-sm border-purple-300 dark:border-purple-700 text-purple-700 dark:text-purple-300 hover:bg-purple-50 dark:hover:bg-purple-900/20">
-                            <Link href={route('admin.orders.show', connectedMergedOrderId)}>
-                                <Link2 className="h-3 w-3 sm:h-4 sm:w-4 mr-2" />
-                                View Merged Order
-                            </Link>
-                        </Button>
-                    )}
                 </PermissionGate>
             </div>
         </div>
