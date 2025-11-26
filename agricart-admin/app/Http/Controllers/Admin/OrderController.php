@@ -839,6 +839,89 @@ class OrderController extends Controller
             ->with('message', "Order assigned to {$logistic->name} successfully");
     }
 
+    /**
+     * Auto-clear suspicious flag for all orders in the same 10-minute window
+     * when the last pending suspicious order is approved or rejected
+     */
+    private function autoClearSuspiciousOrders(SalesAudit $order)
+    {
+        // Define the 10-minute window
+        $timeWindowMinutes = 10;
+        $orderTime = $order->created_at;
+        $windowStart = $orderTime->copy()->subMinutes($timeWindowMinutes);
+        $windowEnd = $orderTime->copy()->addMinutes($timeWindowMinutes);
+
+        Log::info('Auto-clear suspicious orders: Finding related orders', [
+            'order_id' => $order->id,
+            'customer_id' => $order->customer_id,
+            'order_time' => $orderTime->toISOString(),
+            'window_start' => $windowStart->toISOString(),
+            'window_end' => $windowEnd->toISOString(),
+        ]);
+
+        // Find all orders from the same customer within the 10-minute window
+        $relatedOrders = SalesAudit::where('customer_id', $order->customer_id)
+            ->whereBetween('created_at', [$windowStart, $windowEnd])
+            ->whereIn('status', ['pending', 'delayed', 'approved', 'rejected']) // Include all statuses
+            ->get();
+
+        Log::info('Auto-clear suspicious orders: Related orders found', [
+            'order_id' => $order->id,
+            'total_related_orders' => $relatedOrders->count(),
+            'related_order_ids' => $relatedOrders->pluck('id')->toArray(),
+        ]);
+
+        // Check if there are any remaining pending suspicious orders (excluding the current one)
+        $remainingPendingSuspicious = $relatedOrders->filter(function ($relatedOrder) use ($order) {
+            return $relatedOrder->id !== $order->id && // Exclude current order
+                   in_array($relatedOrder->status, ['pending', 'delayed']) && // Only pending/delayed
+                   $relatedOrder->is_suspicious === true; // Only suspicious
+        });
+
+        Log::info('Auto-clear suspicious orders: Checking remaining pending suspicious orders', [
+            'order_id' => $order->id,
+            'remaining_pending_suspicious_count' => $remainingPendingSuspicious->count(),
+            'remaining_pending_suspicious_ids' => $remainingPendingSuspicious->pluck('id')->toArray(),
+        ]);
+
+        // If no remaining pending suspicious orders, clear all orders in the window
+        if ($remainingPendingSuspicious->isEmpty()) {
+            $clearedCount = 0;
+            
+            foreach ($relatedOrders as $relatedOrder) {
+                // Only clear if currently suspicious
+                if ($relatedOrder->is_suspicious === true) {
+                    $relatedOrder->update([
+                        'is_suspicious' => false,
+                        'suspicious_reason' => null,
+                    ]);
+                    $clearedCount++;
+
+                    Log::info('Auto-clear suspicious orders: Cleared order', [
+                        'cleared_order_id' => $relatedOrder->id,
+                        'cleared_order_status' => $relatedOrder->status,
+                        'triggered_by_order_id' => $order->id,
+                    ]);
+                }
+            }
+
+            Log::info('Auto-clear suspicious orders: Completed', [
+                'order_id' => $order->id,
+                'total_cleared' => $clearedCount,
+                'cleared_order_ids' => $relatedOrders->where('is_suspicious', false)->pluck('id')->toArray(),
+            ]);
+
+            return $clearedCount;
+        } else {
+            Log::info('Auto-clear suspicious orders: Skipped (pending suspicious orders remain)', [
+                'order_id' => $order->id,
+                'remaining_count' => $remainingPendingSuspicious->count(),
+            ]);
+
+            return 0;
+        }
+    }
+
     public function approve(Request $request, SalesAudit $order)
     {
         $request->validate([
@@ -1196,6 +1279,16 @@ class OrderController extends Controller
             'new_suspicious_reason' => $order->fresh()->suspicious_reason,
         ]);
 
+        // Auto-clear suspicious flag for related orders in the same 10-minute window
+        $clearedCount = $this->autoClearSuspiciousOrders($order);
+        
+        if ($clearedCount > 0) {
+            Log::info('Auto-cleared suspicious orders after approval', [
+                'order_id' => $order->id,
+                'cleared_count' => $clearedCount,
+            ]);
+        }
+
         // Log order approval
         SystemLogger::logOrderStatusChange(
             $order->id,
@@ -1334,6 +1427,16 @@ class OrderController extends Controller
             'is_suspicious' => false, // Clear suspicious flag when rejected
             'suspicious_reason' => null, // Clear suspicious reason
         ]);
+
+        // Auto-clear suspicious flag for related orders in the same 10-minute window
+        $clearedCount = $this->autoClearSuspiciousOrders($order);
+        
+        if ($clearedCount > 0) {
+            Log::info('Auto-cleared suspicious orders after rejection', [
+                'order_id' => $order->id,
+                'cleared_count' => $clearedCount,
+            ]);
+        }
 
         // Log order rejection
         SystemLogger::logOrderStatusChange(
