@@ -790,33 +790,11 @@ class OrderController extends Controller
         }
 
         // Check if order has sufficient stock before approval
-        // Refresh the order to get latest stock data
-        $order->refresh();
-        $order->load(['auditTrail.stock.product', 'auditTrail.product']);
-        
         if (!$order->hasSufficientStock()) {
             $insufficientItems = $order->getInsufficientStockItems();
-            
-            // Log detailed stock information for debugging
-            Log::error('Insufficient stock for order approval', [
-                'order_id' => $order->id,
-                'insufficient_items' => $insufficientItems,
-                'audit_trail_count' => $order->auditTrail->count(),
-                'audit_trail_details' => $order->auditTrail->map(function($trail) {
-                    return [
-                        'id' => $trail->id,
-                        'product_id' => $trail->product_id,
-                        'stock_id' => $trail->stock_id,
-                        'quantity' => $trail->quantity,
-                        'stock_quantity' => $trail->stock ? $trail->stock->quantity : null,
-                        'stock_pending' => $trail->stock ? $trail->stock->pending_order_qty : null,
-                    ];
-                })->toArray()
-            ]);
-            
-            $errorMessage = 'Cannot approve order due to insufficient stock:' . "\n";
+            $errorMessage = 'Cannot approve order due to insufficient stock:\n';
             foreach ($insufficientItems as $item) {
-                $errorMessage .= "• {$item['product_name']} ({$item['category']}): Requested {$item['requested_quantity']}, Available {$item['available_stock']}, Shortage {$item['shortage']}" . "\n";
+                $errorMessage .= "• {$item['product_name']} ({$item['category']}): Requested {$item['requested_quantity']}, Available {$item['available_stock']}, Shortage {$item['shortage']}\n";
             }
 
             return redirect()->back()->with('error', $errorMessage);
