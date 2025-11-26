@@ -9,33 +9,68 @@ export interface OrderGroup {
 
 /**
  * Groups orders by customer and time window for suspicious pattern detection
- * This is a frontend-only grouping that doesn't modify backend data
+ * 
+ * IMPORTANT RULES:
+ * 1. If there are approved/rejected orders in the time window, treat each pending order as SINGLE suspicious
+ * 2. Only group multiple PENDING orders together if there are NO approved/rejected orders in the window
+ * 3. This prevents trying to merge orders after some have already been processed
  */
 export function groupSuspiciousOrders(orders: Order[], timeWindowMinutes: number = 10): OrderGroup[] {
     const groups: OrderGroup[] = [];
     const processedOrderIds = new Set<number>();
 
-    // Filter out merged, approved, and rejected orders before grouping
-    // Only pending and delayed orders can be suspicious
-    const activeOrders = orders.filter(order => 
-        order.status !== 'merged' && 
-        order.status !== 'approved' && 
-        order.status !== 'rejected'
+    // Separate orders by status
+    const pendingOrders = orders.filter(order => 
+        order.status === 'pending' || order.status === 'delayed'
+    );
+    
+    const processedOrders = orders.filter(order => 
+        order.status === 'approved' || order.status === 'rejected'
     );
 
     // Sort orders by created_at
-    const sortedOrders = [...activeOrders].sort((a, b) => 
+    const sortedPendingOrders = [...pendingOrders].sort((a, b) => 
         new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
     );
 
-    sortedOrders.forEach((order) => {
+    sortedPendingOrders.forEach((order) => {
         // Skip if already processed
         if (processedOrderIds.has(order.id)) {
             return;
         }
 
-        // Find all orders from the same customer within the time window
-        const relatedOrders = sortedOrders.filter((otherOrder) => {
+        // Check if there are any approved/rejected orders from same customer within time window
+        const hasProcessedOrdersInWindow = processedOrders.some((processedOrder) => {
+            // Must be from same customer
+            if (order.customer.email !== processedOrder.customer.email) {
+                return false;
+            }
+
+            // Check time window
+            const orderTime = new Date(order.created_at).getTime();
+            const processedOrderTime = new Date(processedOrder.created_at).getTime();
+            const timeDiffMinutes = Math.abs(orderTime - processedOrderTime) / 60000;
+
+            return timeDiffMinutes <= timeWindowMinutes;
+        });
+
+        // If there are processed orders in the window, treat this as a SINGLE suspicious order
+        // Do NOT group with other pending orders (to prevent merge attempts)
+        if (hasProcessedOrdersInWindow) {
+            processedOrderIds.add(order.id);
+            
+            groups.push({
+                type: 'suspicious',
+                orders: [order], // Single order only
+                isSuspicious: true,
+                minutesDiff: 0 // Single order, no time diff
+            });
+            
+            return; // Don't group with other orders
+        }
+
+        // No processed orders in window - check for other pending orders to group
+        const relatedPendingOrders = sortedPendingOrders.filter((otherOrder) => {
             if (processedOrderIds.has(otherOrder.id)) {
                 return false;
             }
@@ -53,27 +88,30 @@ export function groupSuspiciousOrders(orders: Order[], timeWindowMinutes: number
             return timeDiffMinutes <= timeWindowMinutes;
         });
 
-        // Mark all related orders as processed
-        relatedOrders.forEach(o => processedOrderIds.add(o.id));
+        // Mark all related pending orders as processed
+        relatedPendingOrders.forEach(o => processedOrderIds.add(o.id));
 
-        // If 2 or more orders found, create a suspicious group
-        if (relatedOrders.length >= 2) {
-            const firstOrderTime = new Date(relatedOrders[0].created_at).getTime();
-            const lastOrderTime = new Date(relatedOrders[relatedOrders.length - 1].created_at).getTime();
+        // If 2 or more pending orders found (and no processed orders in window), create a group
+        if (relatedPendingOrders.length >= 2) {
+            const firstOrderTime = new Date(relatedPendingOrders[0].created_at).getTime();
+            const lastOrderTime = new Date(relatedPendingOrders[relatedPendingOrders.length - 1].created_at).getTime();
             const minutesDiff = Math.round((lastOrderTime - firstOrderTime) / 60000);
 
             groups.push({
                 type: 'suspicious',
-                orders: relatedOrders,
+                orders: relatedPendingOrders,
                 isSuspicious: true,
                 minutesDiff
             });
         } else {
-            // Single order, not suspicious
+            // Single pending order, check if it's suspicious (marked by backend)
+            const isSuspicious = order.is_suspicious || false;
+            
             groups.push({
-                type: 'single',
+                type: isSuspicious ? 'suspicious' : 'single',
                 orders: [order],
-                isSuspicious: false
+                isSuspicious: isSuspicious,
+                minutesDiff: 0
             });
         }
     });

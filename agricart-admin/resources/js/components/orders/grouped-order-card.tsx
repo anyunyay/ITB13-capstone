@@ -3,7 +3,7 @@ import { Badge } from '@/components/ui/badge';
 import { Link } from '@inertiajs/react';
 import { route } from 'ziggy-js';
 import { format } from 'date-fns';
-import { Eye, Package, User, MapPin, Phone, Mail, ChevronDown, ChevronUp } from 'lucide-react';
+import { Eye, Package, User, MapPin, Phone, Mail, ChevronDown, ChevronUp, Link2, CheckCircle } from 'lucide-react';
 import { PermissionGate } from '@/components/common/permission-gate';
 import { Order } from '@/types/orders';
 import { useState } from 'react';
@@ -12,6 +12,8 @@ import { useTranslation } from '@/hooks/use-translation';
 interface GroupedOrderCardProps {
     orders: Order[];
     highlight?: boolean;
+    relatedProcessedOrders?: Order[]; // Approved/rejected orders in the same time window
+    minutesDiff?: number; // Time difference for single suspicious orders
 }
 
 export const GroupedOrderCard = ({ orders, highlight = false }: GroupedOrderCardProps) => {
