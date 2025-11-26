@@ -16,3 +16,7 @@ Schedule::command('earnings:update --period=monthly')->monthlyOn(1, '10:00');
 
 // Schedule the auto-confirmation of delivered orders to run daily at 11 PM
 Schedule::command('orders:auto-confirm')->dailyAt('23:00');
+
+// Schedule the clearing of expired suspicious orders to run every 5 minutes
+// This ensures orders older than 10 minutes are automatically cleared from suspicious status
+Schedule::command('orders:clear-expired-suspicious')->everyFiveMinutes();

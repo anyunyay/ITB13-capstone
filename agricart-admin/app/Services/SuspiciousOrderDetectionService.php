@@ -36,13 +36,40 @@ class SuspiciousOrderDetectionService
         $customerId = $newOrder->customer_id;
         $orderTime = $newOrder->created_at;
 
-        // Find all orders from the same customer within the time window
+        // Find the most recent suspicious order from this customer
+        $mostRecentSuspiciousOrder = SalesAudit::where('customer_id', $customerId)
+            ->where('id', '!=', $newOrder->id)
+            ->where('is_suspicious', true)
+            ->whereIn('status', ['pending', 'delayed'])
+            ->orderBy('created_at', 'desc')
+            ->first();
+
+        // If there's a recent suspicious order, check if it's within the 10-minute window
+        if ($mostRecentSuspiciousOrder) {
+            $minutesSinceLastSuspicious = Carbon::parse($mostRecentSuspiciousOrder->created_at)
+                ->diffInMinutes($orderTime);
+
+            // If more than 10 minutes have passed, this is a fresh window - don't flag as suspicious yet
+            if ($minutesSinceLastSuspicious > self::TIME_WINDOW_MINUTES) {
+                Log::info('Suspicious order window expired - starting fresh window', [
+                    'customer_id' => $customerId,
+                    'new_order_id' => $newOrder->id,
+                    'last_suspicious_order_id' => $mostRecentSuspiciousOrder->id,
+                    'minutes_since_last' => $minutesSinceLastSuspicious,
+                    'window_minutes' => self::TIME_WINDOW_MINUTES,
+                ]);
+                return null;
+            }
+        }
+
+        // Find all orders from the same customer within the time window (looking back only)
         $timeWindowStart = Carbon::parse($orderTime)->subMinutes(self::TIME_WINDOW_MINUTES);
-        $timeWindowEnd = Carbon::parse($orderTime)->addMinutes(self::TIME_WINDOW_MINUTES);
 
         $relatedOrders = SalesAudit::where('customer_id', $customerId)
             ->where('id', '!=', $newOrder->id)
-            ->whereBetween('created_at', [$timeWindowStart, $timeWindowEnd])
+            ->where('created_at', '>=', $timeWindowStart)
+            ->where('created_at', '<=', $orderTime)
+            ->whereIn('status', ['pending', 'delayed'])
             ->orderBy('created_at', 'asc')
             ->get();
 

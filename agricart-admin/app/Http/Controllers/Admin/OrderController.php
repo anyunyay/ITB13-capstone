@@ -26,11 +26,63 @@ use Barryvdh\DomPDF\Facade\Pdf;
 
 class OrderController extends Controller
 {
+    /**
+     * Clear suspicious flags for orders older than 10 minutes
+     * This ensures old orders don't continue showing as suspicious
+     */
+    private function clearExpiredSuspiciousOrders()
+    {
+        $timeWindowMinutes = 10;
+        $expirationTime = now()->subMinutes($timeWindowMinutes);
+
+        Log::info('Clearing expired suspicious orders', [
+            'expiration_time' => $expirationTime->toISOString(),
+            'current_time' => now()->toISOString(),
+        ]);
+
+        // Find all suspicious orders older than 10 minutes
+        $expiredOrders = SalesAudit::where('is_suspicious', true)
+            ->where('created_at', '<', $expirationTime)
+            ->whereIn('status', ['pending', 'delayed']) // Only clear pending/delayed orders
+            ->get();
+
+        if ($expiredOrders->isEmpty()) {
+            Log::info('No expired suspicious orders found');
+            return 0;
+        }
+
+        $clearedCount = 0;
+        foreach ($expiredOrders as $order) {
+            $order->update([
+                'is_suspicious' => false,
+                'suspicious_reason' => null,
+            ]);
+            $clearedCount++;
+
+            Log::info('Cleared expired suspicious order', [
+                'order_id' => $order->id,
+                'customer_id' => $order->customer_id,
+                'order_age_minutes' => $order->created_at->diffInMinutes(now()),
+                'created_at' => $order->created_at->toISOString(),
+            ]);
+        }
+
+        Log::info('Expired suspicious orders cleared', [
+            'total_cleared' => $clearedCount,
+            'cleared_order_ids' => $expiredOrders->pluck('id')->toArray(),
+        ]);
+
+        return $clearedCount;
+    }
+
     public function index(Request $request)
     {
         $status = $request->get('status', 'all');
         $highlightOrderId = $request->get('highlight_order');
         $showUrgentApproval = $request->get('urgent_approval', false);
+
+        // Clear expired suspicious orders (older than 10 minutes)
+        $this->clearExpiredSuspiciousOrders();
 
         // Load all recent orders with essential data including audit trail for order cards
         // Frontend will handle pagination and filtering to ensure exactly 8 visible cards per page
@@ -177,6 +229,9 @@ class OrderController extends Controller
 
     public function suspicious(Request $request)
     {
+        // Clear expired suspicious orders (older than 10 minutes)
+        $this->clearExpiredSuspiciousOrders();
+
         // Optimize: Load only recent orders with essential data
         // Only include pending and delayed orders - approved/rejected orders cannot be suspicious
         $allOrders = SalesAudit::with([
