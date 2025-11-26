@@ -38,10 +38,8 @@ export default function GroupShow({ orders, groupInfo }: GroupShowProps) {
     // Track expanded orders - first order is expanded by default
     const [expandedOrders, setExpandedOrders] = useState<Set<number>>(new Set([orders[0]?.id]));
 
-    // Only allow merge/reject for groups with 2+ orders
-    // Single suspicious orders should use normal approve/reject workflow
-    const canMerge = orders.length >= 2 && orders.every(order => ['pending', 'delayed'].includes(order.status));
-    const canReject = orders.length >= 2 && orders.every(order => ['pending', 'delayed'].includes(order.status));
+    const canMerge = orders.every(order => ['pending', 'delayed'].includes(order.status));
+    const canReject = orders.every(order => ['pending', 'delayed'].includes(order.status));
 
     const toggleOrderExpansion = (orderId: number) => {
         setExpandedOrders(prev => {
@@ -602,4 +600,3 @@ export default function GroupShow({ orders, groupInfo }: GroupShowProps) {
         </AppLayout>
     );
 }
-
