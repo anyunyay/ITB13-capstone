@@ -31,6 +31,7 @@ class SalesAudit extends Model
         'is_urgent',
         'is_suspicious',
         'suspicious_reason',
+        'linked_merged_order_id',
     ];
 
     protected $casts = [

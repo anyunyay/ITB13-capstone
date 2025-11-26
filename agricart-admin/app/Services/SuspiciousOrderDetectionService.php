@@ -36,6 +36,66 @@ class SuspiciousOrderDetectionService
         $customerId = $newOrder->customer_id;
         $orderTime = $newOrder->created_at;
 
+        // Check for recently merged & approved suspicious orders within 10 minutes
+        $timeWindowStart = Carbon::parse($orderTime)->subMinutes(self::TIME_WINDOW_MINUTES);
+        
+        Log::info('Checking for recent merged orders', [
+            'customer_id' => $customerId,
+            'new_order_id' => $newOrder->id,
+            'order_time' => $orderTime->toISOString(),
+            'time_window_start' => $timeWindowStart->toISOString(),
+        ]);
+        
+        // Check for merged orders (both pending and approved)
+        // A merged order can be pending (just merged) or approved (merged and approved)
+        $recentMergedApprovedOrder = SalesAudit::where('customer_id', $customerId)
+            ->where('id', '!=', $newOrder->id)
+            ->whereIn('status', ['pending', 'approved']) // Check both pending and approved merged orders
+            ->where('created_at', '>=', $timeWindowStart)
+            ->where('created_at', '<=', $orderTime)
+            ->where('admin_notes', 'like', '%Merged from orders:%')
+            ->orderBy('created_at', 'desc')
+            ->first();
+        
+        Log::info('Recent merged order search result', [
+            'found' => $recentMergedApprovedOrder ? true : false,
+            'merged_order_id' => $recentMergedApprovedOrder ? $recentMergedApprovedOrder->id : null,
+            'merged_order_status' => $recentMergedApprovedOrder ? $recentMergedApprovedOrder->status : null,
+            'merged_order_created_at' => $recentMergedApprovedOrder ? $recentMergedApprovedOrder->created_at->toISOString() : null,
+        ]);
+
+        // If there's a recently merged & approved order within 10 minutes, mark this as a fresh suspicious order
+        if ($recentMergedApprovedOrder) {
+            $minutesSinceMerged = Carbon::parse($recentMergedApprovedOrder->created_at)
+                ->diffInMinutes($orderTime);
+
+            Log::info('Third order detected after merged & approved suspicious order', [
+                'customer_id' => $customerId,
+                'new_order_id' => $newOrder->id,
+                'merged_order_id' => $recentMergedApprovedOrder->id,
+                'minutes_since_merged' => $minutesSinceMerged,
+                'window_minutes' => self::TIME_WINDOW_MINUTES,
+            ]);
+
+            // Mark this as a single suspicious order (no merge, just approve/reject)
+            $mergedOrderStatus = $recentMergedApprovedOrder->status === 'approved' ? 'merged & approved' : 'merged';
+            $reason = sprintf(
+                'New order placed %d minutes after %s order #%d',
+                $minutesSinceMerged,
+                $mergedOrderStatus,
+                $recentMergedApprovedOrder->id
+            );
+
+            return [
+                'order_ids' => [$newOrder->id], // Only this order
+                'related_orders' => [], // No related orders to merge
+                'reason' => $reason,
+                'total_amount' => $newOrder->total_amount,
+                'is_single_suspicious' => true, // Flag to indicate this is a single suspicious order
+                'linked_to_merged_order' => $recentMergedApprovedOrder->id, // Reference to the merged order
+            ];
+        }
+
         // Find the most recent suspicious order from this customer
         $mostRecentSuspiciousOrder = SalesAudit::where('customer_id', $customerId)
             ->where('id', '!=', $newOrder->id)
@@ -63,8 +123,6 @@ class SuspiciousOrderDetectionService
         }
 
         // Find all orders from the same customer within the time window (looking back only)
-        $timeWindowStart = Carbon::parse($orderTime)->subMinutes(self::TIME_WINDOW_MINUTES);
-
         $relatedOrders = SalesAudit::where('customer_id', $customerId)
             ->where('id', '!=', $newOrder->id)
             ->where('created_at', '>=', $timeWindowStart)
@@ -121,16 +179,27 @@ class SuspiciousOrderDetectionService
     {
         $orderIds = $suspiciousInfo['order_ids'];
         $reason = $suspiciousInfo['reason'];
+        $isSingleSuspicious = $suspiciousInfo['is_single_suspicious'] ?? false;
+        $linkedMergedOrderId = $suspiciousInfo['linked_to_merged_order'] ?? null;
 
         // Mark all related orders as suspicious
-        SalesAudit::whereIn('id', $orderIds)->update([
+        $updateData = [
             'is_suspicious' => true,
             'suspicious_reason' => $reason,
-        ]);
+        ];
+
+        // If this is a single suspicious order linked to a merged order, store the reference
+        if ($isSingleSuspicious && $linkedMergedOrderId) {
+            $updateData['linked_merged_order_id'] = $linkedMergedOrderId;
+        }
+
+        SalesAudit::whereIn('id', $orderIds)->update($updateData);
 
         Log::info('Orders marked as suspicious', [
             'order_ids' => $orderIds,
-            'reason' => $reason
+            'reason' => $reason,
+            'is_single_suspicious' => $isSingleSuspicious,
+            'linked_merged_order_id' => $linkedMergedOrderId,
         ]);
 
         // Notify all users with permission to view orders

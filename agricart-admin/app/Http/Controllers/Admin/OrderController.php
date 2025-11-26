@@ -112,7 +112,7 @@ class OrderController extends Controller
                 $query->whereNull('removed_at');
             }
         ])
-            ->select('id', 'customer_id', 'address_id', 'admin_id', 'logistic_id', 'total_amount', 'status', 'delivery_status', 'delivery_packed_time', 'delivered_time', 'created_at', 'admin_notes', 'is_urgent', 'is_suspicious', 'suspicious_reason')
+            ->select('id', 'customer_id', 'address_id', 'admin_id', 'logistic_id', 'total_amount', 'status', 'delivery_status', 'delivery_packed_time', 'delivered_time', 'created_at', 'admin_notes', 'is_urgent', 'is_suspicious', 'suspicious_reason', 'linked_merged_order_id')
             ->where('status', '!=', 'merged') // Exclude merged orders from main index
             ->orderBy('created_at', 'desc')
             ->limit(200) // Load recent orders for better performance
@@ -175,6 +175,7 @@ class OrderController extends Controller
                 'is_urgent' => $order->is_urgent,
                 'is_suspicious' => $order->is_suspicious,
                 'suspicious_reason' => $order->suspicious_reason,
+                'linked_merged_order_id' => $order->linked_merged_order_id,
             ];
         });
 
@@ -260,7 +261,7 @@ class OrderController extends Controller
                 $query->whereNull('removed_at');
             }
         ])
-            ->select('id', 'customer_id', 'address_id', 'admin_id', 'logistic_id', 'total_amount', 'status', 'delivery_status', 'delivery_packed_time', 'delivered_time', 'created_at', 'admin_notes', 'is_urgent', 'is_suspicious', 'suspicious_reason')
+            ->select('id', 'customer_id', 'address_id', 'admin_id', 'logistic_id', 'total_amount', 'status', 'delivery_status', 'delivery_packed_time', 'delivered_time', 'created_at', 'admin_notes', 'is_urgent', 'is_suspicious', 'suspicious_reason', 'linked_merged_order_id')
             ->whereIn('status', ['pending', 'delayed']) // Only pending/delayed orders can be suspicious
             ->orderBy('created_at', 'desc')
             ->limit(500) // Increased limit to catch more potential suspicious patterns
@@ -309,6 +310,7 @@ class OrderController extends Controller
                 'is_urgent' => $order->is_urgent,
                 'is_suspicious' => $order->is_suspicious,
                 'suspicious_reason' => $order->suspicious_reason,
+                'linked_merged_order_id' => $order->linked_merged_order_id,
             ];
         });
 
@@ -779,6 +781,7 @@ class OrderController extends Controller
             'is_urgent' => $order->is_urgent,
             'is_suspicious' => $order->is_suspicious,
             'suspicious_reason' => $order->suspicious_reason,
+            'linked_merged_order_id' => $order->linked_merged_order_id,
         ];
 
         return Inertia::render('Admin/Orders/show', [
@@ -1307,11 +1310,26 @@ class OrderController extends Controller
             'current_suspicious_reason' => $order->suspicious_reason,
         ]);
 
+        // Preserve existing admin_notes if this is a merged order
+        $isMergedOrder = strpos($order->admin_notes ?? '', 'Merged from orders:') !== false;
+        $newAdminNotes = $request->input('admin_notes');
+        
+        if ($isMergedOrder && empty($newAdminNotes)) {
+            // Keep the existing merge notes
+            $adminNotesToSave = $order->admin_notes;
+        } elseif ($isMergedOrder && !empty($newAdminNotes)) {
+            // Append new notes to existing merge notes
+            $adminNotesToSave = $order->admin_notes . ' | ' . $newAdminNotes;
+        } else {
+            // Use new notes or null
+            $adminNotesToSave = $newAdminNotes;
+        }
+        
         $updateData = [
             'status' => 'approved',
             'delivery_status' => 'pending',
             'admin_id' => $request->user()->id,
-            'admin_notes' => $request->input('admin_notes'),
+            'admin_notes' => $adminNotesToSave,
             'is_suspicious' => false, // Clear suspicious flag when approved
             'suspicious_reason' => null, // Clear suspicious reason
         ];
