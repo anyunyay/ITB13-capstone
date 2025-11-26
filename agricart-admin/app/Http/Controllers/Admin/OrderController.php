@@ -850,9 +850,28 @@ class OrderController extends Controller
             'involved_members' => $involvedMembers->toArray()
         ]);
 
-        // Process the stock only when approving
-        $processedMembers = collect();
-        $processedStocks = collect();
+        // Start database transaction to ensure atomicity
+        \DB::beginTransaction();
+
+        try {
+            // STEP 1: Update order status to 'approved' FIRST before any stock deduction
+            $order->update([
+                'status' => 'approved',
+                'delivery_status' => 'pending',
+                'admin_id' => $request->user()->id,
+                'admin_notes' => $request->input('admin_notes'),
+                'is_suspicious' => false, // Clear suspicious flag when approved
+                'suspicious_reason' => null, // Clear suspicious reason
+            ]);
+
+            Log::info('Order status updated to approved', [
+                'order_id' => $order->id,
+                'admin_id' => $request->user()->id
+            ]);
+
+            // STEP 2: Now process the stock deduction
+            $processedMembers = collect();
+            $processedStocks = collect();
 
         foreach ($order->auditTrail as $trail) {
             // Stock should always exist at this point due to validation above
@@ -982,57 +1001,64 @@ class OrderController extends Controller
             }
         }
 
-        // Validate multi-member order processing completeness
-        $validation = AuditTrailService::validateMultiMemberAuditTrails($order, $involvedMembers);
+            // STEP 3: Validate multi-member order processing completeness
+            $validation = AuditTrailService::validateMultiMemberAuditTrails($order, $involvedMembers);
 
-        if (!$validation['is_complete']) {
-            Log::error('Multi-member order validation failed during approval', [
+            if (!$validation['is_complete']) {
+                Log::error('Multi-member order validation failed during approval', [
+                    'order_id' => $order->id,
+                    'validation' => $validation
+                ]);
+
+                // Rollback transaction
+                \DB::rollBack();
+                return redirect()->back()->with('error', 'Order processing validation failed. Please contact support.');
+            }
+
+            // Log successful multi-member order processing
+            Log::info('Multi-member order approved successfully', [
                 'order_id' => $order->id,
-                'validation' => $validation
+                'processed_members' => $processedMembers->unique()->toArray(),
+                'total_audit_entries' => $validation['total_entries'],
+                'member_breakdown' => $validation['member_breakdown']
             ]);
 
-            return redirect()->back()->with('error', 'Order processing validation failed. Please contact support.');
+            // Log order approval
+            SystemLogger::logOrderStatusChange(
+                $order->id,
+                'pending',
+                'approved',
+                $request->user()->id,
+                $request->user()->type,
+                [
+                    'admin_notes' => $request->input('admin_notes'),
+                    'total_amount' => $order->total_amount,
+                    'customer_id' => $order->customer_id
+                ]
+            );
+
+            // Commit transaction - everything succeeded
+            \DB::commit();
+
+            // STEP 4: Send notifications AFTER successful commit
+            $order->customer?->notify(new OrderStatusUpdate($order->id, 'approved', 'Your order has been approved and is being processed.'));
+            $order->customer?->notify(new OrderReceipt($order));
+
+            return redirect()->route('admin.orders.show', $order->id)
+                ->with('message', 'Order approved successfully. Receipt email sent to customer. Please assign a logistic provider.');
+
+        } catch (\Exception $e) {
+            // Rollback all changes if anything fails
+            \DB::rollBack();
+            
+            Log::error('Order approval failed', [
+                'order_id' => $order->id,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return redirect()->back()->with('error', 'Failed to approve order: ' . $e->getMessage());
         }
-
-        // Log successful multi-member order processing
-        Log::info('Multi-member order approved successfully', [
-            'order_id' => $order->id,
-            'processed_members' => $processedMembers->unique()->toArray(),
-            'total_audit_entries' => $validation['total_entries'],
-            'member_breakdown' => $validation['member_breakdown']
-        ]);
-
-        $order->update([
-            'status' => 'approved',
-            'delivery_status' => 'pending',
-            'admin_id' => $request->user()->id,
-            'admin_notes' => $request->input('admin_notes'),
-            'is_suspicious' => false, // Clear suspicious flag when approved
-            'suspicious_reason' => null, // Clear suspicious reason
-        ]);
-
-        // Log order approval
-        SystemLogger::logOrderStatusChange(
-            $order->id,
-            'pending',
-            'approved',
-            $request->user()->id,
-            $request->user()->type,
-            [
-                'admin_notes' => $request->input('admin_notes'),
-                'total_amount' => $order->total_amount,
-                'customer_id' => $order->customer_id
-            ]
-        );
-
-        // Notify the customer with status update
-        $order->customer?->notify(new OrderStatusUpdate($order->id, 'approved', 'Your order has been approved and is being processed.'));
-
-        // Send order receipt email to customer
-        $order->customer?->notify(new OrderReceipt($order));
-
-        return redirect()->route('admin.orders.show', $order->id)
-            ->with('message', 'Order approved successfully. Receipt email sent to customer. Please assign a logistic provider.');
     }
 
     public function reject(Request $request, SalesAudit $order)

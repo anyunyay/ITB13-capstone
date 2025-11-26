@@ -154,6 +154,7 @@ export default function SuspiciousOrdersPage({ orders, logistics }: SuspiciousOr
                                                 key={`group-${group.orders.map(o => o.id).join('-')}`}
                                                 orders={group.orders}
                                                 highlight={false}
+                                                connectedMergedOrderId={group.connectedMergedOrderId}
                                             />
                                         ))}
                                     </div>
