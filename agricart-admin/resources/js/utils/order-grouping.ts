@@ -56,24 +56,40 @@ export function groupSuspiciousOrders(orders: Order[], timeWindowMinutes: number
         // Mark all related orders as processed
         relatedOrders.forEach(o => processedOrderIds.add(o.id));
 
-        // If 2 or more orders found, create a suspicious group
+        // If 2 or more orders found, check if they should be considered suspicious
         if (relatedOrders.length >= 2) {
-            const firstOrderTime = new Date(relatedOrders[0].created_at).getTime();
-            const lastOrderTime = new Date(relatedOrders[relatedOrders.length - 1].created_at).getTime();
-            const minutesDiff = Math.round((lastOrderTime - firstOrderTime) / 60000);
+            // Filter out orders that have been explicitly cleared (is_suspicious === false)
+            // This respects backend decisions while still detecting new patterns
+            const suspiciousOrders = relatedOrders.filter(o => o.is_suspicious !== false);
+            
+            // Only create a suspicious group if at least 2 orders remain after filtering
+            if (suspiciousOrders.length >= 2) {
+                const firstOrderTime = new Date(suspiciousOrders[0].created_at).getTime();
+                const lastOrderTime = new Date(suspiciousOrders[suspiciousOrders.length - 1].created_at).getTime();
+                const minutesDiff = Math.round((lastOrderTime - firstOrderTime) / 60000);
 
-            groups.push({
-                type: 'suspicious',
-                orders: relatedOrders,
-                isSuspicious: true,
-                minutesDiff
-            });
+                groups.push({
+                    type: 'suspicious',
+                    orders: suspiciousOrders,
+                    isSuspicious: true,
+                    minutesDiff
+                });
+            } else {
+                // If less than 2 orders remain, treat remaining orders as single orders
+                suspiciousOrders.forEach(o => {
+                    groups.push({
+                        type: 'single',
+                        orders: [o],
+                        isSuspicious: false
+                    });
+                });
+            }
         } else {
-            // Single order, not suspicious
+            // Single order, not suspicious (unless explicitly marked)
             groups.push({
                 type: 'single',
                 orders: [order],
-                isSuspicious: false
+                isSuspicious: order.is_suspicious === true
             });
         }
     });
