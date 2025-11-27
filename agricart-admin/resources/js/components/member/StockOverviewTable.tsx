@@ -46,7 +46,7 @@ export function StockOverviewTable({ data, sortBy, sortDir, onSort }: StockOverv
         if (sortBy !== column) {
             return <ArrowUpDown className="h-3 w-3 ml-1 opacity-50 group-hover:opacity-100 transition-opacity" />;
         }
-        return sortDir === 'asc' 
+        return sortDir === 'asc'
             ? <ArrowUp className="h-3 w-3 ml-1 text-primary" />
             : <ArrowDown className="h-3 w-3 ml-1 text-primary" />;
     };
@@ -85,8 +85,8 @@ export function StockOverviewTable({ data, sortBy, sortDir, onSort }: StockOverv
                 </TableHeader>
                 <TableBody>
                     {data.map((item) => (
-                        <TableRow 
-                            key={`${item.product_id}-${item.category}`} 
+                        <TableRow
+                            key={`${item.product_id}-${item.category}`}
                             className=" hover:bg-muted"
                             data-product-id={item.product_id}
                             data-category={item.category}
@@ -147,7 +147,7 @@ export function StockOverviewTable({ data, sortBy, sortDir, onSort }: StockOverv
                                 <div className="flex justify-center min-h-[40px] py-2 w-full">
                                     <div className="w-full max-w-[120px] text-right">
                                         <span className="font-semibold text-black dark:text-white">
-                                            <span className="text-black dark:text-white">₱</span>{item.total_revenue.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                                            <span className="text-black dark:text-white">₱</span>{((item.total_revenue || 0)).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
                                         </span>
                                     </div>
                                 </div>

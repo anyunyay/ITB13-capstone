@@ -108,7 +108,7 @@ export function StockOverviewCards({ data }: StockOverviewCardsProps) {
                                 <TrendingUp className="h-4 w-4 text-yellow-400 mb-1 flex-shrink-0" />
                                 <p className="text-xs text-muted-foreground mb-0.5">{t('member.total_revenue')}</p>
                                 <p className="font-semibold text-foreground text-sm">
-                                    <span className="text-black dark:text-white">₱</span>{item.total_revenue.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                                    <span className="text-black dark:text-white">₱</span>{((item.total_revenue || 0)).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
                                 </p>
                             </div>
                             <div className="flex flex-col items-center text-center">

@@ -751,9 +751,20 @@ class MemberController extends Controller
             }
         }
 
-        // Calculate balance quantity: Available quantity (current quantity that can be sold)
+        // Calculate balance quantity and potential revenue for all stock groups
         foreach ($stockGroups as $key => &$group) {
             $group['balance_quantity'] = $group['available_quantity'];
+            
+            // If no sales yet, calculate potential revenue based on total quantity and unit price
+            if ($group['total_revenue'] == 0 && $group['total_quantity'] > 0) {
+                $potentialRevenue = $group['total_quantity'] * $group['unit_price'];
+                $potentialCogs = ($potentialRevenue / 1.3) * 0.7;
+                $potentialGrossProfit = $potentialRevenue - $potentialCogs;
+                
+                $group['total_revenue'] = $potentialRevenue;
+                $group['total_cogs'] = $potentialCogs;
+                $group['total_gross_profit'] = $potentialGrossProfit;
+            }
         }
 
         // Convert to array and sort by product name
