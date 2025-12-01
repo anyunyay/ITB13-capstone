@@ -219,8 +219,20 @@ export const StockManagement = ({
                             <div className="flex justify-center min-h-[40px] py-2 w-full">
                                 <div className="w-full max-w-[120px] text-center flex justify-center">
                                     <Badge
-                                        variant={item.type === 'removed' || item.type === 'reversal' ? "destructive" : "default"}
-                                        className={item.type === 'removed' || item.type === 'reversal' ? "bg-destructive/10 text-destructive" : "bg-primary/10 text-primary"}
+                                        variant={
+                                            item.type === 'removed' || item.type === 'reversal'
+                                                ? "destructive"
+                                                : item.type === 'completed'
+                                                    ? "secondary"
+                                                    : "default"
+                                        }
+                                        className={
+                                            item.type === 'removed' || item.type === 'reversal'
+                                                ? "bg-destructive/10 text-destructive"
+                                                : item.type === 'completed'
+                                                    ? "bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400"
+                                                    : "bg-primary/10 text-primary"
+                                        }
                                     >
                                         {item.action}
                                     </Badge>
@@ -430,8 +442,8 @@ export const StockManagement = ({
                                 <div className="w-full max-w-[180px] text-center">
                                     <div className="flex items-center gap-1 flex-nowrap overflow-x-auto justify-center">
                                         <PermissionGate permission="edit stocks">
-                                            <Button 
-                                                size="sm" 
+                                            <Button
+                                                size="sm"
                                                 className="text-xs px-2 py-1 transition-all duration-200 ease-in-out hover:shadow-lg hover:opacity-90 whitespace-nowrap"
                                                 onClick={() => handleEditStock(item)}
                                             >
@@ -471,8 +483,20 @@ export const StockManagement = ({
                                 <div className="font-semibold text-foreground">{item.product}</div>
                             </div>
                             <Badge
-                                variant={item.type === 'removed' || item.type === 'reversal' ? "destructive" : "default"}
-                                className={item.type === 'removed' || item.type === 'reversal' ? "bg-destructive/10 text-destructive" : "bg-primary/10 text-primary"}
+                                variant={
+                                    item.type === 'removed' || item.type === 'reversal'
+                                        ? "destructive"
+                                        : item.type === 'completed'
+                                            ? "secondary"
+                                            : "default"
+                                }
+                                className={
+                                    item.type === 'removed' || item.type === 'reversal'
+                                        ? "bg-destructive/10 text-destructive"
+                                        : item.type === 'completed'
+                                            ? "bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400"
+                                            : "bg-primary/10 text-primary"
+                                }
                             >
                                 {item.action}
                             </Badge>
@@ -636,8 +660,8 @@ export const StockManagement = ({
                     {dataType === 'stocks' && (
                         <div className="flex gap-2 pt-2 border-t border-border">
                             <PermissionGate permission="edit stocks">
-                                <Button 
-                                    size="sm" 
+                                <Button
+                                    size="sm"
                                     className="text-xs flex-1"
                                     onClick={() => handleEditStock(item)}
                                 >
@@ -774,7 +798,7 @@ export const StockManagement = ({
             const dateA = new Date(a.date).getTime();
             const dateB = new Date(b.date).getTime();
             const dateComparison = dateB - dateA;
-            
+
             // Secondary sort: Within the same second (1000ms window), sort by Stock ID descending (latest stock first)
             // This ensures that when multiple entries have the same timestamp,
             // the entry with the higher Stock ID appears first
@@ -782,7 +806,7 @@ export const StockManagement = ({
             if (Math.abs(dateComparison) < 1000) {
                 return (b.stockId || 0) - (a.stockId || 0); // Descending order by Stock ID for same-time entries
             }
-            
+
             return dateComparison;
         });
     };
