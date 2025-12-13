@@ -7,6 +7,7 @@ use App\Models\UserAddress;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
+use Spatie\Permission\Models\Role;
 
 class UserSeeder extends Seeder
 {
@@ -15,31 +16,12 @@ class UserSeeder extends Seeder
      */
     public function run(): void
     {
-        // Clear existing users to avoid conflicts
-        User::query()->delete();
-        UserAddress::query()->delete();
-
-        // Create specific admin user as requested
-        $adminUser = User::create([
-            'type' => 'admin',
-            'name' => 'Samuel Salazar',
-            'email' => 'admin@admin.com',
-            'password' => Hash::make('12345678'),
-            'email_verified_at' => now(),
-            'is_default' => false,
-            'active' => true,
-        ]);
-
-        // Create default address for admin
-        UserAddress::create([
-            'user_id' => $adminUser->id,
-            'street' => 'Admin Office, 123 Business Plaza',
-            'barangay' => 'Sala',
-            'city' => 'Cabuyao',
-            'province' => 'Laguna',
-            'is_active' => true,
-        ]);
-
+        // Note: Admin user is now created in RoleSeeder to ensure proper role assignment
+        
+        // Get roles for assignment
+        $logisticRole = Role::where('name', 'logistic')->first();
+        $customerRole = Role::where('name', 'customer')->first();
+        
         // Cabuyao areas for assignment
         $cabuyaoAreas = [
             'Baclaran',
@@ -105,6 +87,11 @@ class UserSeeder extends Seeder
                 'email_verified_at' => now(),
                 'active' => true,
             ]);
+
+            // Assign logistic role
+            if ($logisticRole) {
+                $logistic->assignRole($logisticRole);
+            }
 
             // Use the assigned area as barangay if available, otherwise use Sala
             $barangay = $logisticData['area'] ?? 'Sala';
@@ -209,6 +196,11 @@ class UserSeeder extends Seeder
                 'active' => true,
             ]);
 
+            // Assign customer role
+            if ($customerRole) {
+                $customer->assignRole($customerRole);
+            }
+
             UserAddress::create([
                 'user_id' => $customer->id,
                 'street' => $customerData['street'],
@@ -220,7 +212,6 @@ class UserSeeder extends Seeder
         }
 
         $this->command->info('✅ Created users:');
-        $this->command->info('   - 1 Admin (Samuel Salazar)');
         $this->command->info('   - ' . count($logisticsData) . ' Logistics personnel with assigned areas');
         $this->command->info('   - 12 Members (Farmers)');
         $this->command->info('   - 4 Customers (Test Customer, John Doe, Jane Smith, Bob Johnson)');

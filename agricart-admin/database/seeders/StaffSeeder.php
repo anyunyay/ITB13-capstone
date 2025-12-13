@@ -7,6 +7,7 @@ use App\Models\UserAddress;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
 
 class StaffSeeder extends Seeder
 {
@@ -184,6 +185,9 @@ class StaffSeeder extends Seeder
             ],
         ];
 
+        // Get the staff role
+        $staffRole = Role::where('name', 'staff')->first();
+
         // Create each staff member
         foreach ($staffMembers as $staffData) {
             $staff = User::create([
@@ -196,6 +200,11 @@ class StaffSeeder extends Seeder
                 'active' => true,
                 'is_default' => false,
             ]);
+
+            // Assign staff role
+            if ($staffRole) {
+                $staff->assignRole($staffRole);
+            }
 
             // Create address for staff member
             UserAddress::create([

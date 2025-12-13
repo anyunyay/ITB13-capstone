@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Models\UserAddress;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
+use Spatie\Permission\Models\Role;
 
 class MemberSeeder extends Seeder
 {
@@ -142,6 +143,9 @@ class MemberSeeder extends Seeder
             ],
         ];
 
+        // Get the member role
+        $memberRole = Role::where('name', 'member')->first();
+
         // Create each member
         foreach ($members as $memberData) {
             $member = User::create([
@@ -157,6 +161,11 @@ class MemberSeeder extends Seeder
                 'active' => true,
                 'is_default' => false,
             ]);
+
+            // Assign member role
+            if ($memberRole) {
+                $member->assignRole($memberRole);
+            }
 
             // Create address for member
             UserAddress::create([

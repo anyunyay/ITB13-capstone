@@ -3,8 +3,10 @@
 namespace Database\Seeders;
 
 use App\Models\User;
+use App\Models\UserAddress;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\PermissionRegistrar;
@@ -18,6 +20,10 @@ class RoleSeeder extends Seeder
     {
         // Clear cached roles and permissions
         app()[PermissionRegistrar::class]->forgetCachedPermissions();
+
+        // Clear existing users to avoid conflicts (moved from UserSeeder)
+        User::query()->delete();
+        UserAddress::query()->delete();
 
         // Create roles (or get existing ones)
         $admin = Role::firstOrCreate(['name' => 'admin']);
@@ -130,6 +136,41 @@ class RoleSeeder extends Seeder
         $customer->syncPermissions(['access customer features']);
         $logistic->syncPermissions(['access logistic features']);
         $member->syncPermissions(['access member features']);
+
+        // Create admin user and assign admin role
+        $this->createAdminUser($admin);
+    }
+
+    /**
+     * Create admin user and assign admin role
+     */
+    private function createAdminUser(Role $adminRole): void
+    {
+        // Create specific admin user as requested
+        $adminUser = User::create([
+            'type' => 'admin',
+            'name' => 'Samuel Salazar',
+            'email' => 'admin@admin.com',
+            'password' => Hash::make('12345678'),
+            'email_verified_at' => now(),
+            'is_default' => false,
+            'active' => true,
+        ]);
+
+        // Assign admin role to the user
+        $adminUser->assignRole($adminRole);
+
+        // Create default address for admin
+        UserAddress::create([
+            'user_id' => $adminUser->id,
+            'street' => 'Admin Office, 123 Business Plaza',
+            'barangay' => 'Sala',
+            'city' => 'Cabuyao',
+            'province' => 'Laguna',
+            'is_active' => true,
+        ]);
+
+        $this->command->info('✅ Created admin user: Samuel Salazar with admin role');
     }
 
     /**
