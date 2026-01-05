@@ -12,8 +12,18 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // Modify the status enum to include 'merged'
-        DB::statement("ALTER TABLE sales_audit MODIFY COLUMN status ENUM('pending', 'approved', 'rejected', 'expired', 'delayed', 'cancelled', 'merged') DEFAULT 'pending'");
+        // Use Laravel's Schema builder which handles PostgreSQL enums properly
+        Schema::table('sales_audit', function (Blueprint $table) {
+            // Drop the existing enum column and recreate it with the new values
+            $table->dropColumn('status');
+        });
+        
+        Schema::table('sales_audit', function (Blueprint $table) {
+            // Add the column back with the new enum values
+            $table->enum('status', ['pending', 'approved', 'rejected', 'expired', 'delayed', 'cancelled', 'merged'])
+                  ->default('pending')
+                  ->after('member_share');
+        });
     }
 
     /**
@@ -21,7 +31,16 @@ return new class extends Migration
      */
     public function down(): void
     {
-        // Revert back to original enum values
-        DB::statement("ALTER TABLE sales_audit MODIFY COLUMN status ENUM('pending', 'approved', 'rejected', 'expired', 'delayed', 'cancelled') DEFAULT 'pending'");
+        Schema::table('sales_audit', function (Blueprint $table) {
+            // Drop the column and recreate with original values
+            $table->dropColumn('status');
+        });
+        
+        Schema::table('sales_audit', function (Blueprint $table) {
+            // Add back the original enum values
+            $table->enum('status', ['pending', 'approved', 'rejected', 'expired', 'delayed', 'cancelled'])
+                  ->default('pending')
+                  ->after('member_share');
+        });
     }
 };
