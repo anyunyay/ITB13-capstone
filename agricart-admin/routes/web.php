@@ -5,10 +5,8 @@ use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\InventoryController;
 use App\Http\Controllers\Admin\InventoryArchiveController;
 use App\Http\Controllers\Admin\InventoryStockController;
-// use App\Http\Controllers\Admin\InventoryStockTrailController; // removed
 use App\Http\Controllers\Admin\SoldStockController;
 use App\Http\Controllers\Admin\TrendAnalysisController;
-
 use App\Http\Controllers\Admin\MembershipController;
 use App\Http\Controllers\Admin\LogisticController as AdminLogisticController;
 use App\Http\Controllers\Admin\OrderController;
@@ -19,6 +17,7 @@ use App\Http\Controllers\Admin\StaffController;
 use App\Http\Controllers\Admin\SystemLogsController;
 use App\Http\Controllers\Admin\NotificationController as AdminNotificationController;
 use App\Http\Controllers\Customer\CartController;
+
 // Customer Controllers
 use App\Http\Controllers\Customer\HomeController;
 use App\Http\Controllers\Customer\OrderController as CustomerOrderController;
@@ -41,6 +40,14 @@ use App\Http\Controllers\Security\CredentialsController;
 use App\Http\Controllers\DeliveryProofController;
 use App\Http\Controllers\ProductImageController;
 use App\Http\Controllers\PrivateFileController;
+
+// API Controllers
+use App\Http\Controllers\Api\LockoutStatusController;
+use App\Http\Controllers\Api\UserAppearanceController;
+use App\Http\Controllers\Api\UserLanguageController;
+use App\Http\Controllers\Api\FileManagementController;
+use App\Http\Controllers\Api\FileController;
+
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -456,48 +463,48 @@ Route::get('/csrf-token', function () {
 
 // Lockout status API routes
 Route::prefix('api/lockout')->name('api.lockout.')->middleware(['login.rate.limit'])->group(function () {
-    Route::post('/customer/check', [\App\Http\Controllers\Api\LockoutStatusController::class, 'checkCustomerLockout'])->name('customer.check');
-    Route::post('/admin/check', [\App\Http\Controllers\Api\LockoutStatusController::class, 'checkAdminLockout'])->name('admin.check');
-    Route::post('/member/check', [\App\Http\Controllers\Api\LockoutStatusController::class, 'checkMemberLockout'])->name('member.check');
-    Route::post('/logistic/check', [\App\Http\Controllers\Api\LockoutStatusController::class, 'checkLogisticLockout'])->name('logistic.check');
+    Route::post('/customer/check', [LockoutStatusController::class, 'checkCustomerLockout'])->name('customer.check');
+    Route::post('/admin/check', [LockoutStatusController::class, 'checkAdminLockout'])->name('admin.check');
+    Route::post('/member/check', [LockoutStatusController::class, 'checkMemberLockout'])->name('member.check');
+    Route::post('/logistic/check', [LockoutStatusController::class, 'checkLogisticLockout'])->name('logistic.check');
 });
 
 // User appearance API routes
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::patch('/user/appearance', [\App\Http\Controllers\Api\UserAppearanceController::class, 'update'])->name('user.appearance.update');
-    Route::get('/user/appearance', [\App\Http\Controllers\Api\UserAppearanceController::class, 'show'])->name('user.appearance.show');
+    Route::patch('/user/appearance', [UserAppearanceController::class, 'update'])->name('user.appearance.update');
+    Route::get('/user/appearance', [UserAppearanceController::class, 'show'])->name('user.appearance.show');
 });
 
 // User language API routes
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::patch('/user/language', [\App\Http\Controllers\Api\UserLanguageController::class, 'update'])->name('user.language.update');
-    Route::get('/user/language', [\App\Http\Controllers\Api\UserLanguageController::class, 'show'])->name('user.language.show');
+    Route::patch('/user/language', [UserLanguageController::class, 'update'])->name('user.language.update');
+    Route::get('/user/language', [UserLanguageController::class, 'show'])->name('user.language.show');
 });
 
 // File Management API routes
 Route::prefix('api/files')->name('api.files.')->middleware(['auth', 'verified'])->group(function () {
-    Route::post('/upload', [\App\Http\Controllers\Api\FileManagementController::class, 'upload'])->name('upload');
-    Route::delete('/delete', [\App\Http\Controllers\Api\FileManagementController::class, 'delete'])->name('delete');
-    Route::get('/info', [\App\Http\Controllers\Api\FileManagementController::class, 'info'])->name('info');
-    Route::get('/validation-rules', [\App\Http\Controllers\Api\FileManagementController::class, 'validationRules'])->name('validation-rules');
-    Route::get('/{id}/url', [\App\Http\Controllers\Api\FileController::class, 'getFileUrl'])->name('url');
-    Route::get('/fallback-image', [\App\Http\Controllers\Api\FileController::class, 'getFallbackImage'])->name('fallback');
+    Route::post('/upload', [FileManagementController::class, 'upload'])->name('upload');
+    Route::delete('/delete', [FileManagementController::class, 'delete'])->name('delete');
+    Route::get('/info', [FileManagementController::class, 'info'])->name('info');
+    Route::get('/validation-rules', [FileManagementController::class, 'validationRules'])->name('validation-rules');
+    Route::get('/{id}/url', [FileController::class, 'getFileUrl'])->name('url');
+    Route::get('/fallback-image', [FileController::class, 'getFallbackImage'])->name('fallback');
 });
 
 // Product Image Management routes
 Route::prefix('product-images')->name('product-images.')->middleware(['auth', 'verified'])->group(function () {
-    Route::post('/upload', [\App\Http\Controllers\ProductImageController::class, 'upload'])->name('upload');
-    Route::delete('/{id}', [\App\Http\Controllers\ProductImageController::class, 'delete'])->name('delete');
+    Route::post('/upload', [ProductImageController::class, 'upload'])->name('upload');
+    Route::delete('/{id}', [ProductImageController::class, 'delete'])->name('delete');
 });
 
 // API Product Image Management routes
 Route::prefix('api/product-images')->name('api.product-images.')->middleware(['auth', 'verified'])->group(function () {
-    Route::post('/upload', [\App\Http\Controllers\ProductImageController::class, 'upload'])->name('upload');
-    Route::delete('/{id}', [\App\Http\Controllers\ProductImageController::class, 'delete'])->name('delete');
+    Route::post('/upload', [ProductImageController::class, 'upload'])->name('upload');
+    Route::delete('/{id}', [ProductImageController::class, 'delete'])->name('delete');
 });
 
 // Secure private file download/preview route
-Route::get('/private-file/{folder}/{filename}', [\App\Http\Controllers\Api\FileController::class, 'showPrivate'])
+Route::get('/private-file/{folder}/{filename}', [FileController::class, 'showPrivate'])
     ->where('folder', 'documents|delivery-proofs')
     ->where('filename', '.*')
     ->middleware('auth')
@@ -506,32 +513,32 @@ Route::get('/private-file/{folder}/{filename}', [\App\Http\Controllers\Api\FileC
 // Private File Management routes
 Route::prefix('private')->name('private.')->middleware(['auth', 'verified'])->group(function () {
     // Document routes (Admin only)
-    Route::post('/documents/upload', [\App\Http\Controllers\PrivateFileController::class, 'uploadDocument'])->name('documents.upload');
+    Route::post('/documents/upload', [PrivateFileController::class, 'uploadDocument'])->name('documents.upload');
 
     // Delivery proof routes (Logistics only)
-    Route::post('/delivery-proofs/upload', [\App\Http\Controllers\PrivateFileController::class, 'uploadDeliveryProof'])->name('delivery-proofs.upload');
+    Route::post('/delivery-proofs/upload', [PrivateFileController::class, 'uploadDeliveryProof'])->name('delivery-proofs.upload');
 
     // File serving route (role-based access)
-    Route::get('/file/{type}/{filename}', [\App\Http\Controllers\PrivateFileController::class, 'serve'])->name('file.serve');
+    Route::get('/file/{type}/{filename}', [PrivateFileController::class, 'serve'])->name('file.serve');
 
     // Simple private file serving route
-    Route::get('/{path}', [\App\Http\Controllers\PrivateFileController::class, 'showFile'])
+    Route::get('/{path}', [PrivateFileController::class, 'showFile'])
         ->where('path', '.*')
         ->name('show');
 
     // File listing routes
-    Route::get('/files/{type}', [\App\Http\Controllers\PrivateFileController::class, 'list'])->name('files.list');
+    Route::get('/files/{type}', [PrivateFileController::class, 'list'])->name('files.list');
 
     // File deletion route
-    Route::delete('/files/{id}', [\App\Http\Controllers\PrivateFileController::class, 'delete'])->name('files.delete');
+    Route::delete('/files/{id}', [PrivateFileController::class, 'delete'])->name('files.delete');
 });
 
 // Delivery Proof routes
 Route::prefix('api/delivery-proofs')->name('api.delivery-proofs.')->middleware(['auth', 'verified'])->group(function () {
-    Route::post('/', [\App\Http\Controllers\DeliveryProofController::class, 'store'])->name('store');
-    Route::put('/{deliveryProof}', [\App\Http\Controllers\DeliveryProofController::class, 'update'])->name('update');
-    Route::delete('/{deliveryProof}', [\App\Http\Controllers\DeliveryProofController::class, 'destroy'])->name('destroy');
-    Route::get('/sales/{sales}', [\App\Http\Controllers\DeliveryProofController::class, 'show'])->name('show');
+    Route::post('/', [DeliveryProofController::class, 'store'])->name('store');
+    Route::put('/{deliveryProof}', [DeliveryProofController::class, 'update'])->name('update');
+    Route::delete('/{deliveryProof}', [DeliveryProofController::class, 'destroy'])->name('destroy');
+    Route::get('/sales/{sales}', [DeliveryProofController::class, 'show'])->name('show');
 });
 
 // Storage file serving route (fallback for systems without symlink support)
