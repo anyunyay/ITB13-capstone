@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('sales', function (Blueprint $table) {
-            $table->unsignedTinyInteger('logistic_rating')->nullable()->after('customer_rate');
+            $table->smallInteger('logistic_rating')->nullable()->after('customer_rate');
         });
     }
 

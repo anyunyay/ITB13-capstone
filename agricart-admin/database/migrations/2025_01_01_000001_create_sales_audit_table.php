@@ -29,7 +29,7 @@ return new class extends Migration
             $table->timestamp('delivered_time')->nullable();
             $table->string('delivery_proof_image')->nullable();
             $table->boolean('delivery_confirmed')->default(false);
-            $table->unsignedBigInteger('address_id')->nullable();
+            $table->bigInteger('address_id')->nullable();
             $table->timestamps();
             
             // Indexes for better performance

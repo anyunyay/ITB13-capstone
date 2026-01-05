@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('system_logs', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('user_id')->nullable()->index();
+            $table->bigInteger('user_id')->nullable()->index();
             $table->string('user_email')->nullable();
             $table->string('user_type')->nullable()->index();
             $table->string('action')->index(); // e.g., 'created', 'updated', 'deleted', 'login_failed'

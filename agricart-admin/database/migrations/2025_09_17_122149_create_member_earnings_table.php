@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('member_earnings', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('member_id');
+            $table->bigInteger('member_id');
             $table->decimal('total_earnings', 10, 2)->default(0);
             $table->decimal('pending_earnings', 10, 2)->default(0);
             $table->decimal('available_earnings', 10, 2)->default(0);

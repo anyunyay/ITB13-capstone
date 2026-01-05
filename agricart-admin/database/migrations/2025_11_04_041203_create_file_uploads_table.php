@@ -18,8 +18,8 @@ return new class extends Migration
             $table->string('original_name');
             $table->string('mime_type');
             $table->integer('size');
-            $table->unsignedBigInteger('owner_id')->nullable();
-            $table->unsignedBigInteger('uploaded_by');
+            $table->bigInteger('owner_id')->nullable();
+            $table->bigInteger('uploaded_by');
             $table->timestamps();
 
             $table->foreign('owner_id')->references('id')->on('users')->onDelete('cascade');

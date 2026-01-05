@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('sales_audit', function (Blueprint $table) {
-            $table->unsignedBigInteger('linked_merged_order_id')->nullable()->after('suspicious_reason');
+            $table->bigInteger('linked_merged_order_id')->nullable()->after('suspicious_reason');
             $table->foreign('linked_merged_order_id')->references('id')->on('sales_audit')->onDelete('set null');
         });
     }
