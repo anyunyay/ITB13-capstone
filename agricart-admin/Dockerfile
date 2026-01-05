@@ -1,12 +1,23 @@
-# Base image
 FROM php:8.2-fpm
 
-# Install dependencies
+# Install system dependencies
 RUN apt-get update && apt-get install -y \
-    git curl zip unzip \
-    libpng-dev libonig-dev libxml2-dev \
-    nodejs npm default-mysql-client \
-    && docker-php-ext-install pdo_pgsql mbstring bcmath gd
+    git \
+    curl \
+    zip \
+    unzip \
+    nodejs \
+    npm \
+    libpng-dev \
+    libonig-dev \
+    libxml2-dev \
+    libpq-dev \
+    && docker-php-ext-install \
+        pdo \
+        pdo_pgsql \
+        mbstring \
+        bcmath \
+        gd
 
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
@@ -14,21 +25,23 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 # Set working directory
 WORKDIR /var/www
 
-# Copy project files
+# Copy project
 COPY . .
 
-# Install PHP & Node dependencies
+# Install PHP dependencies
 RUN composer install --no-dev --optimize-autoloader
+
+# Build frontend assets
 RUN npm install && npm run build
 
-# Set permissions for storage and bootstrap/cache
+# Fix permissions
 RUN chown -R www-data:www-data storage bootstrap/cache
 
-# Make start.sh executable
-RUN chmod +x start.sh
+# Clear caches safely
+RUN php artisan config:clear \
+ && php artisan route:clear \
+ && php artisan view:clear
 
-# Expose port (Render uses dynamic $PORT)
-EXPOSE ${PORT}
+EXPOSE 10000
 
-# Use startup script
-CMD ["./start.sh"]
+CMD php artisan serve --host=0.0.0.0 --port=10000
