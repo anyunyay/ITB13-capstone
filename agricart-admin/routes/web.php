@@ -554,3 +554,15 @@ Route::get('/storage/{path}', function ($path) {
 
 require __DIR__ . '/settings.php';
 require __DIR__ . '/auth.php';
+
+
+use Illuminate\Support\Facades\DB;
+
+Route::get('/db-test', function () {
+    try {
+        DB::connection()->getPdo();
+        return '✅ Database connected successfully';
+    } catch (\Exception $e) {
+        return '❌ DB connection failed: ' . $e->getMessage();
+    }
+});
