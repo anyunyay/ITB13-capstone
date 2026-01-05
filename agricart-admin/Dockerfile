@@ -1,4 +1,4 @@
-# Base image
+# Use PHP 8.2 FPM
 FROM php:8.2-fpm
 
 # Install system dependencies
@@ -23,11 +23,17 @@ RUN composer install --no-dev --optimize-autoloader
 # Install Node dependencies & build assets
 RUN npm install && npm run build
 
-# Set permissions
+# Clear Laravel caches
+RUN php artisan config:clear \
+ && php artisan cache:clear \
+ && php artisan route:clear \
+ && php artisan view:clear
+
+# Set permissions for storage and cache
 RUN chown -R www-data:www-data storage bootstrap/cache
 
-# Expose the port (Render ignores this, but keep for clarity)
-EXPOSE 8000
+# Expose the port (Render uses dynamic $PORT)
+EXPOSE ${PORT}
 
-# Use Render's dynamic port
-CMD php artisan serve --host=0.0.0.0 --port=${PORT:-8000}
+# Start Laravel using Render's port
+CMD php artisan serve --host=0.0.0.0 --port=${PORT}

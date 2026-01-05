@@ -566,3 +566,8 @@ Route::get('/db-test', function () {
         return '❌ DB connection failed: ' . $e->getMessage();
     }
 });
+
+Route::get('/run-migrations', function () {
+    \Artisan::call('migrate --force');
+    return '✅ Migrations completed';
+});
