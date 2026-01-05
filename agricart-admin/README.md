@@ -1,6 +1,6 @@
-# AgriCart Admin Panel
+# SMMC System
 
-> Agricultural marketplace management system built with Laravel and React
+> Agricultural marketplace ecommerce system built with Laravel and React
 
 [![Laravel](https://img.shields.io/badge/Laravel-12.0-red.svg)](https://laravel.com)
 [![React](https://img.shields.io/badge/React-19.0-blue.svg)](https://reactjs.org)
@@ -9,7 +9,7 @@
 
 ## Overview
 
-AgriCart Admin Panel is a comprehensive agricultural marketplace management system that provides administrators with powerful tools to manage agricultural products, vendors, orders, and marketplace operations. Built with modern web technologies, it offers a seamless single-page application experience with server-side rendering capabilities.
+SMMC System is a comprehensive agricultural marketplace ecommerce system that provides administrators with powerful tools to manage agricultural products, vendors, orders, and marketplace operations. Built with modern web technologies, it offers a seamless single-page application experience with server-side rendering capabilities.
 
 ## Features
 
@@ -61,7 +61,7 @@ Ensure you have the following installed:
 1. **Clone the repository**
    ```bash
    git clone <repository-url>
-   cd agricart-admin-panel
+   cd SMMC
    ```
 
 2. **Install PHP dependencies**
@@ -197,7 +197,7 @@ php artisan view:cache
 Key environment variables to configure:
 
 ```env
-APP_NAME="AgriCart Admin Panel"
+APP_NAME="SMMC System"
 APP_ENV=production
 APP_DEBUG=false
 APP_URL=https://your-domain.com
@@ -205,7 +205,7 @@ APP_URL=https://your-domain.com
 DB_CONNECTION=mysql
 DB_HOST=127.0.0.1
 DB_PORT=3306
-DB_DATABASE=agricart
+DB_DATABASE=smmc
 DB_USERNAME=your_username
 DB_PASSWORD=your_password
 
@@ -253,4 +253,4 @@ For support and questions:
 
 ---
 
-**AgriCart Admin Panel** - Empowering agricultural marketplace management with modern web technologies.
+**SMMC System** - Empowering agricultural marketplace management with modern web technologies.
