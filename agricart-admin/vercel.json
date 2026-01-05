@@ -5,23 +5,30 @@
       "src": "package.json",
       "use": "@vercel/static-build",
       "config": {
-        "buildCommand": "npm run build",
-        "outputDirectory": "public"
+        "buildCommand": "npm run build"
       }
+    },
+    {
+      "src": "api/index.php",
+      "use": "vercel-php@0.6.0"
     }
   ],
   "routes": [
     {
       "src": "/build/(.*)",
-      "dest": "/build/$1"
+      "dest": "/public/build/$1"
     },
     {
-      "src": "/(.*\\.(css|js|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|eot))",
-      "dest": "/$1"
+      "src": "/(.*\\.(css|js|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|eot|pdf))",
+      "dest": "/public/$1"
     },
     {
       "src": "/(.*)",
-      "dest": "/index.php"
+      "dest": "/api/index.php"
     }
-  ]
+  ],
+  "env": {
+    "APP_ENV": "production",
+    "APP_DEBUG": "false"
+  }
 }
