@@ -21,10 +21,13 @@ COPY . .
 RUN composer install --no-dev --optimize-autoloader
 RUN npm install && npm run build
 
-# Set permissions
+# Set permissions for storage and bootstrap/cache
 RUN chown -R www-data:www-data storage bootstrap/cache
 
-# Expose port (Render uses dynamic PORT)
+# Make start.sh executable
+RUN chmod +x start.sh
+
+# Expose port (Render uses dynamic $PORT)
 EXPOSE ${PORT}
 
 # Use startup script
