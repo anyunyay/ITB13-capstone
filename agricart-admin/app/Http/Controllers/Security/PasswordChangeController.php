@@ -1,0 +1,81 @@
+<?php
+
+namespace App\Http\Controllers\Security;
+
+use Illuminate\Http\Request;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rules\Password;
+use Inertia\Inertia;
+use Inertia\Response;
+use App\Helpers\SystemLogger;
+
+class PasswordChangeController extends \App\Http\Controllers\Controller
+{
+    /**
+     * Show the password change form.
+     */
+    public function show(): Response
+    {
+        $user = Auth::user();
+        
+        // Only allow staff and logistics users
+        if (!in_array($user->type, ['staff', 'logistic'])) {
+            abort(403, 'Access denied.');
+        }
+
+        return Inertia::render('PasswordChange');
+    }
+
+    /**
+     * Update the user's password.
+     */
+    public function store(Request $request): RedirectResponse
+    {
+        $user = $request->user();
+        
+        // Only allow staff and logistics users
+        if (!in_array($user->type, ['staff', 'logistic'])) {
+            abort(403, 'Access denied.');
+        }
+
+        $validated = $request->validate([
+            'current_password' => ['required', 'current_password'],
+            'password' => ['required', 'regex:/^\S*$/', Password::min(8)->letters()->mixedCase()->numbers()->symbols(), 'confirmed'],
+        ]);
+
+        $user->update([
+            'password' => Hash::make($validated['password']),
+        ]);
+
+        // Log password change
+        SystemLogger::logSecurityEvent(
+            'password_changed',
+            $user->id,
+            request()->ip(),
+            [
+                'user_type' => $user->type,
+                'user_email' => $user->email
+            ]
+        );
+
+        // Redirect to appropriate dashboard based on user type
+        return redirect()->route($this->getDashboardRouteForType($user->type))
+            ->with('message', 'Password changed successfully. You can now access all features.');
+    }
+
+    /**
+     * Get the dashboard route for the user type.
+     */
+    private function getDashboardRouteForType(string $type): string
+    {
+        return match ($type) {
+            'admin', 'staff' => 'admin.dashboard',
+            'customer' => 'home',
+            'member' => 'member.dashboard',
+            'logistic' => 'logistic.dashboard',
+            default => 'home',
+        };
+    }
+}

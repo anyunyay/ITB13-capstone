@@ -1,0 +1,37 @@
+/* Modern Mobile-First Home Page Styles - Fully Responsive */
+
+/* Import Raleway font */
+@import url('https://fonts.googleapis.com/css2?family=Raleway:ital,wght@0,100..900;1,100..900&display=swap');
+
+/* Custom font family application */
+* {
+  font-family: 'Raleway', ui-sans-serif, system-ui, sans-serif;
+}
+
+html, body {
+  height: 100%;
+  scroll-snap-type: y proximity;
+  scroll-behavior: smooth;
+}
+
+/* Mobile-first responsive breakpoints */
+@media (max-width: 640px) {
+  
+  /* Ensure touch targets are large enough */
+  button, a {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
+/* Ensure proper spacing and sizing across all devices */
+@media (max-width: 768px) {
+  /* Reduce excessive padding on mobile */
+  .container {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+}
+
+/* All layout, spacing, positioning, and styling has been moved to Tailwind classes */
+/* Only keeping unique custom styles that cannot be easily replicated with Tailwind utilities */

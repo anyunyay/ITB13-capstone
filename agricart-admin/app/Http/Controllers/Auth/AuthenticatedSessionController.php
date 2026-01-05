@@ -1,0 +1,329 @@
+<?php
+
+namespace App\Http\Controllers\Auth;
+
+use App\Http\Controllers\Controller;
+use App\Helpers\SystemLogger;
+use App\Http\Requests\Auth\LoginRequest;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Route;
+use Inertia\Inertia;
+use Inertia\Response;
+
+class AuthenticatedSessionController extends Controller
+{
+    /**
+     * Resolve the correct dashboard route name for a given user type
+     */
+    private function dashboardRouteForType(?string $type): string
+    {
+        return match ($type) {
+            'admin', 'staff' => 'admin.dashboard',
+            'member' => 'member.dashboard',
+            'logistic' => 'logistic.dashboard',
+            default => 'home',
+        };
+    }
+
+    /**
+     * Get appropriate error message for user type restrictions
+     */
+    private function getUserTypeErrorMessage(string $userType, string $targetPortal): string
+    {
+        $portalNames = [
+            'customer' => 'customer portal',
+            'admin' => 'admin portal',
+            'member' => 'member portal',
+            'logistic' => 'logistics portal',
+        ];
+
+        $userTypeNames = [
+            'customer' => 'Customers',
+            'admin' => 'Admins',
+            'staff' => 'Staff',
+            'member' => 'Members',
+            'logistic' => 'Logistics',
+        ];
+
+        $targetPortalName = $portalNames[$targetPortal] ?? $targetPortal . ' portal';
+        $userTypeName = $userTypeNames[$userType] ?? ucfirst($userType);
+
+        return "{$userTypeName} cannot access the {$targetPortalName}. Please use the appropriate login page for your account type.";
+    }
+
+    /**
+     * Get the correct login route for a user type
+     */
+    private function getCorrectLoginRoute(string $userType): string
+    {
+        return match ($userType) {
+            'customer' => 'login',
+            'admin', 'staff' => 'admin.login',
+            'member' => 'member.login',
+            'logistic' => 'logistic.login',
+            default => 'login',
+        };
+    }
+
+    /**
+     * Show the customer login page.
+     */
+    public function create(Request $request): Response
+    {
+        // Check if user is already authenticated and redirect to appropriate dashboard
+        if (Auth::check()) {
+            $user = Auth::user();
+            if ($user->type === 'customer') {
+                return redirect()->route('home');
+            } elseif (in_array($user->type, ['admin', 'staff'])) {
+                return redirect()->route('admin.dashboard')->with('error', 'Admin/Staff cannot access the customer portal. Please use the admin login page.');
+            } elseif ($user->type === 'member') {
+                return redirect()->route('member.dashboard')->with('error', 'Members cannot access the customer portal. Please use the member login page.');
+            } elseif ($user->type === 'logistic') {
+                return redirect()->route('logistic.dashboard')->with('error', 'Logistics cannot access the customer portal. Please use the logistics login page.');
+            }
+        }
+
+        return Inertia::render('auth/login', [
+            'canResetPassword' => Route::has('password.request'),
+            'status' => $request->session()->get('status'),
+        ]);
+    }
+
+    /**
+     * Show the admin login page.
+     */
+    public function createAdmin(Request $request): Response
+    {
+        // Check if user is already authenticated and redirect to appropriate dashboard
+        if (Auth::check()) {
+            $user = Auth::user();
+            if (in_array($user->type, ['admin', 'staff'])) {
+                return redirect()->route('admin.dashboard');
+            } elseif ($user->type === 'customer') {
+                return redirect()->route('home')->with('error', 'Customers cannot access the admin portal. Please use the customer login page.');
+            } elseif ($user->type === 'member') {
+                return redirect()->route('member.dashboard')->with('error', 'Members cannot access the admin portal. Please use the member login page.');
+            } elseif ($user->type === 'logistic') {
+                return redirect()->route('logistic.dashboard')->with('error', 'Logistics cannot access the admin portal. Please use the logistics login page.');
+            }
+        }
+
+        return Inertia::render('auth/admin-login', [
+            'canResetPassword' => Route::has('password.request'),
+            'status' => $request->session()->get('status'),
+        ]);
+    }
+
+    /**
+     * Show the member login page.
+     */
+    public function createMember(Request $request): Response
+    {
+        // Check if user is already authenticated and redirect to appropriate dashboard
+        if (Auth::check()) {
+            $user = Auth::user();
+            if ($user->type === 'member') {
+                return redirect()->route('member.dashboard');
+            } elseif ($user->type === 'customer') {
+                return redirect()->route('home')->with('error', 'Customers cannot access the member portal. Please use the customer login page.');
+            } elseif (in_array($user->type, ['admin', 'staff'])) {
+                return redirect()->route('admin.dashboard')->with('error', 'Admin/Staff cannot access the member portal. Please use the admin login page.');
+            } elseif ($user->type === 'logistic') {
+                return redirect()->route('logistic.dashboard')->with('error', 'Logistics cannot access the member portal. Please use the logistics login page.');
+            }
+        }
+
+        return Inertia::render('auth/member-login', [
+            'canResetPassword' => Route::has('password.request'),
+            'status' => $request->session()->get('status'),
+        ]);
+    }
+
+    /**
+     * Show the logistic login page.
+     */
+    public function createLogistic(Request $request): Response
+    {
+        // Check if user is already authenticated and redirect to appropriate dashboard
+        if (Auth::check()) {
+            $user = Auth::user();
+            if ($user->type === 'logistic') {
+                return redirect()->route('logistic.dashboard');
+            } elseif ($user->type === 'customer') {
+                return redirect()->route('home')->with('error', 'Customers cannot access the logistics portal. Please use the customer login page.');
+            } elseif (in_array($user->type, ['admin', 'staff'])) {
+                return redirect()->route('admin.dashboard')->with('error', 'Admin/Staff cannot access the logistics portal. Please use the admin login page.');
+            } elseif ($user->type === 'member') {
+                return redirect()->route('member.dashboard')->with('error', 'Members cannot access the logistics portal. Please use the member login page.');
+            }
+        }
+
+        return Inertia::render('auth/logistic-login', [
+            'canResetPassword' => Route::has('password.request'),
+            'status' => $request->session()->get('status'),
+        ]);
+    }
+
+    /**
+     * Handle an incoming authentication request (customer portal entry point).
+     * Only allows customers to login through this endpoint.
+     */
+    public function store(LoginRequest $request): RedirectResponse
+    {
+        $request->authenticate();
+        $request->session()->regenerate();
+
+        $user = $request->user();
+
+        // User type validation is now handled in LoginRequest
+        // This code should never be reached for wrong user types
+
+        $user->ensurePermissions();
+
+        // Check if user already has an active session
+        if ($user->hasActiveSession() && $user->isSessionValid()) {
+            // User already has an active session, redirect to restriction page
+            // DO NOT invalidate other sessions here - let user decide on restriction page
+            return redirect()->route('single-session.restricted');
+        }
+
+        // Set current session as active (only if no other session exists)
+        $user->update(['current_session_id' => $request->session()->getId()]);
+
+        // Check if user is a default account and needs to update credentials
+        if ($user->is_default) {
+            return redirect()->route('credentials.update.show');
+        }
+
+        return redirect()->route($this->dashboardRouteForType($user->type));
+    }
+
+    /**
+     * Handle an incoming admin authentication request (admin portal entry point).
+     * Only allows admin and staff users to login through this endpoint.
+     */
+    public function storeAdmin(\App\Http\Requests\Auth\AdminLoginRequest $request): RedirectResponse
+    {
+        $request->authenticate();
+        $request->session()->regenerate();
+
+        $user = $request->user();
+
+        // User type validation is now handled in AdminLoginRequest
+        // This code should never be reached for wrong user types
+
+        $user->ensurePermissions();
+
+        // Check if user already has an active session
+        if ($user->hasActiveSession() && $user->isSessionValid()) {
+            // User already has an active session, redirect to restriction page
+            // DO NOT invalidate other sessions here - let user decide on restriction page
+            return redirect()->route('single-session.restricted');
+        }
+
+        // Set current session as active (only if no other session exists)
+        $user->update(['current_session_id' => $request->session()->getId()]);
+
+        // Check if user is a default account and needs to update credentials
+        if ($user->is_default) {
+            return redirect()->route('credentials.update.show');
+        }
+
+        return redirect()->route($this->dashboardRouteForType($user->type));
+    }
+
+    /**
+     * Handle an incoming member authentication request (member portal entry point).
+     * Only allows member users to login through this endpoint.
+     */
+    public function storeMember(\App\Http\Requests\Auth\MemberLoginRequest $request): RedirectResponse
+    {
+        $request->authenticate();
+        $request->session()->regenerate();
+
+        $user = $request->user();
+
+        // User type validation is now handled in MemberLoginRequest
+        // This code should never be reached for wrong user types
+
+        $user->ensurePermissions();
+
+        // Log successful member login
+        // Check if user already has an active session
+        if ($user->hasActiveSession() && $user->isSessionValid()) {
+            // User already has an active session, redirect to restriction page
+            // DO NOT invalidate other sessions here - let user decide on restriction page
+            return redirect()->route('single-session.restricted');
+        }
+
+        // Set current session as active (only if no other session exists)
+        $user->update(['current_session_id' => $request->session()->getId()]);
+
+        // Check if user is a default account and needs to update credentials
+        if ($user->is_default) {
+            return redirect()->route('credentials.update.show');
+        }
+
+        return redirect()->route($this->dashboardRouteForType($user->type));
+    }
+
+    /**
+     * Handle an incoming logistic authentication request (logistic portal entry point).
+     * Only allows logistic users to login through this endpoint.
+     */
+    public function storeLogistic(\App\Http\Requests\Auth\LogisticLoginRequest $request): RedirectResponse
+    {
+        $request->authenticate();
+        $request->session()->regenerate();
+
+        $user = $request->user();
+
+        // User type validation is now handled in LogisticLoginRequest
+        // This code should never be reached for wrong user types
+
+        $user->ensurePermissions();
+
+        // Log successful logistic login
+        // Check if user already has an active session
+        if ($user->hasActiveSession() && $user->isSessionValid()) {
+            // User already has an active session, redirect to restriction page
+            // DO NOT invalidate other sessions here - let user decide on restriction page
+            return redirect()->route('single-session.restricted');
+        }
+
+        // Set current session as active (only if no other session exists)
+        $user->update(['current_session_id' => $request->session()->getId()]);
+
+        // Check if user is a default account and needs to update credentials
+        if ($user->is_default) {
+            return redirect()->route('credentials.update.show');
+        }
+
+        return redirect()->route($this->dashboardRouteForType($user->type));
+    }
+
+    /**
+     * Destroy an authenticated session.
+     */
+    public function destroy(Request $request): RedirectResponse
+    {
+        $user = Auth::user();
+        $userType = $user?->type;
+        
+        // Clear the current session ID from the user record
+        if ($user) {
+            $user->clearCurrentSession();
+        }
+
+        Auth::guard('web')->logout();
+
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        // Redirect to appropriate login page based on user type
+        return redirect()->route($this->getCorrectLoginRoute($userType ?? 'customer'));
+    }
+}

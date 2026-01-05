@@ -1,0 +1,665 @@
+﻿import AppHeaderLayout from '@/layouts/app/app-header-layout';
+import { Table, TableHeader, TableBody, TableHead, TableRow, TableCell } from '@/components/ui/table';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Calendar } from '@/components/ui/calendar';
+import { format } from 'date-fns';
+import { useEffect, useState } from 'react';
+import { router, usePage } from '@inertiajs/react';
+import { CalendarIcon, Download, FileText, X, Package, CheckCircle } from 'lucide-react';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import OrderReceivedConfirmationModal from '@/components/OrderReceivedConfirmationModal';
+import StarRating from '@/components/StarRating';
+import { useTranslation } from '@/hooks/use-translation';
+
+interface OrderItem {
+  id: number;
+  product: {
+    id: number;
+    name: string;
+    price_kilo?: number;
+    price_pc?: number;
+    price_tali?: number;
+  };
+  category: string;
+  quantity: number;
+  unit_price?: number;
+  subtotal?: number;
+  coop_share?: number;
+  total_amount?: number;
+}
+
+interface Order {
+  id: number;
+  total_amount: number;
+  status: 'pending' | 'approved' | 'rejected' | 'delayed' | 'cancelled' | 'delivered';
+  delivery_status: 'pending' | 'ready_to_pickup' | 'out_for_delivery' | 'delivered' | null;
+  created_at: string;
+  delivered_at?: string;
+  admin_notes?: string;
+  logistic?: {
+    id: number;
+    name: string;
+    contact_number?: string;
+  };
+  audit_trail: OrderItem[];
+  source?: 'sales_audit' | 'sales';
+  customer_received?: boolean;
+  customer_rate?: number;
+  customer_feedback?: string;
+  customer_confirmed_at?: string;
+}
+
+interface HistoryProps {
+  orders: Order[];
+  currentStatus: string;
+  currentDeliveryStatus: string;
+  counts: {
+    all: number;
+    pending: number;
+    approved: number;
+    rejected: number;
+    delivered: number;
+  };
+}
+
+export default function History({ orders, currentStatus, currentDeliveryStatus, counts }: HistoryProps) {
+  const t = useTranslation();
+  const page = usePage<{ notifications?: Array<any> }>();
+  const notifications = page.props.notifications || [];
+  const [startDate, setStartDate] = useState<Date>();
+  const [endDate, setEndDate] = useState<Date>();
+  const [reportOpen, setReportOpen] = useState(false);
+  const [cancelDialogOpen, setCancelDialogOpen] = useState<{ [key: number]: boolean }>({});
+  const [confirmationModalOpen, setConfirmationModalOpen] = useState<{ [key: number]: boolean }>({});
+  const [selectedOrderForConfirmation, setSelectedOrderForConfirmation] = useState<{ id: number; total: number } | null>(null);
+
+  // Note: Backend now provides aggregated quantities and calculated values, so no need for client-side aggregation
+
+  useEffect(() => {
+    if (notifications.length > 0) {
+      // Mark notifications as read after a delay to ensure they're visible
+      const timer = setTimeout(() => {
+        router.post('/customer/notifications/mark-read', {
+          ids: notifications.map(n => n.id),
+        }, { preserveScroll: true });
+      }, 2000); // Wait 2 seconds before marking as read
+
+      return () => clearTimeout(timer);
+    }
+  }, [notifications]);
+
+  // Handle hash navigation to scroll to specific order
+  useEffect(() => {
+    const hash = window.location.hash;
+    if (hash && hash.startsWith('#order-')) {
+      const orderId = hash.replace('#order-', '');
+      const timer = setTimeout(() => {
+        const orderElement = document.getElementById(`order-${orderId}`);
+        if (orderElement) {
+          // Calculate position with offset for better spacing
+          const elementPosition = orderElement.offsetTop;
+          const offsetPosition = elementPosition - 100; // 100px from top
+          
+          window.scrollTo({
+            top: offsetPosition,
+            behavior: 'smooth'
+          });
+          
+          // Add a subtle highlight effect
+          orderElement.style.transition = 'box-shadow 0.3s ease';
+          orderElement.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.5)';
+          setTimeout(() => {
+            orderElement.style.boxShadow = '';
+          }, 2000);
+        }
+      }, 500); // Wait for page to fully load
+
+      return () => clearTimeout(timer);
+    }
+  }, [orders]); // Re-run when orders change
+
+  const handleDeliveryStatusFilter = (deliveryStatus: string) => {
+    const params = new URLSearchParams();
+    if (deliveryStatus !== 'all') {
+      params.append('delivery_status', deliveryStatus);
+    }
+    router.get('/customer/orders/history', Object.fromEntries(params));
+  };
+
+  const generateReport = (format: 'csv' | 'pdf') => {
+    const params = new URLSearchParams();
+    if (startDate) {
+      params.append('start_date', startDate.toISOString().split('T')[0]);
+    }
+    if (endDate) {
+      params.append('end_date', endDate.toISOString().split('T')[0]);
+    }
+    if (currentDeliveryStatus !== 'all') {
+      params.append('delivery_status', currentDeliveryStatus);
+    }
+    params.append('format', format);
+    
+    window.open(`/customer/orders/report?${params.toString()}`, '_blank');
+  };
+
+  const handleCancelOrder = (orderId: number) => {
+    router.post(`/customer/orders/${orderId}/cancel`, {}, {
+      onSuccess: () => {
+        // Close the dialog
+        setCancelDialogOpen(prev => ({ ...prev, [orderId]: false }));
+        // The page will refresh automatically due to Inertia
+      },
+      onError: (errors) => {
+        console.error('Cancellation failed:', errors);
+      }
+    });
+  };
+
+  const handleOpenConfirmationModal = (orderId: number, orderTotal: number) => {
+    setSelectedOrderForConfirmation({ id: orderId, total: orderTotal });
+    setConfirmationModalOpen(prev => ({ ...prev, [orderId]: true }));
+  };
+
+  const handleCloseConfirmationModal = (orderId: number) => {
+    setConfirmationModalOpen(prev => ({ ...prev, [orderId]: false }));
+    setSelectedOrderForConfirmation(null);
+  };
+
+  const getStatusBadge = (status: string) => {
+    switch (status) {
+      case 'pending':
+        return <Badge variant="secondary">{t('ui.pending_approval')}</Badge>;
+      case 'approved':
+        return <Badge variant="default">{t('ui.approved')}</Badge>;
+      case 'rejected':
+        return <Badge variant="destructive">{t('ui.rejected')}</Badge>;
+      case 'delayed':
+        return <Badge variant="destructive">{t('ui.delayed')}</Badge>;
+      case 'cancelled':
+        return <Badge variant="outline">{t('ui.cancelled')}</Badge>;
+      default:
+        return <Badge variant="outline">{status}</Badge>;
+    }
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'pending':
+        return 'text-yellow-600';
+      case 'approved':
+        return 'text-green-600';
+      case 'rejected':
+        return 'text-red-600';
+      case 'delayed':
+        return 'text-red-600';
+      case 'cancelled':
+        return 'text-gray-600';
+      default:
+        return 'text-gray-600';
+    }
+  };
+
+  const getDeliveryStatusBadge = (status: string) => {
+    switch (status) {
+      case 'pending':
+        return <Badge variant="secondary">{t('ui.pending')}</Badge>;
+      case 'ready_to_pickup':
+        return <Badge variant="default" className="bg-primary/10 text-primary border-primary/20">{t('ui.ready_to_pickup')}</Badge>;
+      case 'out_for_delivery':
+        return <Badge variant="default">{t('ui.out_for_delivery')}</Badge>;
+      case 'delivered':
+        return <Badge variant="outline">{t('ui.delivered')}</Badge>;
+      default:
+        return <Badge variant="outline">{status}</Badge>;
+    }
+  };
+
+  const getDeliveryStatusColor = (status: string) => {
+    switch (status) {
+      case 'pending':
+        return 'text-secondary';
+      case 'ready_to_pickup':
+        return 'text-primary';
+      case 'out_for_delivery':
+        return 'text-primary';
+      case 'delivered':
+        return 'text-primary';
+      default:
+        return 'text-muted-foreground';
+    }
+  };
+
+
+  return (
+    <AppHeaderLayout>
+      <div className="max-w-6xl mx-auto p-4 sm:p-6 mt-20">
+        {/* Header Section */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+          <h1 className="text-5xl md:text-7xl lg:text-9xl font-bold text-foreground">{t('ui.order_history')}</h1>
+          <Popover open={reportOpen} onOpenChange={setReportOpen}>
+            <PopoverTrigger asChild>
+              <Button variant="outline" className="flex items-center gap-2 w-full sm:w-auto">
+                <FileText className="h-4 w-4" />
+                Export
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-80" align="end">
+              <div className="space-y-4">
+                <h3 className="font-semibold">{t('ui.generate_order_report')}</h3>
+                <div className="space-y-2">
+                  <Label htmlFor="start-date">{t('ui.start_date')}</Label>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className="w-full justify-start text-left font-normal"
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {startDate ? format(startDate, "PPP") : t('ui.pick_a_date')}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0">
+                      <Calendar
+                        mode="single"
+                        selected={startDate}
+                        onSelect={setStartDate}
+                        initialFocus
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="end-date">{t('ui.end_date')}</Label>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className="w-full justify-start text-left font-normal"
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {endDate ? format(endDate, "PPP") : t('ui.pick_a_date')}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0">
+                      <Calendar
+                        mode="single"
+                        selected={endDate}
+                        onSelect={setEndDate}
+                        initialFocus
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </div>
+                <div className="flex gap-2 pt-2">
+                  <Button 
+                    onClick={() => generateReport('csv')} 
+                    variant="outline" 
+                    size="sm"
+                    className="flex-1"
+                  >
+                    <Download className="h-4 w-4 mr-1" />
+                    CSV
+                  </Button>
+                  <Button 
+                    onClick={() => generateReport('pdf')} 
+                    variant="outline" 
+                    size="sm"
+                    className="flex-1"
+                  >
+                    <FileText className="h-4 w-4 mr-1" />
+                    PDF
+                  </Button>
+                </div>
+              </div>
+            </PopoverContent>
+          </Popover>
+        </div>
+
+
+        {notifications.length > 0 && (
+          <div className="mb-4 space-y-2">
+            {notifications.map(n => (
+              <div key={n.id} className={`p-3 rounded text-white ${
+                n.data?.delivery_status ? 
+                  (n.data.delivery_status === 'delivered' ? 'bg-green-600 dark:bg-green-700' : 'bg-blue-600 dark:bg-blue-700') :
+                  (n.data?.status === 'approved' ? 'bg-green-600 dark:bg-green-700' : 'bg-red-600 dark:bg-red-700')
+              }`}>
+                <span className="font-semibold">Order #{n.data?.order_id}:</span> {n.message}
+                {n.data?.sub_message && (
+                  <div className="text-sm opacity-90 mt-1">{n.data.sub_message}</div>
+                )}
+                <span className="ml-2 text-xs opacity-80">{format(new Date(n.created_at), 'MMM dd, yyyy HH:mm')}</span>
+              </div>
+            ))}
+          </div>
+        )}
+
+        <Tabs value={currentDeliveryStatus} onValueChange={handleDeliveryStatusFilter} className="w-full">
+          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 h-auto">
+            <TabsTrigger value="all" className="text-base md:text-base lg:text-lg py-2 px-2">{t('ui.all')} ({counts.all})</TabsTrigger>
+            <TabsTrigger value="pending" className="text-base md:text-base lg:text-lg py-2 px-2">{t('ui.pending')} ({counts.pending})</TabsTrigger>
+            <TabsTrigger value="out_for_delivery" className="text-base md:text-base lg:text-lg py-2 px-2">{t('ui.out_for_delivery')} ({counts.approved})</TabsTrigger>
+            <TabsTrigger value="delivered" className="text-base md:text-base lg:text-lg py-2 px-2">{t('ui.delivered')} ({counts.delivered})</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value={currentDeliveryStatus} className="mt-6">
+            {orders.length === 0 ? (
+              <Card className="p-6 text-center text-muted-foreground bg-muted">
+                <div className="flex flex-col items-center gap-2">
+                  <Package className="h-12 w-12 text-muted-foreground" />
+                  <p className="text-2xl md:text-3xl lg:text-4xl font-medium">{t('ui.no_orders_found')}</p>
+                  <p className="text-base md:text-xl lg:text-2xl text-muted-foreground">{t('ui.try_adjusting_filters_check_later')}</p>
+                </div>
+              </Card>
+            ) : (
+              <div className="space-y-4">
+                {orders.map((order: Order) => (
+                  <Card key={order.id} id={`order-${order.id}`} className="p-4 sm:p-6 bg-card border-border hover:shadow-lg transition-all duration-200">
+                    <div className="mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2">
+                          <span className="font-semibold text-card-foreground">Order ID:</span>
+                          <span className="text-2xl md:text-3xl lg:text-4xl font-bold text-primary">#{order.id}</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-base md:text-xl lg:text-2xl text-muted-foreground">
+                          <CalendarIcon className="h-4 w-4" />
+                          <span>{format(new Date(order.created_at), 'MMM dd, yyyy HH:mm')}</span>
+                        </div>
+                      </div>
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+                        {getStatusBadge(order.status)}
+                      </div>
+                    </div>
+
+                    {/* Delivery Status Tracker */}
+                    {order.status === 'approved' && order.delivery_status && (
+                      <div className="mb-4 p-4 bg-primary/10 rounded-lg border border-primary/20">
+                        <h5 className="font-semibold text-2xl md:text-3xl lg:text-4xl mb-3 text-primary">{t('ui.delivery_status')}</h5>
+                        <div className="flex items-center justify-between">
+                          <div className={`flex items-center ${(order.delivery_status || 'pending') === 'pending' ? 'text-primary' : 'text-muted-foreground'}`}>
+                            <div className={`w-8 h-8 rounded-full flex items-center justify-center ${(order.delivery_status || 'pending') === 'pending' ? 'bg-primary text-primary-foreground' : 'bg-muted'}`}>
+                              {(order.delivery_status || 'pending') === 'pending' ? '1' : 'âœ“'}
+                            </div>
+                            <span className="ml-2 text-sm font-medium">{t('ui.preparing')}</span>
+                          </div>
+                          <div className={`flex items-center ${(order.delivery_status || 'pending') === 'ready_to_pickup' ? 'text-green-600 dark:text-green-400' : 'text-muted-foreground'}`}>
+                            <div className={`w-8 h-8 rounded-full flex items-center justify-center ${(order.delivery_status || 'pending') === 'ready_to_pickup' ? 'bg-green-600 text-white' : 'bg-muted'}`}>
+                              {(order.delivery_status || 'pending') === 'ready_to_pickup' ? '2' : 'âœ“'}
+                            </div>
+                            <span className="ml-2 text-sm font-medium">{t('ui.ready')}</span>
+                          </div>
+                          <div className={`flex items-center ${(order.delivery_status || 'pending') === 'out_for_delivery' ? 'text-primary' : (order.delivery_status || 'pending') === 'delivered' ? 'text-primary' : 'text-muted-foreground'}`}>
+                            <div className={`w-8 h-8 rounded-full flex items-center justify-center ${(order.delivery_status || 'pending') === 'out_for_delivery' || (order.delivery_status || 'pending') === 'delivered' ? 'bg-primary text-primary-foreground' : 'bg-muted'}`}>
+                              {(order.delivery_status || 'pending') === 'out_for_delivery' ? '3' : (order.delivery_status || 'pending') === 'delivered' ? 'âœ“' : '3'}
+                            </div>
+                            <span className="ml-2 text-sm font-medium">{t('ui.out_for_delivery')}</span>
+                          </div>
+                          <div className={`flex items-center ${(order.delivery_status || 'pending') === 'delivered' ? 'text-green-600 dark:text-green-400' : 'text-muted-foreground'}`}>
+                            <div className={`w-8 h-8 rounded-full flex items-center justify-center ${(order.delivery_status || 'pending') === 'delivered' ? 'bg-green-600 text-white' : 'bg-muted'}`}>
+                              {(order.delivery_status || 'pending') === 'delivered' ? 'âœ“' : '4'}
+                            </div>
+                            <span className="ml-2 text-sm font-medium">{t('ui.delivered')}</span>
+                          </div>
+                        </div>
+                        <div className="mt-3">
+                          {getDeliveryStatusBadge(order.delivery_status || 'pending')}
+                        </div>
+                      </div>
+                    )}
+                    
+                    {order.admin_notes && (
+                      <div className="mb-4 p-3 bg-amber-50 dark:bg-amber-900/20 border-l-4 border-amber-400 dark:border-amber-500 rounded">
+                        <h5 className="font-semibold text-sm mb-1 text-amber-800 dark:text-amber-200">Admin Notes:</h5>
+                        <p className="text-sm text-amber-900 dark:text-amber-100">{order.admin_notes}</p>
+                      </div>
+                    )}
+
+                    {/* Delayed Order Notice and Cancellation Button */}
+                    {order.status === 'delayed' && (
+                      <div className="mb-4 p-4 bg-red-50 dark:bg-red-900/20 border-l-4 border-red-400 dark:border-red-500 rounded">
+                        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+                          <div className="flex-1">
+                            <h5 className="font-semibold text-sm mb-2 text-red-800 dark:text-red-200">{t('ui.order_delayed')}</h5>
+                            <p className="text-sm text-red-900 dark:text-red-100 mb-2">
+                              {t('ui.order_delay_message')}
+                            </p>
+                            <p className="text-sm text-red-900 dark:text-red-100">
+                              If you have any concerns, please contact us at: <strong>sample@email.com</strong>
+                            </p>
+                          </div>
+                          <Dialog 
+                            open={cancelDialogOpen[order.id] || false} 
+                            onOpenChange={(open) => setCancelDialogOpen(prev => ({ ...prev, [order.id]: open }))}
+                          >
+                            <DialogTrigger asChild>
+                              <Button variant="destructive" size="sm" className="w-full sm:w-auto">
+                                <X className="h-4 w-4 mr-1" />
+                                Cancel Order
+                              </Button>
+                            </DialogTrigger>
+                            <DialogContent>
+                              <DialogHeader>
+                                <DialogTitle>Cancel Order #{order.id}</DialogTitle>
+                                <DialogDescription>
+                                  Are you sure you want to cancel this delayed order? This action cannot be undone.
+                                  <br /><br />
+                                  <strong>Order Total:</strong> â‚±{Number(order.total_amount).toFixed(2)}
+                                </DialogDescription>
+                              </DialogHeader>
+                              <DialogFooter>
+                                <Button 
+                                  variant="outline" 
+                                  onClick={() => setCancelDialogOpen(prev => ({ ...prev, [order.id]: false }))}
+                                >
+                                  Keep Order
+                                </Button>
+                                <Button
+                                  onClick={() => handleCancelOrder(order.id)}
+                                  variant="destructive"
+                                >
+                                  Yes, Cancel Order
+                                </Button>
+                              </DialogFooter>
+                            </DialogContent>
+                          </Dialog>
+                        </div>
+                      </div>
+                    )}
+
+                    {order.logistic && (
+                      <div className="mb-4 p-3 bg-secondary/10 border-l-4 border-secondary rounded">
+                        <h5 className="font-semibold text-sm mb-1 text-secondary">Delivery Information:</h5>
+                        <p className="text-sm text-card-foreground">
+                          <span className="font-medium">Assigned to:</span> {order.logistic.name}
+                          {order.logistic.contact_number && (
+                            <span className="ml-2">({order.logistic.contact_number})</span>
+                          )}
+                        </p>
+                      </div>
+                    )}
+
+                    {/* Desktop Table View */}
+                    <div className="hidden md:block overflow-x-auto">
+                      <Table className="w-full border border-border rounded-lg min-w-[800px]">
+                        <TableHeader className="bg-muted">
+                          <TableRow className="border-border">
+                            <TableHead className="text-muted-foreground font-semibold min-w-[150px]">{t('ui.product_name')}</TableHead>
+                            <TableHead className="text-muted-foreground font-semibold text-right min-w-[100px]">{t('ui.quantity')}</TableHead>
+                            <TableHead className="text-muted-foreground font-semibold text-right min-w-[80px]">{t('ui.price')}</TableHead>
+                            <TableHead className="text-muted-foreground font-semibold text-right min-w-[100px]">{t('ui.subtotal')}</TableHead>
+                            <TableHead className="text-muted-foreground font-semibold text-right min-w-[120px]">{t('ui.delivery_fee')}</TableHead>
+                            <TableHead className="text-muted-foreground font-semibold text-right min-w-[100px]">{t('ui.total')}</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody className="bg-card">
+                          {order.audit_trail && order.audit_trail.length > 0 ? (
+                            order.audit_trail.map((item: OrderItem) => (
+                              <TableRow key={`${item.product.name}-${item.category}`} className="border-border hover:bg-muted/50">
+                                <TableCell className="text-card-foreground font-medium">{item.product.name}</TableCell>
+                                <TableCell className="text-card-foreground text-right">{item.quantity} {item.category}</TableCell>
+                                <TableCell className="text-card-foreground text-right">
+                                  {item.unit_price && item.unit_price > 0 ? `â‚±${Number(item.unit_price).toFixed(2)}` : 'No price set'}
+                                </TableCell>
+                                <TableCell className="text-card-foreground text-right font-semibold">
+                                  â‚±{Number(item.subtotal || 0).toFixed(2)}
+                                </TableCell>
+                                <TableCell className="text-card-foreground text-right">
+                                  â‚±{Number(item.coop_share || 0).toFixed(2)}
+                                </TableCell>
+                                <TableCell className="text-card-foreground text-right font-bold text-green-600 dark:text-green-400">
+                                  â‚±{Number(item.total_amount || 0).toFixed(2)}
+                                </TableCell>
+                              </TableRow>
+                            ))
+                          ) : (
+                            <TableRow className="border-border">
+                              <TableCell colSpan={6} className="text-center text-muted-foreground py-8">
+                                <div className="flex flex-col items-center gap-2">
+                                  <Package className="h-8 w-8 text-muted-foreground" />
+                                  <span>{t('ui.no_items_found')}</span>
+                                </div>
+                              </TableCell>
+                            </TableRow>
+                          )}
+                        </TableBody>
+                      </Table>
+                    </div>
+
+                    {/* Mobile Card View */}
+                    <div className="md:hidden space-y-3">
+                      {order.audit_trail && order.audit_trail.length > 0 ? (
+                        <>
+                          {order.audit_trail.map((item: OrderItem) => (
+                            <Card key={`${item.product.name}-${item.category}`} className="p-4 bg-card border-border">
+                              <div className="space-y-2">
+                                <div className="flex justify-between items-start">
+                                  <h4 className="font-semibold text-card-foreground">{item.product.name}</h4>
+                                </div>
+                                <div className="grid grid-cols-2 gap-2 text-sm">
+                                  <div className="flex justify-between">
+                                    <span className="text-muted-foreground">Quantity:</span>
+                                    <span className="font-medium">{item.quantity} {item.category}</span>
+                                  </div>
+                                  <div className="flex justify-between">
+                                    <span className="text-muted-foreground">Price:</span>
+                                    <span className="font-medium">{item.unit_price && item.unit_price > 0 ? `â‚±${Number(item.unit_price).toFixed(2)}` : 'No price set'}</span>
+                                  </div>
+                                  <div className="flex justify-between">
+                                    <span className="text-muted-foreground">Subtotal:</span>
+                                    <span className="font-semibold">â‚±{Number(item.subtotal || 0).toFixed(2)}</span>
+                                  </div>
+                                  <div className="flex justify-between">
+                                    <span className="text-muted-foreground">Delivery Fee:</span>
+                                    <span className="font-medium">â‚±{Number(item.coop_share || 0).toFixed(2)}</span>
+                                  </div>
+                                </div>
+                                <div className="border-t border-border pt-2">
+                                  <div className="flex justify-between items-center">
+                                    <span className="font-semibold text-card-foreground">Total:</span>
+                                    <span className="font-bold text-green-600 dark:text-green-400 text-lg">â‚±{Number(item.total_amount || 0).toFixed(2)}</span>
+                                  </div>
+                                </div>
+                              </div>
+                            </Card>
+                          ))}
+                        </>
+                      ) : (
+                        <Card className="p-6 text-center text-muted-foreground bg-muted">
+                          <div className="flex flex-col items-center gap-2">
+                            <Package className="h-8 w-8 text-muted-foreground" />
+                            <span>{t('ui.no_items_found')}</span>
+                          </div>
+                        </Card>
+                      )}
+                    </div>
+
+                    {/* Order Received Confirmation Section */}
+                    {order.source === 'sales' && order.delivery_status === 'delivered' && (
+                      <div className="mt-4 p-4 bg-green-50 dark:bg-green-900/20 border-l-4 border-green-400 dark:border-green-500 rounded">
+                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                          <div className="flex-1">
+                            <h5 className="font-semibold text-sm mb-2 text-green-800 dark:text-green-200">
+                              {order.customer_received ? 'Order Confirmed Received' : 'Confirm Order Received'}
+                            </h5>
+                            {order.customer_received ? (
+                              <div className="space-y-3">
+                                <p className="text-sm text-green-900 dark:text-green-100">
+                                  âœ“ You have confirmed receiving this order.
+                                </p>
+                                {order.customer_confirmed_at && (
+                                  <p className="text-xs text-green-700 dark:text-green-300">
+                                    Confirmed on: {format(new Date(order.customer_confirmed_at), 'MMM dd, yyyy HH:mm')}
+                                  </p>
+                                )}
+                                {order.customer_rate && (
+                                  <div className="mt-3 p-3 bg-card rounded border border-border">
+                                    <p className="text-xs text-muted-foreground mb-2 font-medium">Your Rating:</p>
+                                    <StarRating
+                                      rating={order.customer_rate}
+                                      onRatingChange={() => {}} // Read-only
+                                      maxRating={5}
+                                      size="sm"
+                                      interactive={false}
+                                      showLabel={true}
+                                    />
+                                  </div>
+                                )}
+                                {order.customer_feedback && (
+                                  <div className="mt-2 p-3 bg-card rounded border border-border">
+                                    <p className="text-xs text-muted-foreground mb-2 font-medium">Your Feedback:</p>
+                                    <p className="text-sm text-card-foreground whitespace-pre-wrap">{order.customer_feedback}</p>
+                                  </div>
+                                )}
+                              </div>
+                            ) : (
+                              <div className="space-y-2">
+                                <p className="text-sm text-green-900 dark:text-green-100 mb-2">
+                                  Please confirm that you have received your order. You can optionally provide feedback about your experience.
+                                </p>
+                                {order.delivered_at && (
+                                  <p className="text-xs text-green-700 dark:text-green-300">
+                                    Delivered on: {format(new Date(order.delivered_at), 'MMM dd, yyyy HH:mm')}
+                                  </p>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                          {!order.customer_received && (
+                            <Button
+                              onClick={() => handleOpenConfirmationModal(order.id, order.total_amount)}
+                              className="bg-green-600 hover:bg-green-700 text-white w-full sm:w-auto"
+                            >
+                              <CheckCircle className="h-4 w-4 mr-2" />
+                              Confirm Received
+                            </Button>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </Card>
+                ))}
+              </div>
+            )}
+          </TabsContent>
+        </Tabs>
+
+        {/* Order Received Confirmation Modal */}
+        {selectedOrderForConfirmation && (
+          <OrderReceivedConfirmationModal
+            isOpen={confirmationModalOpen[selectedOrderForConfirmation.id] || false}
+            onClose={() => handleCloseConfirmationModal(selectedOrderForConfirmation.id)}
+            orderId={selectedOrderForConfirmation.id}
+            orderTotal={selectedOrderForConfirmation.total}
+          />
+        )}
+      </div>
+    </AppHeaderLayout>
+  );
+}
+

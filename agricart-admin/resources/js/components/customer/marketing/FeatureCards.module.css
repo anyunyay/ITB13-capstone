@@ -1,0 +1,12 @@
+/* FeatureCards Component Styles - Cleaned up version */
+
+/* Import Raleway font */
+@import url('https://fonts.googleapis.com/css2?family=Raleway:ital,wght@0,100..900;1,100..900&display=swap');
+
+/* Custom font family application */
+* {
+  font-family: 'Raleway', ui-sans-serif, system-ui, sans-serif;
+}
+
+/* All layout, spacing, positioning, and styling has been moved to Tailwind classes */
+/* Only keeping unique custom styles that cannot be easily replicated with Tailwind utilities */

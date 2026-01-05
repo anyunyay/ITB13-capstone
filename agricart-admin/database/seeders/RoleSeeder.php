@@ -1,0 +1,198 @@
+<?php
+
+namespace Database\Seeders;
+
+use App\Models\User;
+use App\Models\UserAddress;
+use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
+use Spatie\Permission\Models\Role;
+use Spatie\Permission\Models\Permission;
+use Spatie\Permission\PermissionRegistrar;
+
+class RoleSeeder extends Seeder
+{
+    /**
+     * Run the database seeds.
+     */
+    public function run(): void
+    {
+        // Clear cached roles and permissions
+        app()[PermissionRegistrar::class]->forgetCachedPermissions();
+
+        // Clear existing users to avoid conflicts (moved from UserSeeder)
+        User::query()->delete();
+        UserAddress::query()->delete();
+
+        // Create roles (or get existing ones)
+        $admin = Role::firstOrCreate(['name' => 'admin']);
+        $staff = Role::firstOrCreate(['name' => 'staff']);
+        $customer = Role::firstOrCreate(['name' => 'customer']);
+        $logistic = Role::firstOrCreate(['name' => 'logistic']);
+        $member = Role::firstOrCreate(['name' => 'member']);
+
+        $permissions = [
+        // Admin Section
+            // Inventory Product
+            'view inventory',
+            'create products',
+            'edit products',
+            'delete products', // Available for Staff (with admin approval)
+
+            // Inventory Archive
+            'view archive',
+            'archive products',
+            'unarchive products',
+            'delete archived products', // Available for Staff (with admin approval)
+
+            // Inventory Product Stock
+            'view stocks',
+            'create stocks',
+            'edit stocks',
+            'delete stocks', // Available for Staff (with admin approval)
+            'generate inventory report',
+
+            // Order Management
+            'view orders',
+            'manage orders',
+            'approve orders',
+            'reject orders',
+            'process orders',
+            'assign logistics',
+            'mark orders urgent',
+            'unmark orders urgent',
+            'mark orders ready for pickup',
+            'merge orders',
+            'view order receipts',
+            'generate order report',
+
+            // Sales Management
+            'view sales',
+            'view member sales',
+            'generate sales report',
+            'export sales data',
+
+            // Logistics
+            'view logistics',
+            'create logistics',
+            'edit logistics',
+            'deactivate logistics', // Available for Staff (with admin approval)
+            'reactivate logistics', // Available for Staff (with admin approval)
+            'delete logistics', // Hard delete logistics
+            'assign logistics area', // Assign delivery areas to logistics
+            'generate logistics report',
+            
+            // Inventory Stock Trailing
+            'view sold stock',
+            'view stock trail',
+
+            // Admin Only (Staff Management)
+            'view staffs',
+            'create staffs',
+            'edit staffs',
+            'delete staffs',
+            'generate staff report',
+
+            // Admin Only (Membership Management)
+            'view membership',
+            'create members',
+            'edit members',
+            'deactivate members',
+            'reactivate members',
+            'generate membership report',
+
+            // Trend Analysis
+            'view price trend',
+            'view trend analysis',
+            'generate trend report',
+
+        // Customer permissions
+            'access customer features',
+            'view order history',
+            'generate customer order report',
+
+        // Logistic permissions
+            'access logistic features',
+            'view assigned orders',
+            'update delivery status',
+            'generate logistic report',
+
+        // Member permissions
+            'access member features',
+            'view member earnings',
+            'generate revenue report',
+        ];
+
+        foreach ($permissions as $permission) {
+            Permission::firstOrCreate(['name' => $permission]);
+        }
+
+        // Assign permissions to roles
+        // Ensure admin has all current and future permissions (except role-specific ones)
+        $this->ensureAdminHasAllPermissions($admin);
+        
+        // Assign role-specific permissions (sync to avoid duplicates)
+        $customer->syncPermissions(['access customer features']);
+        $logistic->syncPermissions(['access logistic features']);
+        $member->syncPermissions(['access member features']);
+
+        // Create admin user and assign admin role
+        $this->createAdminUser($admin);
+    }
+
+    /**
+     * Create admin user and assign admin role
+     */
+    private function createAdminUser(Role $adminRole): void
+    {
+        // Create specific admin user as requested
+        $adminUser = User::create([
+            'type' => 'admin',
+            'name' => 'Samuel Salazar',
+            'email' => 'admin@admin.com',
+            'password' => Hash::make('12345678'),
+            'email_verified_at' => now(),
+            'is_default' => false,
+            'active' => true,
+        ]);
+
+        // Assign admin role to the user
+        $adminUser->assignRole($adminRole);
+
+        // Create default address for admin
+        UserAddress::create([
+            'user_id' => $adminUser->id,
+            'street' => 'Admin Office, 123 Business Plaza',
+            'barangay' => 'Sala',
+            'city' => 'Cabuyao',
+            'province' => 'Laguna',
+            'is_active' => true,
+        ]);
+
+        $this->command->info('✅ Created admin user: Samuel Salazar with admin role');
+    }
+
+    /**
+     * Ensure admin role has all permissions except role-specific ones
+     * This method will automatically assign any new permissions to admin
+     */
+    private function ensureAdminHasAllPermissions(Role $admin): void
+    {
+        // Get all permissions except role-specific ones
+        $allAdminPermissions = Permission::whereNotIn('name', [
+            'access customer features',
+            'access logistic features', 
+            'access member features'
+        ])->pluck('name')->toArray();
+        
+        // Sync all permissions to admin role
+        // This will add any new permissions and remove any that are no longer needed
+        $admin->syncPermissions($allAdminPermissions);
+        
+        // Output info if running in console
+        if (app()->runningInConsole()) {
+            echo "Admin role permissions synchronized. Total permissions: " . count($allAdminPermissions) . "\n";
+        }
+    }
+}

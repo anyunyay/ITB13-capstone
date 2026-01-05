@@ -1,0 +1,479 @@
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Link } from '@inertiajs/react';
+import { route } from 'ziggy-js';
+import { format } from 'date-fns';
+import { Eye, Package, User, MapPin, Phone, Mail, Calendar, DollarSign, Truck, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
+import { PermissionGate } from '@/components/common/permission-gate';
+import { Order } from '@/types/orders';
+import { useState } from 'react';
+import { useTranslation } from '@/hooks/use-translation';
+
+interface OrderTableProps {
+    orders: Order[];
+    highlightOrderId?: string;
+    urgentOrders?: Order[];
+    showActions?: boolean;
+    compact?: boolean;
+    sortBy?: string;
+    sortOrder?: 'asc' | 'desc';
+    onSortChange?: (field: string) => void;
+}
+
+export const OrderTable = ({ 
+    orders, 
+    highlightOrderId, 
+    urgentOrders = [], 
+    showActions = true,
+    compact = false,
+    sortBy: externalSortBy,
+    sortOrder: externalSortOrder,
+    onSortChange
+}: OrderTableProps) => {
+    const t = useTranslation();
+    // Internal sorting state if not provided externally
+    const [internalSortBy, setInternalSortBy] = useState('id');
+    const [internalSortOrder, setInternalSortOrder] = useState<'asc' | 'desc'>('desc');
+    
+    const sortBy = externalSortBy || internalSortBy;
+    const sortOrder = externalSortOrder || internalSortOrder;
+    
+    const handleSort = (field: string) => {
+        if (externalSortBy !== undefined && onSortChange) {
+            onSortChange(field);
+        } else {
+            if (internalSortBy === field) {
+                setInternalSortOrder(internalSortOrder === 'asc' ? 'desc' : 'asc');
+            } else {
+                setInternalSortBy(field);
+                setInternalSortOrder('desc');
+            }
+        }
+    };
+
+    const getSortIcon = (field: string) => {
+        if (sortBy !== field) return <ArrowUpDown className="h-4 w-4 ml-1" />;
+        return sortOrder === 'asc' ? 
+            <ArrowUp className="h-4 w-4 ml-1" /> : 
+            <ArrowDown className="h-4 w-4 ml-1" />;
+    };
+    
+    // Sort orders
+    const sortedOrders = [...orders].sort((a, b) => {
+        let comparison = 0;
+        switch (sortBy) {
+            case 'id':
+                comparison = a.id - b.id;
+                break;
+            case 'created_at':
+                comparison = new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+                break;
+            case 'total_amount':
+                comparison = a.total_amount - b.total_amount;
+                break;
+            case 'customer':
+                comparison = a.customer.name.localeCompare(b.customer.name);
+                break;
+            default:
+                return 0;
+        }
+        return sortOrder === 'asc' ? comparison : -comparison;
+    });
+    const getStatusBadge = (status: string) => {
+        switch (status) {
+            case 'pending':
+                return <Badge variant="secondary" className="bg-yellow-100 text-yellow-800">{t('admin.pending')}</Badge>;
+            case 'approved':
+                return <Badge variant="default" className="bg-green-100 text-green-800">{t('admin.approved')}</Badge>;
+            case 'rejected':
+                return <Badge variant="destructive" className="bg-red-100 text-red-800">{t('admin.rejected')}</Badge>;
+            case 'expired':
+                return <Badge variant="outline" className="bg-gray-100 text-gray-600">{t('admin.expired')}</Badge>;
+            case 'delayed':
+                return <Badge variant="destructive" className="bg-red-100 text-red-800">{t('admin.delayed')}</Badge>;
+            case 'cancelled':
+                return <Badge variant="outline" className="bg-gray-100 text-gray-600">{t('admin.cancelled')}</Badge>;
+            default:
+                return <Badge variant="outline">{status}</Badge>;
+        }
+    };
+
+    const getDeliveryStatusBadge = (status: string) => {
+        switch (status) {
+            case 'pending':
+                return <Badge variant="secondary">{t('admin.pending')}</Badge>;
+            case 'ready_to_pickup':
+                return <Badge variant="default" className="bg-green-100 text-green-800 border-green-200">{t('admin.ready_to_pickup')}</Badge>;
+            case 'out_for_delivery':
+                return <Badge variant="default">{t('admin.out_for_delivery')}</Badge>;
+            case 'delivered':
+                return <Badge variant="outline">{t('admin.delivered')}</Badge>;
+            default:
+                return <Badge variant="outline">{status}</Badge>;
+        }
+    };
+
+    const isUrgent = (order: Order) => {
+        return urgentOrders.some(urgent => urgent.id === order.id) || order.is_urgent;
+    };
+
+    const isHighlighted = (order: Order) => {
+        return highlightOrderId === order.id.toString();
+    };
+
+    if (orders.length === 0) {
+        return (
+            <div className="text-center py-12">
+                <Package className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
+                <h3 className="text-lg font-medium text-foreground mb-2">{t('admin.no_orders_found')}</h3>
+                <p className="text-muted-foreground">
+                    {t('admin.no_orders_match_filters')}
+                </p>
+            </div>
+        );
+    }
+
+    // Use sorted orders
+    const ordersToDisplay = sortedOrders;
+
+    return (
+        <>
+            {/* Mobile Card View - Hidden on md and up */}
+            <div className="md:hidden space-y-3">
+                {ordersToDisplay.map((order) => {
+                    const urgent = isUrgent(order);
+                    const highlighted = isHighlighted(order);
+                    const combinedItems = order.audit_trail || [];
+                    const totalItems = combinedItems.length;
+
+                    return (
+                        <div 
+                            key={order.id}
+                            className={`bg-card border border-border rounded-lg p-4 shadow-sm transition-all duration-200 hover:shadow-md ${highlighted ? 'bg-primary/10 border-l-4 border-l-primary' : ''} ${urgent ? 'bg-orange-50 border-l-4 border-l-orange-500' : ''}`}
+                        >
+                            <div className="flex items-start justify-between gap-2 mb-3">
+                                <div className="flex items-center gap-2 flex-wrap">
+                                    <Badge variant="outline" className="font-mono text-xs">
+                                        #{order.id}
+                                    </Badge>
+                                    {urgent && (
+                                        <Badge variant="destructive" className="bg-red-100 text-red-800 animate-pulse text-xs">
+                                            Urgent
+                                        </Badge>
+                                    )}
+                                </div>
+                                {getStatusBadge(order.status)}
+                            </div>
+
+                            <div className="space-y-2 mb-3 pb-3 border-b border-border">
+                                <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                                    <Calendar className="h-3 w-3" />
+                                    <span>{format(new Date(order.created_at), 'MMM dd, yyyy HH:mm')}</span>
+                                </div>
+                                
+                                <div className="flex items-start gap-2 text-xs">
+                                    <User className="h-3 w-3 mt-0.5 text-muted-foreground flex-shrink-0" />
+                                    <div className="flex-1 min-w-0">
+                                        <div className="font-medium text-foreground">{order.customer.name}</div>
+                                        {order.customer.contact_number && (
+                                            <div className="text-muted-foreground">{order.customer.contact_number}</div>
+                                        )}
+                                        {!compact && (
+                                            <div className="text-muted-foreground truncate">{order.customer.email}</div>
+                                        )}
+                                    </div>
+                                </div>
+
+                                <div className="flex items-center gap-2 text-xs">
+                                    <Package className="h-3 w-3 text-muted-foreground" />
+                                    <span className="font-medium">{totalItems} items</span>
+                                    {combinedItems.length > 0 && (
+                                        <span className="text-muted-foreground truncate">
+                                            - {combinedItems[0].product.name}
+                                            {combinedItems.length > 1 && ` +${combinedItems.length - 1} more`}
+                                        </span>
+                                    )}
+                                </div>
+
+                                {!compact && order.status === 'approved' && (
+                                    <div className="flex items-center gap-2 text-xs">
+                                        <Truck className="h-3 w-3 text-muted-foreground" />
+                                        {getDeliveryStatusBadge(order.delivery_status)}
+                                    </div>
+                                )}
+
+                                {!compact && order.logistic && (
+                                    <div className="flex items-center gap-2 text-xs">
+                                        <Truck className="h-3 w-3 text-muted-foreground" />
+                                        <span className="font-medium">{order.logistic.name}</span>
+                                        {order.logistic.contact_number && (
+                                            <span className="text-muted-foreground">- {order.logistic.contact_number}</span>
+                                        )}
+                                    </div>
+                                )}
+                            </div>
+
+                            <div className="mb-3">
+                                <div className="flex justify-between text-sm font-semibold">
+                                    <span>{t('admin.total_amount')}:</span>
+                                    <span>₱{Number(order.total_amount).toFixed(2)}</span>
+                                </div>
+                            </div>
+
+                            {showActions && (
+                                <PermissionGate permission="view orders">
+                                    <Button asChild variant="outline" size="sm" className="w-full text-xs">
+                                        <Link href={route('admin.orders.show', order.id)}>
+                                            <Eye className="h-3 w-3 mr-1" />
+                                            View Details
+                                        </Link>
+                                    </Button>
+                                </PermissionGate>
+                            )}
+                        </div>
+                    );
+                })}
+            </div>
+
+            {/* Desktop Table View - Hidden on mobile */}
+            <div className="hidden md:block rounded-md border">
+            <Table className="w-full border-collapse text-sm">
+                <TableHeader className="bg-muted/50 border-b-2">
+                    <TableRow>
+                        <TableHead className="p-3 text-center text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">
+                            <button onClick={() => handleSort('id')} className="flex items-center gap-2 hover:text-foreground transition-colors mx-auto">
+                                <Package className="h-4 w-4" />
+                                {t('admin.order_id_header')}
+                                {getSortIcon('id')}
+                            </button>
+                        </TableHead>
+                        <TableHead className="p-3 text-center text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">
+                            <button onClick={() => handleSort('created_at')} className="flex items-center gap-2 hover:text-foreground transition-colors mx-auto">
+                                <Calendar className="h-4 w-4" />
+                                {t('admin.date')}
+                                {getSortIcon('created_at')}
+                            </button>
+                        </TableHead>
+                        <TableHead className="p-3 text-center text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">
+                            <button onClick={() => handleSort('customer')} className="flex items-center gap-2 hover:text-foreground transition-colors mx-auto">
+                                <User className="h-4 w-4" />
+                                {t('admin.customer')}
+                                {getSortIcon('customer')}
+                            </button>
+                        </TableHead>
+                        {!compact && (
+                            <TableHead className="p-3 text-center text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">
+                                <div className="flex items-center gap-2 mx-auto justify-center">
+                                    <Mail className="h-4 w-4" />
+                                    {t('admin.email')}
+                                </div>
+                            </TableHead>
+                        )}
+                        <TableHead className="p-3 text-center text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">
+                            <button onClick={() => handleSort('total_amount')} className="flex items-center gap-2 hover:text-foreground transition-colors mx-auto">
+                                <DollarSign className="h-4 w-4" />
+                                {t('admin.total_amount')}
+                                {getSortIcon('total_amount')}
+                            </button>
+                        </TableHead>
+                        <TableHead className="p-3 text-center text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">
+                            <div className="flex items-center gap-2 mx-auto justify-center">
+                                <Package className="h-4 w-4" />
+                                {t('admin.items_header')}
+                            </div>
+                        </TableHead>
+                        <TableHead className="p-3 text-center text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">
+                            {t('admin.status_header')}
+                        </TableHead>
+                        {!compact && (
+                            <TableHead className="p-3 text-center text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">
+                                {t('admin.delivery_status_header')}
+                            </TableHead>
+                        )}
+                        {!compact && (
+                            <TableHead className="p-3 text-center text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">
+                                <div className="flex items-center gap-2 mx-auto justify-center">
+                                    <Truck className="h-4 w-4" />
+                                    {t('admin.logistic')}
+                                </div>
+                            </TableHead>
+                        )}
+                        {showActions && (
+                            <TableHead className="p-3 text-center text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">
+                                {t('admin.actions_header')}
+                            </TableHead>
+                        )}
+                    </TableRow>
+                </TableHeader>
+                <TableBody>
+                    {ordersToDisplay.map((order) => {
+                        const urgent = isUrgent(order);
+                        const highlighted = isHighlighted(order);
+                        
+                        // Use the aggregated audit trail data directly (already grouped and processed by backend)
+                        const combinedItems = order.audit_trail || [];
+                        const totalItems = combinedItems.length;
+
+                        return (
+                            <TableRow 
+                                key={order.id} 
+                                className={`border-b transition-all hover:bg-muted/20 ${highlighted ? 'bg-primary/10 border-l-4 border-l-primary shadow-sm' : ''} ${urgent ? 'bg-orange-50 border-l-4 border-l-orange-500 shadow-sm' : ''}`}
+                            >
+                                <TableCell className="p-3 align-top border-b">
+                                    <div className="flex justify-center min-h-[40px] py-2 w-full">
+                                        <div className="w-full max-w-[150px] text-center flex justify-center gap-2">
+                                            <Badge variant="outline" className="font-mono">
+                                                #{order.id}
+                                            </Badge>
+                                            {urgent && (
+                                                <Badge variant="destructive" className="bg-red-100 text-red-800 animate-pulse">
+                                                    Urgent
+                                                </Badge>
+                                            )}
+                                        </div>
+                                    </div>
+                                </TableCell>
+                                
+                                <TableCell className="p-3 align-top border-b">
+                                    <div className="flex justify-center min-h-[40px] py-2 w-full">
+                                        <div className="w-full max-w-[180px] text-left">
+                                            <div className="text-sm">
+                                                <div className="font-medium">
+                                                    {format(new Date(order.created_at), 'MMM dd, yyyy')}
+                                                </div>
+                                                <div className="text-muted-foreground">
+                                                    {format(new Date(order.created_at), 'HH:mm')}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </TableCell>
+                                
+                                <TableCell className="p-3 align-top border-b">
+                                    <div className="flex justify-center min-h-[40px] py-2 w-full">
+                                        <div className="w-full max-w-[180px] text-left">
+                                            <div className="flex flex-col">
+                                                <div className="font-medium text-sm">
+                                                    {order.customer.name}
+                                                </div>
+                                                {order.customer.contact_number && (
+                                                    <div className="text-xs text-muted-foreground flex items-center gap-1">
+                                                        <Phone className="h-3 w-3" />
+                                                        {order.customer.contact_number}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </TableCell>
+                                
+                                {!compact && (
+                                    <TableCell className="p-3 align-top border-b">
+                                        <div className="flex justify-center min-h-[40px] py-2 w-full">
+                                            <div className="w-full max-w-[200px] text-left">
+                                                <div className="text-sm text-muted-foreground">
+                                                    {order.customer.email}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </TableCell>
+                                )}
+                                
+                                <TableCell className="p-3 align-top border-b">
+                                    <div className="flex justify-center min-h-[40px] py-2 w-full">
+                                        <div className="w-full max-w-[120px] text-right">
+                                            <div className="font-semibold text-sm">
+                                                ₱{Number(order.total_amount).toFixed(2)}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </TableCell>
+                                
+                                <TableCell className="p-3 align-top border-b">
+                                    <div className="flex justify-center min-h-[40px] py-2 w-full">
+                                        <div className="w-full max-w-[200px] text-left">
+                                            <div className="text-sm">
+                                                <div className="font-medium">{totalItems} items</div>
+                                                <div className="text-muted-foreground text-xs">
+                                                    {combinedItems.slice(0, 2).map((item: any, index) => (
+                                                        <span key={item.id}>
+                                                            {item.product.name}
+                                                            {index < Math.min(2, combinedItems.length - 1) ? ', ' : ''}
+                                                        </span>
+                                                    ))}
+                                                    {combinedItems.length > 2 && (
+                                                        <span className="text-muted-foreground">
+                                                            +{combinedItems.length - 2} more
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </TableCell>
+                                
+                                <TableCell className="p-3 align-top border-b">
+                                    <div className="flex justify-center min-h-[40px] py-2 w-full">
+                                        <div className="w-full max-w-[120px] text-center flex justify-center">
+                                            {getStatusBadge(order.status)}
+                                        </div>
+                                    </div>
+                                </TableCell>
+                                
+                                {!compact && (
+                                    <TableCell className="p-3 align-top border-b">
+                                        <div className="flex justify-center min-h-[40px] py-2 w-full">
+                                            <div className="w-full max-w-[150px] text-center flex justify-center">
+                                                {order.status === 'approved' ? getDeliveryStatusBadge(order.delivery_status) : '-'}
+                                            </div>
+                                        </div>
+                                    </TableCell>
+                                )}
+                                
+                                {!compact && (
+                                    <TableCell className="p-3 align-top border-b">
+                                        <div className="flex justify-center min-h-[40px] py-2 w-full">
+                                            <div className="w-full max-w-[150px] text-left">
+                                                {order.logistic ? (
+                                                    <div className="text-sm">
+                                                        <div className="font-medium">{order.logistic.name}</div>
+                                                        {order.logistic.contact_number && (
+                                                            <div className="text-xs text-muted-foreground">
+                                                                {order.logistic.contact_number}
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                ) : (
+                                                    <span className="text-muted-foreground text-sm">Unassigned</span>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </TableCell>
+                                )}
+                                
+                                {showActions && (
+                                    <TableCell className="p-3 align-top border-b">
+                                        <div className="flex justify-center min-h-[40px] py-2 w-full">
+                                            <div className="w-full max-w-[120px] text-center flex justify-center">
+                                                <PermissionGate permission="view orders">
+                                                    <Button asChild variant="outline" size="sm" className="transition-all text-xs px-3 py-2 hover:shadow-lg hover:opacity-90">
+                                                        <Link href={route('admin.orders.show', order.id)}>
+                                                            <Eye className="h-3 w-3 mr-1" />
+                                                            View
+                                                        </Link>
+                                                    </Button>
+                                                </PermissionGate>
+                                            </div>
+                                        </div>
+                                    </TableCell>
+                                )}
+                            </TableRow>
+                        );
+                    })}
+                </TableBody>
+            </Table>
+            </div>
+        </>
+    );
+};

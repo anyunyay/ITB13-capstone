@@ -1,0 +1,483 @@
+@import url('https://fonts.googleapis.com/css2?family=Raleway:ital,wght@0,100..900;1,100..900&display=swap');
+@import 'tailwindcss';
+@import './theme-utilities.css';
+
+@plugin 'tailwindcss-animate';
+
+@source '../views';
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+
+@custom-variant dark (&:is(.dark *));
+
+@theme {
+    --font-sans:
+        'Raleway', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+
+    --font-raleway: 'Raleway', ui-sans-serif, system-ui, sans-serif;
+
+    --radius-lg: var(--radius);
+    --radius-md: calc(var(--radius) - 2px);
+    --radius-sm: calc(var(--radius) - 4px);
+
+    --color-background: var(--background);
+    --color-foreground: var(--foreground);
+
+    --color-card: var(--card);
+    --color-card-foreground: var(--card-foreground);
+
+    --color-popover: var(--popover);
+    --color-popover-foreground: var(--popover-foreground);
+
+    --color-primary: var(--primary);
+    --color-primary-foreground: var(--primary-foreground);
+
+    --color-secondary: var(--secondary);
+    --color-secondary-foreground: var(--secondary-foreground);
+
+    --color-muted: var(--muted);
+    --color-muted-foreground: var(--muted-foreground);
+
+    --color-accent: var(--accent);
+    --color-accent-foreground: var(--accent-foreground);
+
+    --color-destructive: var(--destructive);
+    --color-destructive-foreground: var(--destructive-foreground);
+
+    --color-border: var(--border);
+    --color-input: var(--input);
+    --color-ring: var(--ring);
+
+    --color-chart-1: var(--chart-1);
+    --color-chart-2: var(--chart-2);
+    --color-chart-3: var(--chart-3);
+    --color-chart-4: var(--chart-4);
+    --color-chart-5: var(--chart-5);
+
+    --color-sidebar: var(--sidebar);
+    --color-sidebar-foreground: var(--sidebar-foreground);
+    --color-sidebar-primary: var(--sidebar-primary);
+    --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+    --color-sidebar-accent: var(--sidebar-accent);
+    --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+    --color-sidebar-border: var(--sidebar-border);
+    --color-sidebar-ring: var(--sidebar-ring);
+
+    /* Order Status Colors */
+    --color-status-approved: var(--status-approved);
+    --color-status-approved-foreground: var(--status-approved-foreground);
+    --color-status-rejected: var(--status-rejected);
+    --color-status-rejected-foreground: var(--status-rejected-foreground);
+    --color-status-delayed: var(--status-delayed);
+    --color-status-delayed-foreground: var(--status-delayed-foreground);
+    --color-status-cancelled: var(--status-cancelled);
+    --color-status-cancelled-foreground: var(--status-cancelled-foreground);
+
+    /* Logistics/Delivery Status Colors */
+    --color-status-pending: var(--status-pending);
+    --color-status-pending-foreground: var(--status-pending-foreground);
+    --color-status-ready: var(--status-ready);
+    --color-status-ready-foreground: var(--status-ready-foreground);
+    --color-status-out-for-delivery: var(--status-out-for-delivery);
+    --color-status-out-for-delivery-foreground: var(--status-out-for-delivery-foreground);
+    --color-status-delivered: var(--status-delivered);
+    --color-status-delivered-foreground: var(--status-delivered-foreground);
+}
+
+/*
+  The default border color has changed to `currentColor` in Tailwind CSS v4,
+  so we've added these compatibility styles to make sure everything still
+  looks the same as it did with Tailwind CSS v3.
+
+  If we ever want to remove these styles, we need to add an explicit border
+  color utility to any element that depends on these defaults.
+*/
+@layer base {
+
+    *,
+    ::after,
+    ::before,
+    ::backdrop,
+    ::file-selector-button {
+        border-color: var(--color-gray-200, currentColor);
+    }
+}
+
+:root {
+    /* Light theme with green primary, emerald secondary, gray text, gray-50 background */
+    --background: oklch(0.98 0.003 142.495);
+    /* gray-50 equivalent */
+    --foreground: oklch(0.267 0.013 142.495);
+    /* gray-800 for main text */
+    --card: oklch(1 0 0);
+    /* white for cards */
+    --card-foreground: oklch(0.267 0.013 142.495);
+    /* gray-800 */
+    --popover: oklch(1 0 0);
+    /* white */
+    --popover-foreground: oklch(0.502 0.176 142.495);
+    /* green-600 */
+    --primary: oklch(0.502 0.176 142.495);
+    /* green-600 for accents, buttons, highlights */
+    --primary-foreground: oklch(1 0 0);
+    /* white text on green */
+    --secondary: oklch(0.659 0.15 142.495);
+    /* emerald-500 for supportive UI elements */
+    --secondary-foreground: oklch(1 0 0);
+    /* white text on emerald */
+    --muted: oklch(0.961 0.006 142.495);
+    /* gray-100 for muted backgrounds */
+    --muted-foreground: oklch(0.459 0.015 142.495);
+    /* gray-600 for muted text */
+    --accent: oklch(0.659 0.15 142.495);
+    /* emerald-500 for hover states */
+    --accent-foreground: oklch(1 0 0);
+    /* white text on emerald */
+    --destructive: oklch(0.577 0.245 27.325);
+    /* red-600 for errors */
+    --destructive-foreground: oklch(1 0 0);
+    /* white text on red */
+    --border: oklch(0.922 0.006 142.495);
+    /* gray-200 for borders */
+    --input: oklch(0.922 0.006 142.495);
+    /* gray-200 for inputs */
+    --ring: oklch(0.502 0.176 142.495);
+    /* green-600 for focus rings */
+    --chart-1: oklch(0.502 0.176 142.495);
+    /* green-600 */
+    --chart-2: oklch(0.659 0.15 142.495);
+    /* emerald-500 */
+    --chart-3: oklch(0.4 0.12 142.495);
+    /* emerald-700 */
+    --chart-4: oklch(0.7 0.16 142.495);
+    /* emerald-400 */
+    --chart-5: oklch(0.35 0.14 142.495);
+    /* emerald-800 */
+    --radius: 0.625rem;
+    --sidebar: oklch(0.98 0.003 142.495);
+    /* gray-50 for sidebar */
+    --sidebar-foreground: oklch(0.267 0.013 142.495);
+    /* gray-800 */
+    --sidebar-primary: oklch(0.502 0.176 142.495);
+    /* green-600 */
+    --sidebar-primary-foreground: oklch(1 0 0);
+    /* white */
+    --sidebar-accent: oklch(0.659 0.15 142.495);
+    /* emerald-500 */
+    --sidebar-accent-foreground: oklch(1 0 0);
+    /* white */
+    --sidebar-border: oklch(0.922 0.006 142.495);
+    /* gray-200 */
+    --sidebar-ring: oklch(0.502 0.176 142.495);
+    /* green-600 */
+
+    /* Order Status Colors - Light Theme */
+    --status-approved: oklch(0.502 0.176 142.495);
+    /* green-600 */
+    --status-approved-foreground: oklch(1 0 0);
+    /* white */
+    --status-rejected: oklch(0.577 0.245 27.325);
+    /* red-600 */
+    --status-rejected-foreground: oklch(1 0 0);
+    /* white */
+    --status-delayed: oklch(0.7 0.19 50);
+    /* orange-500 */
+    --status-delayed-foreground: oklch(1 0 0);
+    /* white */
+    --status-cancelled: oklch(0.6 0.01 142.495);
+    /* gray-500 */
+    --status-cancelled-foreground: oklch(1 0 0);
+    /* white */
+
+    /* Logistics/Delivery Status Colors - Light Theme */
+    --status-pending: oklch(0.6 0.01 142.495);
+    /* gray-500 */
+    --status-pending-foreground: oklch(1 0 0);
+    /* white */
+    --status-ready: oklch(0.55 0.22 252);
+    /* blue-600 */
+    --status-ready-foreground: oklch(1 0 0);
+    /* white */
+    --status-out-for-delivery: oklch(0.7 0.19 50);
+    /* orange-500 */
+    --status-out-for-delivery-foreground: oklch(0.2 0.05 50);
+    /* dark orange text */
+    --status-delivered: oklch(0.502 0.176 142.495);
+    /* green-600 */
+    --status-delivered-foreground: oklch(1 0 0);
+    /* white */
+}
+
+.dark {
+    /* Dark theme complementing the green/emerald light theme */
+    --background: oklch(0.08 0.003 142.495);
+    /* dark gray background */
+    --foreground: oklch(0.961 0.006 142.495);
+    /* light gray text */
+    --card: oklch(0.12 0.003 142.495);
+    /* slightly lighter dark for cards */
+    --card-foreground: oklch(0.961 0.006 142.495);
+    /* light gray text */
+    --popover: oklch(0.12 0.003 142.495);
+    /* dark popover */
+    --popover-foreground: oklch(0.961 0.006 142.495);
+    /* light gray text */
+    --primary: oklch(0.7 0.16 142.495);
+    /* lighter green for dark mode */
+    --primary-foreground: oklch(0.08 0.003 142.495);
+    /* dark text on light green */
+    --secondary: oklch(0.659 0.15 142.495);
+    /* emerald-500 */
+    --secondary-foreground: oklch(0.08 0.003 142.495);
+    /* dark text on emerald */
+    --muted: oklch(0.15 0.003 142.495);
+    /* muted dark background */
+    --muted-foreground: oklch(0.6 0.01 142.495);
+    /* muted light text */
+    --accent: oklch(0.659 0.15 142.495);
+    /* emerald-500 for hover states */
+    --accent-foreground: oklch(0.08 0.003 142.495);
+    /* dark text on emerald */
+    --destructive: oklch(0.6 0.2 25.723);
+    /* lighter red for dark mode */
+    --destructive-foreground: oklch(0.961 0.006 142.495);
+    /* light text on red */
+    --border: oklch(0.2 0.003 142.495);
+    /* subtle borders */
+    --input: oklch(0.2 0.003 142.495);
+    /* input backgrounds */
+    --ring: oklch(0.7 0.16 142.495);
+    /* lighter green focus rings */
+    --chart-1: oklch(0.7 0.16 142.495);
+    /* lighter green */
+    --chart-2: oklch(0.659 0.15 142.495);
+    /* emerald-500 */
+    --chart-3: oklch(0.8 0.18 142.495);
+    /* lighter emerald */
+    --chart-4: oklch(0.75 0.17 142.495);
+    /* emerald variant */
+    --chart-5: oklch(0.65 0.16 142.495);
+    /* emerald variant */
+    --sidebar: oklch(0.1 0.003 142.495);
+    /* darker sidebar */
+    --sidebar-foreground: oklch(0.961 0.006 142.495);
+    /* light text */
+    --sidebar-primary: oklch(0.7 0.16 142.495);
+    /* lighter green */
+    --sidebar-primary-foreground: oklch(0.08 0.003 142.495);
+    /* dark text */
+    --sidebar-accent: oklch(0.659 0.15 142.495);
+    /* emerald-500 */
+    --sidebar-accent-foreground: oklch(0.08 0.003 142.495);
+    /* dark text */
+    --sidebar-border: oklch(0.2 0.003 142.495);
+    /* subtle borders */
+    --sidebar-ring: oklch(0.7 0.16 142.495);
+    /* lighter green */
+
+    /* Order Status Colors - Dark Theme */
+    --status-approved: oklch(0.7 0.16 142.495);
+    /* lighter green */
+    --status-approved-foreground: oklch(0.08 0.003 142.495);
+    /* dark text */
+    --status-rejected: oklch(0.6 0.2 25.723);
+    /* lighter red */
+    --status-rejected-foreground: oklch(0.961 0.006 142.495);
+    /* light text */
+    --status-delayed: oklch(0.75 0.19 50);
+    /* lighter orange */
+    --status-delayed-foreground: oklch(0.08 0.003 142.495);
+    /* dark text */
+    --status-cancelled: oklch(0.5 0.01 142.495);
+    /* gray-600 */
+    --status-cancelled-foreground: oklch(0.961 0.006 142.495);
+    /* light text */
+
+    /* Logistics/Delivery Status Colors - Dark Theme */
+    --status-pending: oklch(0.5 0.01 142.495);
+    /* gray-600 */
+    --status-pending-foreground: oklch(0.961 0.006 142.495);
+    /* light text */
+    --status-ready: oklch(0.65 0.22 252);
+    /* lighter blue */
+    --status-ready-foreground: oklch(0.08 0.003 142.495);
+    /* dark text */
+    --status-out-for-delivery: oklch(0.75 0.19 50);
+    /* lighter orange */
+    --status-out-for-delivery-foreground: oklch(0.15 0.05 50);
+    /* dark orange text */
+    --status-delivered: oklch(0.7 0.16 142.495);
+    /* lighter green */
+    --status-delivered-foreground: oklch(0.08 0.003 142.495);
+    /* dark text */
+}
+
+@layer base {
+    * {
+        @apply border-border;
+        font-family: 'Raleway', ui-sans-serif, system-ui, sans-serif;
+    }
+
+    body {
+        @apply bg-background text-foreground;
+    }
+}
+
+/* Custom Scrollbar Styles for Modal - Updated for new theme */
+@layer components {
+    .modal-scrollbar {
+        scrollbar-width: thin;
+        scrollbar-color: rgb(34 197 94) rgb(240 253 244);
+        /* green-600 on green-50 */
+    }
+
+    .modal-scrollbar::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    .modal-scrollbar::-webkit-scrollbar-track {
+        background: rgb(240 253 244);
+        /* green-50 */
+        border-radius: 4px;
+    }
+
+    .modal-scrollbar::-webkit-scrollbar-thumb {
+        background: rgb(34 197 94);
+        /* green-600 */
+        border-radius: 4px;
+        transition: background-color 0.2s ease;
+    }
+
+    .modal-scrollbar::-webkit-scrollbar-thumb:hover {
+        background: rgb(22 163 74);
+        /* green-700 */
+    }
+
+    /* Dark mode scrollbar */
+    .dark .modal-scrollbar {
+        scrollbar-color: rgb(16 185 129) rgb(20 83 45 / 0.5);
+        /* emerald-500 on dark green */
+    }
+
+    .dark .modal-scrollbar::-webkit-scrollbar-track {
+        background: rgb(20 83 45 / 0.5);
+    }
+
+    .dark .modal-scrollbar::-webkit-scrollbar-thumb {
+        background: rgb(16 185 129);
+        /* emerald-500 */
+    }
+
+    .dark .modal-scrollbar::-webkit-scrollbar-thumb:hover {
+        background: rgb(5 150 105);
+        /* emerald-600 */
+    }
+
+    /* Auth page blurred background effects */
+    .auth-blur-background {
+        background-attachment: fixed;
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+    }
+
+    .auth-blur-overlay {
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+    }
+
+    /* Notification highlight animation */
+    @keyframes highlight-pulse {
+
+        0%,
+        100% {
+            background-color: transparent;
+            box-shadow: 0 0 0 0 rgba(34, 197, 94, 0);
+        }
+
+        50% {
+            background-color: rgba(34, 197, 94, 0.15);
+            box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.2);
+        }
+    }
+
+    .highlight-row {
+        animation: highlight-pulse 1.5s ease-in-out 2;
+        border-left: 4px solid rgb(34 197 94) !important;
+        /* green-600 */
+    }
+
+    /* Dark mode highlight */
+    .dark .highlight-row {
+        border-left-color: rgb(16 185 129) !important;
+        /* emerald-500 */
+    }
+
+    @keyframes highlight-pulse-dark {
+
+        0%,
+        100% {
+            background-color: transparent;
+            box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+        }
+
+        50% {
+            background-color: rgba(16, 185, 129, 0.15);
+            box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.2);
+        }
+    }
+
+    .dark .highlight-row {
+        animation: highlight-pulse-dark 1.5s ease-in-out 2;
+    }
+
+    /* Status Badge Utility Classes */
+    /* Order Statuses */
+    .status-approved {
+        background-color: var(--status-approved) !important;
+        color: var(--status-approved-foreground) !important;
+        border-color: var(--status-approved) !important;
+    }
+
+    .status-rejected {
+        background-color: var(--status-rejected) !important;
+        color: var(--status-rejected-foreground) !important;
+        border-color: var(--status-rejected) !important;
+    }
+
+    .status-delayed {
+        background-color: var(--status-delayed) !important;
+        color: var(--status-delayed-foreground) !important;
+        border-color: var(--status-delayed) !important;
+    }
+
+    .status-cancelled {
+        background-color: var(--status-cancelled) !important;
+        color: var(--status-cancelled-foreground) !important;
+        border-color: var(--status-cancelled) !important;
+    }
+
+    /* Logistics/Delivery Statuses */
+    .status-pending {
+        background-color: var(--status-pending) !important;
+        color: var(--status-pending-foreground) !important;
+        border-color: var(--status-pending) !important;
+    }
+
+    .status-ready {
+        background-color: var(--status-ready) !important;
+        color: var(--status-ready-foreground) !important;
+        border-color: var(--status-ready) !important;
+    }
+
+    .status-out-for-delivery {
+        background-color: var(--status-out-for-delivery) !important;
+        color: var(--status-out-for-delivery-foreground) !important;
+        border-color: var(--status-out-for-delivery) !important;
+    }
+
+    .status-delivered {
+        background-color: var(--status-delivered) !important;
+        color: var(--status-delivered-foreground) !important;
+        border-color: var(--status-delivered) !important;
+    }
+}
