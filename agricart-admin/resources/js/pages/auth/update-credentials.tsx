@@ -8,6 +8,7 @@ import PasswordInput from '@/components/ui/password-input';
 import PasswordValidation from '@/components/ui/password-validation';
 import PasswordError from '@/components/ui/password-error';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { publicStorageUrl } from '@/utils/assets';
 
 type UpdateCredentialsForm = {
     password: string;
@@ -72,7 +73,7 @@ export default function UpdateCredentials({ user }: UpdateCredentialsProps) {
                         <div className="inline-block mb-4">
                             <div className="flex items-center justify-center gap-3">
                                 <img
-                                    src="/storage/logo/SMMC Logo-1.webp"
+                                    src={publicStorageUrl('logo/SMMC Logo-1.webp')}
                                     alt="SMMC Logo"
                                     className="h-20 w-20 object-contain"
                                     onError={(e) => {

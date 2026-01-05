@@ -1,5 +1,6 @@
 import { Link } from '@inertiajs/react';
 import { type PropsWithChildren } from 'react';
+import { publicStorageUrl } from '@/utils/assets';
 
 interface AuthCardLayoutProps {
     title?: string;
@@ -65,7 +66,7 @@ export default function AuthCardLayout({
                             <Link href={route('home')} className="mb-1.5 sm:mb-2 inline-block">
                                 <div className="flex items-center justify-center gap-4">
                                     <img
-                                        src="/storage/logo/SMMC Logo-1.webp"
+                                        src={publicStorageUrl('logo/SMMC Logo-1.webp')}
                                         alt="SMMC Logo"
                                         className="h-28 w-28 sm:h-32 sm:w-32 object-contain"
                                         onError={(e) => {

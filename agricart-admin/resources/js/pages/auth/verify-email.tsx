@@ -4,6 +4,8 @@ import { FormEventHandler } from 'react';
 
 import { Button } from '@/components/ui/button';
 
+import { publicStorageUrl } from '@/utils/assets';
+
 export default function VerifyEmail({ status }: { status?: string }) {
     const { post, processing } = useForm({});
 
@@ -23,7 +25,7 @@ export default function VerifyEmail({ status }: { status?: string }) {
                         <Link href={route('home')} className="inline-block mb-4">
                             <div className="flex items-center justify-center gap-3">
                                 <img
-                                    src="/storage/logo/SMMC Logo-1.webp"
+                                    src={publicStorageUrl('logo/SMMC Logo-1.webp')}
                                     alt="SMMC Logo"
                                     className="h-20 w-20 object-contain"
                                     onError={(e) => {

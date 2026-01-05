@@ -1,4 +1,5 @@
 import React from 'react';
+import { publicStorageUrl } from '@/utils/assets';
 
 interface OrderItem {
   id: number;
@@ -90,12 +91,12 @@ export default function OrderReceiptPreview({ order }: OrderReceiptPreviewProps)
         <div className="flex items-center justify-center gap-2 sm:gap-3 mb-3 sm:mb-4">
           <div className="bg-white rounded-full p-1.5 sm:p-2 shadow-md">
             <img 
-              src="/storage/logo/SMMC Logo-1.webp" 
+              src={publicStorageUrl('logo/SMMC Logo-1.webp')} 
               alt="SMMC Logo" 
               className="h-8 w-8 sm:h-10 sm:w-10 md:h-13 md:w-13 object-contain"
               onError={(e) => {
                 // Fallback to PNG if webp fails
-                e.currentTarget.src = '/storage/logo/SMMC Logo-1.png';
+                e.currentTarget.src = publicStorageUrl('logo/SMMC Logo-1.png');
               }}
             />
           </div>
@@ -224,12 +225,12 @@ export default function OrderReceiptPreview({ order }: OrderReceiptPreviewProps)
         <div className="flex items-center justify-center gap-2 mb-2">
           <div className="bg-white rounded-full p-1 shadow-sm">
             <img 
-              src="/storage/logo/SMMC Logo-1.webp" 
+              src={publicStorageUrl('logo/SMMC Logo-1.webp')} 
               alt="SMMC Logo" 
               className="h-5 w-5 sm:h-6 sm:w-6 object-contain"
               onError={(e) => {
                 // Fallback to PNG if webp fails
-                e.currentTarget.src = '/storage/logo/SMMC Logo-1.png';
+                e.currentTarget.src = publicStorageUrl('logo/SMMC Logo-1.png');
               }}
             />
           </div>

@@ -13,6 +13,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
 import { TestimonialSlider } from '@/components/customer/marketing/TestimonialSlider';
+import { publicStorageUrl } from '@/utils/assets';
 import Footer from '@/components/shared/layout/Footer';
 import Autoplay from 'embla-carousel-autoplay';
 
@@ -321,7 +322,7 @@ export default function CustomerHome({ products }: PageProps) {
                                   />
                                 ) : (
                                   <img
-                                    src="/storage/fallback-photo.png"
+                                    src={publicStorageUrl('fallback-photo.png')}
                                     alt="Default product"
                                     className="w-full h-full object-cover"
                                     onError={(e) => { e.currentTarget.src = '/storage/fallback-photo.png'; }}
