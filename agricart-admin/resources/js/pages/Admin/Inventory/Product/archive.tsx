@@ -101,7 +101,6 @@ export default function Archive() {
                                 <img 
                                     src={product.image_url || product.image || '/storage/fallback-photo.png'} 
                                     alt={product.name}
-                                    onError={(e) => { e.currentTarget.src = '/storage/fallback-photo.png'; }}
                                     className="w-full h-48 object-cover rounded-t-lg"
                                     onError={(e) => handleImageError(e, product.name)}
                                 />
