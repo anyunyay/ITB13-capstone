@@ -33,7 +33,7 @@ return Application::configure(basePath: dirname(__DIR__))
             HandleAppearance::class,
             HandleInertiaRequests::class,
             AddLinkHeadersForPreloadedAssets::class,
-            // CheckSingleSession::class, // Temporarily disabled for debugging
+            CheckSingleSession::class,
             EnsureUserIsActive::class,
         ]);
 
