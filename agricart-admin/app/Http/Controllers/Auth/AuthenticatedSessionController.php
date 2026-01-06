@@ -174,8 +174,7 @@ class AuthenticatedSessionController extends Controller
     public function store(LoginRequest $request): RedirectResponse
     {
         $request->authenticate();
-        $request->session()->regenerate();
-
+        
         $user = $request->user();
 
         // User type validation is now handled in LoginRequest
@@ -190,6 +189,9 @@ class AuthenticatedSessionController extends Controller
             return redirect()->route('single-session.restricted');
         }
 
+        // Regenerate session AFTER checking for existing sessions
+        $request->session()->regenerate();
+        
         // Set current session as active (only if no other session exists)
         $user->update(['current_session_id' => $request->session()->getId()]);
 
@@ -208,8 +210,7 @@ class AuthenticatedSessionController extends Controller
     public function storeAdmin(\App\Http\Requests\Auth\AdminLoginRequest $request): RedirectResponse
     {
         $request->authenticate();
-        $request->session()->regenerate();
-
+        
         $user = $request->user();
 
         // User type validation is now handled in AdminLoginRequest
@@ -224,6 +225,9 @@ class AuthenticatedSessionController extends Controller
             return redirect()->route('single-session.restricted');
         }
 
+        // Regenerate session AFTER checking for existing sessions
+        $request->session()->regenerate();
+        
         // Set current session as active (only if no other session exists)
         $user->update(['current_session_id' => $request->session()->getId()]);
 
@@ -242,8 +246,7 @@ class AuthenticatedSessionController extends Controller
     public function storeMember(\App\Http\Requests\Auth\MemberLoginRequest $request): RedirectResponse
     {
         $request->authenticate();
-        $request->session()->regenerate();
-
+        
         $user = $request->user();
 
         // User type validation is now handled in MemberLoginRequest
@@ -259,6 +262,9 @@ class AuthenticatedSessionController extends Controller
             return redirect()->route('single-session.restricted');
         }
 
+        // Regenerate session AFTER checking for existing sessions
+        $request->session()->regenerate();
+        
         // Set current session as active (only if no other session exists)
         $user->update(['current_session_id' => $request->session()->getId()]);
 
@@ -277,8 +283,7 @@ class AuthenticatedSessionController extends Controller
     public function storeLogistic(\App\Http\Requests\Auth\LogisticLoginRequest $request): RedirectResponse
     {
         $request->authenticate();
-        $request->session()->regenerate();
-
+        
         $user = $request->user();
 
         // User type validation is now handled in LogisticLoginRequest
@@ -294,6 +299,9 @@ class AuthenticatedSessionController extends Controller
             return redirect()->route('single-session.restricted');
         }
 
+        // Regenerate session AFTER checking for existing sessions
+        $request->session()->regenerate();
+        
         // Set current session as active (only if no other session exists)
         $user->update(['current_session_id' => $request->session()->getId()]);
 

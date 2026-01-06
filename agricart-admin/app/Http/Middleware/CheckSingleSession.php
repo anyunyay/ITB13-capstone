@@ -45,14 +45,27 @@ class CheckSingleSession
             $user = Auth::user();
             $currentSessionId = Session::getId();
 
+            // Debug logging
+            Log::info('CheckSingleSession middleware', [
+                'user_id' => $user->id,
+                'current_session_id' => $currentSessionId,
+                'stored_session_id' => $user->current_session_id,
+                'has_active_session' => $user->hasActiveSession(),
+                'is_current_session' => $user->isCurrentSession($currentSessionId),
+                'is_session_valid' => $user->isSessionValid(),
+                'route' => $request->route()?->getName(),
+                'url' => $request->url()
+            ]);
+
             // If user has no active session set, set the current one
             // This handles cases where session was cleared but user is still authenticated
             if (!$user->hasActiveSession()) {
                 try {
                     $user->update(['current_session_id' => $currentSessionId]);
+                    Log::info('Set initial session for user ' . $user->id . ' to: ' . $currentSessionId);
                 } catch (\Exception $e) {
                     // If update fails, log it but don't break the request
-                    \Log::warning('Failed to update session ID for user ' . $user->id . ': ' . $e->getMessage());
+                    Log::warning('Failed to update session ID for user ' . $user->id . ': ' . $e->getMessage());
                 }
             }
             // Check if the current session is the user's active session
@@ -88,6 +101,12 @@ class CheckSingleSession
                         // This session is not the current active session and the stored session is valid and old
                         // User has been kicked out by another session - log them out and redirect to appropriate login
                         $userType = $user->type;
+
+                        Log::warning('Logging out user ' . $user->id . ' due to session mismatch', [
+                            'current_session' => $currentSessionId,
+                            'stored_session' => $user->current_session_id,
+                            'stored_session_activity' => $storedSession ? $storedSession->last_activity : 'not found'
+                        ]);
 
                         // Clear the session
                         Auth::guard('web')->logout();
