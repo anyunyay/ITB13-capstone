@@ -57,10 +57,10 @@ export const getFallbackImageUrl = async (): Promise<string> => {
         });
 
         const data = await response.json();
-        return data.success ? data.data.url : '/storage/fallback-photo.png';
+        return data.success ? data.data.url : '/images/fallback-photo.png';
     } catch (error) {
         console.error('Error getting fallback image:', error);
-        return '/storage/fallback-photo.png';
+        return '/images/fallback-photo.png';
     }
 };
 

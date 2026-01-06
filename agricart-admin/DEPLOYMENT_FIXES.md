@@ -18,7 +18,7 @@ Replaced all hardcoded `/storage/...` paths with proper asset helper:
 - `resources/js/components/customer/orders/OrderReceiptPreview.tsx`
 
 **Before:** `<img src="/storage/logo/SMMC Logo-1.png">`
-**After:** `<img src={publicStorageUrl('logo/smmc-logo.webp')}>` 
+**After:** `<img src="/images/logo/smmc-logo.webp">` 
 
 ## ✅ FIX 3 - Filesystems Configuration Verified
 `config/filesystems.php` is correctly configured:

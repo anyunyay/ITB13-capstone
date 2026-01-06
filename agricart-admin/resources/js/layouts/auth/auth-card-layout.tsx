@@ -66,11 +66,11 @@ export default function AuthCardLayout({
                             <Link href={route('home')} className="mb-1.5 sm:mb-2 inline-block">
                                 <div className="flex items-center justify-center gap-4">
                                     <img
-                                        src={publicStorageUrl('logo/smmc-logo.webp')}
+                                        src="/images/logo/smmc-logo.webp"
                                         alt="SMMC Logo"
                                         className="h-28 w-28 sm:h-32 sm:w-32 object-contain"
                                         onError={(e) => {
-                                            e.currentTarget.src = '/storage/logo/smmc-logo.png';
+                                            e.currentTarget.src = '/images/logo/smmc-logo.png';
                                         }}
                                     />
                                     <span className="text-6xl sm:text-7xl font-semibold text-green-700" style={{ fontFamily: 'Poppins, sans-serif', letterSpacing: '-0.08em' }}>

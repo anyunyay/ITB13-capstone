@@ -73,11 +73,11 @@ export default function UpdateCredentials({ user }: UpdateCredentialsProps) {
                         <div className="inline-block mb-4">
                             <div className="flex items-center justify-center gap-3">
                                 <img
-                                    src={publicStorageUrl('logo/smmc-logo.webp')}
+                                    src="/images/logo/smmc-logo.webp"
                                     alt="SMMC Logo"
                                     className="h-20 w-20 object-contain"
                                     onError={(e) => {
-                                        e.currentTarget.src = '/storage/logo/smmc-logo.png';
+                                        e.currentTarget.src = '/images/logo/smmc-logo.png';
                                     }}
                                 />
                                 <span className="text-5xl font-semibold text-green-700" style={{ fontFamily: 'Poppins, sans-serif', letterSpacing: '-0.08em' }}>

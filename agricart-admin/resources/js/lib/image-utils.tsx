@@ -8,7 +8,7 @@
  * @param defaultPath - Optional custom default path, defaults to default-product.jpg
  * @returns The image source URL with fallback
  */
-export function getImageSource(imagePath: string | null | undefined, defaultPath: string = '/storage/fallback-photo.png'): string {
+export function getImageSource(imagePath: string | null | undefined, defaultPath: string = '/images/fallback-photo.png'): string {
   if (!imagePath) {
     return defaultPath;
   }
@@ -27,7 +27,7 @@ export function getImageSource(imagePath: string | null | undefined, defaultPath
  * @param event - The error event from the img element
  * @param fallbackSrc - The fallback image source
  */
-export function handleImageError(event: React.SyntheticEvent<HTMLImageElement, Event>, fallbackSrc: string = '/storage/fallback-photo.png'): void {
+export function handleImageError(event: React.SyntheticEvent<HTMLImageElement, Event>, fallbackSrc: string = '/images/fallback-photo.png'): void {
   const img = event.currentTarget;
   if (img.src !== fallbackSrc) {
     img.src = fallbackSrc;
@@ -46,7 +46,7 @@ export function SafeImage({
   src, 
   alt, 
   className, 
-  fallbackSrc = '/storage/fallback-photo.png',
+  fallbackSrc = '/images/fallback-photo.png',
   ...props 
 }: {
   src: string | null | undefined;
