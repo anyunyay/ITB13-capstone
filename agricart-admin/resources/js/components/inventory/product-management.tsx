@@ -91,7 +91,7 @@ export const ProductManagement = ({
     // Helper function to handle image error with cascading fallback
     const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>, productName: string) => {
         const target = e.target as HTMLImageElement;
-        const fallbackPath = '/storage/fallback-photo.png';
+        const fallbackPath = '/images/fallback-photo.png';
 
         // If current src is not the fallback, try fallback first
         if (target.src !== window.location.origin + fallbackPath) {
@@ -266,7 +266,7 @@ export const ProductManagement = ({
                                     <Card key={product.id} className="bg-card border border-border rounded-lg shadow-sm transition-all duration-300 overflow-hidden flex flex-col h-full box-border hover:shadow-md hover:-translate-y-0.5">
                                         <div className="relative w-full h-44 overflow-hidden flex-shrink-0">
                                             <img
-                                                src={product.image_url || `/storage/products/${product.image}` || '/storage/fallback-photo.png'}
+                                                src={product.image_url || `/storage/products/${product.image}` || '/images/fallback-photo.png'}
                                                 alt={product.name}
                                                 onError={(e) => handleImageError(e, product.name)}
                                                 className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"

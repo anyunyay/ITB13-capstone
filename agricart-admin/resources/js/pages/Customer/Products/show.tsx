@@ -46,7 +46,7 @@ export default function ShowProduct({ product }: PageProps) {
   // Handle image URL - use fallback if image fails to load
   const imageUrl = product.image_url || 
                    (product.image ? `/storage/${product.image}` : '') || 
-                   '/storage/fallback-photo.png';
+                   '/images/fallback-photo.png';
   const produceTypeEmoji = product.produce_type === 'fruit' ? '🍎' : '🥬';
 
   // Calculate available pricing options
@@ -103,7 +103,7 @@ export default function ShowProduct({ product }: PageProps) {
                     className="w-full h-full object-cover hover:scale-110 transition-transform duration-500"
                     onError={(e) => {
                       const target = e.target as HTMLImageElement;
-                      const fallbackUrl = '/storage/fallback-photo.png';
+                      const fallbackUrl = '/images/fallback-photo.png';
                       // Prevent infinite loop if fallback also fails
                       if (!target.src.includes('fallback-photo.png')) {
                         target.src = fallbackUrl;

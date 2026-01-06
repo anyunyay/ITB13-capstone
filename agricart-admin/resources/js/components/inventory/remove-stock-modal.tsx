@@ -73,7 +73,7 @@ export const RemoveStockModal = ({
                                 <img 
                                     src={selectedStock.product.image_url} 
                                     alt={selectedStock.product.name}
-                                    onError={(e) => { e.currentTarget.src = '/storage/fallback-photo.png'; }}
+                                    onError={(e) => { e.currentTarget.src = '/images/fallback-photo.png'; }}
                                     className="w-16 h-16 object-cover rounded-lg"
                                 />
                             )}

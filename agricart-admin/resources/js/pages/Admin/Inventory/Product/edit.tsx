@@ -49,7 +49,7 @@ export default function Edit({product}: Props) {
     // Helper function to handle image error with cascading fallback
     const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>, productName: string) => {
         const target = e.target as HTMLImageElement;
-        const fallbackPath = '/storage/fallback-photo.png';
+        const fallbackPath = '/images/fallback-photo.png';
         
         // If current src is not the fallback, try fallback first
         if (target.src !== window.location.origin + fallbackPath) {
@@ -415,7 +415,7 @@ export default function Edit({product}: Props) {
                                                 <Label className="text-xs font-medium mb-2 block text-muted-foreground text-center">{t('admin.current_image')}</Label>
                                                 <div className="w-full h-48 flex items-center justify-center bg-background rounded-lg border">
                                                     <img 
-                                                      src={product.image_url || '/storage/fallback-photo.png'} 
+                                                      src={product.image_url || '/images/fallback-photo.png'} 
                                                       alt={product.name}
                                                       className="max-w-full max-h-full object-contain rounded-lg"
                                                       onError={(e) => handleImageError(e, product.name)}

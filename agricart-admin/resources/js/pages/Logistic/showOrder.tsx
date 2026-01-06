@@ -556,7 +556,7 @@ export default function ShowOrder({ order }: ShowOrderProps) {
                               <img 
                                 src={currentOrder.delivery_proof_image} 
                                 alt="Delivery proof"
-                                onError={(e) => { e.currentTarget.src = '/storage/fallback-photo.png'; }} 
+                                onError={(e) => { e.currentTarget.src = '/images/fallback-photo.png'; }} 
                                 className="max-w-full max-h-full w-auto h-auto object-contain transition-transform duration-300 group-hover:scale-105"
                               />
                             </div>
@@ -809,7 +809,7 @@ export default function ShowOrder({ order }: ShowOrderProps) {
                       <img 
                         src={imagePreview} 
                         alt={t('logistic.delivery_proof_preview')}
-                        onError={(e) => { e.currentTarget.src = '/storage/fallback-photo.png'; }} 
+                        onError={(e) => { e.currentTarget.src = '/images/fallback-photo.png'; }} 
                         className="w-full h-48 object-cover rounded-lg border border-border"
                       />
                       <Button

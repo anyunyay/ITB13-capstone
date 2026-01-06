@@ -51,7 +51,7 @@ class FileController extends Controller
         return response()->json([
             'success' => true,
             'data' => [
-                'url' => asset('storage/fallback-photo.png')
+                'url' => asset('images/fallback-photo.png')
             ]
         ]);
     }

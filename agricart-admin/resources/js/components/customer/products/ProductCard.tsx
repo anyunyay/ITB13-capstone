@@ -49,7 +49,7 @@ export function ProductCard({
   const handleImageClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (onImageClick) {
-      onImageClick(product.image_url || product.image || '/storage/fallback-photo.png', product.name);
+      onImageClick(product.image_url || product.image || '/images/fallback-photo.png', product.name);
     }
   };
 
@@ -88,7 +88,7 @@ export function ProductCard({
         onClick={onClick}
       >
         <img
-          src={product.image_url || product.image || '/storage/fallback-photo.png'}
+          src={product.image_url || product.image || '/images/fallback-photo.png'}
           alt={product.name}
           className="w-12 h-12 object-cover rounded-lg cursor-pointer hover:opacity-80 transition-opacity"
           onClick={(e) => {
@@ -97,7 +97,7 @@ export function ProductCard({
           }}
           onError={(e) => {
             const target = e.target as HTMLImageElement;
-            target.src = '/storage/fallback-photo.png';
+            target.src = '/images/fallback-photo.png';
           }}
         />
         <div className="flex-1 min-w-0">
@@ -124,13 +124,13 @@ export function ProductCard({
         {/* Image Section */}
         <div className="relative overflow-hidden">
           <img 
-            src={product.image_url || product.image || '/storage/fallback-photo.png'} 
+            src={product.image_url || product.image || '/images/fallback-photo.png'} 
             alt={product.name}
             className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300 cursor-pointer"
             onClick={handleImageClick}
             onError={(e) => {
               const target = e.target as HTMLImageElement;
-              target.src = '/storage/fallback-photo.png';
+              target.src = '/images/fallback-photo.png';
             }}
           />
           <div className="absolute top-3 right-3">
@@ -176,7 +176,7 @@ export function ProductCard({
         onClick={handleImageClick}
       >
         <img 
-          src={product.image_url || product.image || '/storage/fallback-photo.png'} 
+          src={product.image_url || product.image || '/images/fallback-photo.png'} 
           alt={product.name}
           className="w-full h-32 sm:h-40 lg:h-48 object-cover group-hover:scale-105 transition-transform duration-300"
           style={{
@@ -186,7 +186,7 @@ export function ProductCard({
           }}
           onError={(e) => {
             const target = e.target as HTMLImageElement;
-            target.src = '/storage/fallback-photo.png';
+            target.src = '/images/fallback-photo.png';
           }}
         />
         <div className="absolute top-2 right-2 sm:top-3 sm:right-3">

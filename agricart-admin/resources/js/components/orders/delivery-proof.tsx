@@ -63,7 +63,7 @@ export const DeliveryProof = ({
                 style={{ maxHeight: '300px', objectFit: 'contain' }}
                 onError={(e) => {
                   const target = e.target as HTMLImageElement;
-                  target.src = '/storage/fallback-photo.png';
+                  target.src = '/images/fallback-photo.png';
                   target.alt = 'Delivery proof not available';
                 }}
               />

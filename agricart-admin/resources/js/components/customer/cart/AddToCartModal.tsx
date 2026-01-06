@@ -193,12 +193,12 @@ export function AddToCartModal({
             <div className="flex-shrink-0">
               <div className="w-24 h-36 md:w-32 md:h-48 rounded-lg overflow-hidden bg-muted">
                 <img 
-                  src={product.image_url || product.image || '/storage/fallback-photo.png'} 
+                  src={product.image_url || product.image || '/images/fallback-photo.png'} 
                   alt={product.name}
                   className="w-full h-full object-cover"
                   onError={(e) => {
                     const target = e.target as HTMLImageElement;
-                    target.src = '/storage/fallback-photo.png';
+                    target.src = '/images/fallback-photo.png';
                   }}
                 />
               </div>

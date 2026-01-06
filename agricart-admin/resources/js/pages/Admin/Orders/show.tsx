@@ -497,7 +497,7 @@ export default function OrderShow({ order, logistics, highlight = false, isUrgen
                 className="max-w-full max-h-[60vh] object-contain rounded-lg shadow-sm border"
                 onError={(e) => {
                   const target = e.target as HTMLImageElement;
-                  target.src = '/storage/fallback-photo.png';
+                  target.src = '/images/fallback-photo.png';
                   target.alt = t('admin.delivery_proof_not_available');
                 }}
               />

@@ -318,14 +318,14 @@ export default function CustomerHome({ products }: PageProps) {
                                     src={product.image_url}
                                     alt={product.name}
                                     className="w-full h-full object-cover"
-                                    onError={(e) => { e.currentTarget.src = '/storage/fallback-photo.png'; }}
+                                    onError={(e) => { e.currentTarget.src = '/images/fallback-photo.png'; }}
                                   />
                                 ) : (
                                   <img
-                                    src={publicStorageUrl('fallback-photo.png')}
+                                    src="/images/fallback-photo.png"
                                     alt="Default product"
                                     className="w-full h-full object-cover"
-                                    onError={(e) => { e.currentTarget.src = '/storage/fallback-photo.png'; }}
+                                    onError={(e) => { e.currentTarget.src = '/images/fallback-photo.png'; }}
                                   />
                                 )}
                               </div>

@@ -41,7 +41,7 @@ export default function Archive() {
     // Helper function to handle image error with cascading fallback
     const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>, productName: string) => {
         const target = e.target as HTMLImageElement;
-        const fallbackPath = '/storage/fallback-photo.png';
+        const fallbackPath = '/images/fallback-photo.png';
         
         // If current src is not the fallback, try fallback first
         if (target.src !== window.location.origin + fallbackPath) {
@@ -99,7 +99,7 @@ export default function Archive() {
                         <Card key={product.id} className='w-70 p-0'>
                             <div>
                                 <img 
-                                    src={product.image_url || product.image || '/storage/fallback-photo.png'} 
+                                    src={product.image_url || product.image || '/images/fallback-photo.png'} 
                                     alt={product.name}
                                     className="w-full h-48 object-cover rounded-t-lg"
                                     onError={(e) => handleImageError(e, product.name)}

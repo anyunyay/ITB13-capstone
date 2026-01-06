@@ -49,7 +49,7 @@ export default function AuthCardLayout({
                                 <img
                                     src={imageUrl}
                                     alt={title || 'Authentication'}
-                                    onError={(e) => { e.currentTarget.src = '/storage/fallback-photo.png'; }}
+                                    onError={(e) => { e.currentTarget.src = '/images/fallback-photo.png'; }}
                                     className="h-full w-full object-cover"
                                 />
                                 {/* Thin black overlay to slightly darken the image */}

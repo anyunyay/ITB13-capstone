@@ -94,7 +94,7 @@ const SecureImage: React.FC<SecureImageProps> = ({
             alt={alt}
             className={className}
             onError={(e) => {
-                e.currentTarget.src = '/storage/fallback-photo.png';
+                e.currentTarget.src = '/images/fallback-photo.png';
                 handleImageError();
             }}
             {...props}
