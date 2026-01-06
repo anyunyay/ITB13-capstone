@@ -113,7 +113,7 @@ class UserAppearanceController extends Controller
             return response()->json([
                 'success' => true,
                 'data' => [
-                    'appearance' => $user->appearance ?? 'system',
+                    'appearance' => $user->appearance ?? 'light',
                 ],
             ]);
 
