@@ -10,11 +10,11 @@ export default function AppLogo({ isScrolled = false }: AppLogoProps) {
         <>
             <div className="flex aspect-square size-8 items-center justify-center">
                 <img 
-                    src={publicStorageUrl('logo/SMMC Logo-1.webp')} 
+                    src={publicStorageUrl('logo/smmc-logo.webp')} 
                     alt="SMMC Logo" 
                     className="size-7 group-data-[collapsible=icon]:size-7 group-data-[state=expanded]:size-10 object-contain transition-all"
                     onError={(e) => {
-                        e.currentTarget.src = '/storage/logo/SMMC Logo-1.png';
+                        e.currentTarget.src = '/storage/logo/smmc-logo.png';
                     }}
                 />
             </div>

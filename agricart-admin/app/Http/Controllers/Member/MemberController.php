@@ -1236,7 +1236,7 @@ class MemberController extends Controller
         $totalLoss = array_sum(array_column($allData, 'damaged_defective_loss'));
 
         // Encode logo as base64 for PDF embedding
-        $logoPath = storage_path('app/public/logo/SMMC Logo-1.png');
+        $logoPath = storage_path('app/public/logo/smmc-logo.png');
         $logoBase64 = '';
         if (file_exists($logoPath)) {
             $imageData = file_get_contents($logoPath);
