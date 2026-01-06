@@ -34,8 +34,12 @@ RUN composer install --no-dev --optimize-autoloader
 # Build frontend assets
 RUN npm install && npm run build
 
-# Fix permissions
+# Create storage symlink (CRITICAL for production)
+RUN php artisan storage:link || true
+
+# Fix permissions (complete setup)
 RUN chown -R www-data:www-data storage bootstrap/cache
+RUN chmod -R 775 storage bootstrap/cache
 
 # Clear caches safely
 RUN php artisan config:clear \
