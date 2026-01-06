@@ -461,8 +461,8 @@ class DashboardController extends Controller
                 DB::raw('SUM(CASE WHEN sales_audit.delivery_status = \'delivered\' THEN 1 ELSE 0 END) as delivered_orders')
             )
             ->groupBy('users.id', 'users.name')
-            ->having('total_orders', '>', 0)
-            ->orderBy('delivered_orders', 'desc')
+            ->having(DB::raw('COUNT(sales_audit.id)'), '>', 0)
+            ->orderBy(DB::raw('SUM(CASE WHEN sales_audit.delivery_status = \'delivered\' THEN 1 ELSE 0 END)'), 'desc')
             ->limit(10)
             ->get()
             ->map(function ($logistic) {
