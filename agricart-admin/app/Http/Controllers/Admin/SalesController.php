@@ -330,7 +330,7 @@ class SalesController extends Controller
             ->join('stocks', 'audit_trails.stock_id', '=', 'stocks.id')
             ->join('users as members', 'stocks.member_id', '=', 'members.id')
             ->join('products', 'audit_trails.product_id', '=', 'products.id')
-            ->where('members.type', 'member')
+            ->where('members.type', '=', 'member')
             ->whereNotNull('sales.delivered_at') // Only include delivered orders
             ->select(
                 'members.id as member_id',
@@ -339,65 +339,65 @@ class SalesController extends Controller
                 DB::raw('COUNT(DISTINCT sales.id) as total_orders'),
                 DB::raw('SUM(
                     CASE 
-                        WHEN audit_trails.category = "Kilo" AND audit_trails.price_kilo IS NOT NULL 
+                        WHEN audit_trails.category = \'Kilo\' AND audit_trails.price_kilo IS NOT NULL 
                         THEN audit_trails.quantity * audit_trails.price_kilo
-                        WHEN audit_trails.category = "Pc" AND audit_trails.price_pc IS NOT NULL 
+                        WHEN audit_trails.category = \'Pc\' AND audit_trails.price_pc IS NOT NULL 
                         THEN audit_trails.quantity * audit_trails.price_pc
-                        WHEN audit_trails.category = "Tali" AND audit_trails.price_tali IS NOT NULL 
+                        WHEN audit_trails.category = \'Tali\' AND audit_trails.price_tali IS NOT NULL 
                         THEN audit_trails.quantity * audit_trails.price_tali
-                        WHEN audit_trails.category = "order" AND audit_trails.price_kilo IS NOT NULL 
+                        WHEN audit_trails.category = \'order\' AND audit_trails.price_kilo IS NOT NULL 
                         THEN audit_trails.quantity * audit_trails.price_kilo
                         ELSE 0
                     END
                 ) as total_revenue'),
                 DB::raw('SUM(
                     CASE 
-                        WHEN audit_trails.category = "Kilo" AND audit_trails.price_kilo IS NOT NULL 
+                        WHEN audit_trails.category = \'Kilo\' AND audit_trails.price_kilo IS NOT NULL 
                         THEN audit_trails.quantity * audit_trails.price_kilo * 0.10
-                        WHEN audit_trails.category = "Pc" AND audit_trails.price_pc IS NOT NULL 
+                        WHEN audit_trails.category = \'Pc\' AND audit_trails.price_pc IS NOT NULL 
                         THEN audit_trails.quantity * audit_trails.price_pc * 0.10
-                        WHEN audit_trails.category = "Tali" AND audit_trails.price_tali IS NOT NULL 
+                        WHEN audit_trails.category = \'Tali\' AND audit_trails.price_tali IS NOT NULL 
                         THEN audit_trails.quantity * audit_trails.price_tali * 0.10
-                        WHEN audit_trails.category = "order" AND audit_trails.price_kilo IS NOT NULL 
+                        WHEN audit_trails.category = \'order\' AND audit_trails.price_kilo IS NOT NULL 
                         THEN audit_trails.quantity * audit_trails.price_kilo * 0.10
                         ELSE 0
                     END
                 ) as total_coop_share'),
                 DB::raw('SUM(
                     CASE 
-                        WHEN audit_trails.category = "Kilo" AND audit_trails.price_kilo IS NOT NULL 
+                        WHEN audit_trails.category = \'Kilo\' AND audit_trails.price_kilo IS NOT NULL 
                         THEN audit_trails.quantity * audit_trails.price_kilo
-                        WHEN audit_trails.category = "Pc" AND audit_trails.price_pc IS NOT NULL 
+                        WHEN audit_trails.category = \'Pc\' AND audit_trails.price_pc IS NOT NULL 
                         THEN audit_trails.quantity * audit_trails.price_pc
-                        WHEN audit_trails.category = "Tali" AND audit_trails.price_tali IS NOT NULL 
+                        WHEN audit_trails.category = \'Tali\' AND audit_trails.price_tali IS NOT NULL 
                         THEN audit_trails.quantity * audit_trails.price_tali
-                        WHEN audit_trails.category = "order" AND audit_trails.price_kilo IS NOT NULL 
+                        WHEN audit_trails.category = \'order\' AND audit_trails.price_kilo IS NOT NULL 
                         THEN audit_trails.quantity * audit_trails.price_kilo
                         ELSE 0
                     END
                 ) as total_member_share'),
                 DB::raw('SUM(
                     CASE 
-                        WHEN audit_trails.category = "Kilo" AND audit_trails.price_kilo IS NOT NULL 
+                        WHEN audit_trails.category = \'Kilo\' AND audit_trails.price_kilo IS NOT NULL 
                         THEN (audit_trails.quantity * audit_trails.price_kilo / 1.3) * 0.7
-                        WHEN audit_trails.category = "Pc" AND audit_trails.price_pc IS NOT NULL 
+                        WHEN audit_trails.category = \'Pc\' AND audit_trails.price_pc IS NOT NULL 
                         THEN (audit_trails.quantity * audit_trails.price_pc / 1.3) * 0.7
-                        WHEN audit_trails.category = "Tali" AND audit_trails.price_tali IS NOT NULL 
+                        WHEN audit_trails.category = \'Tali\' AND audit_trails.price_tali IS NOT NULL 
                         THEN (audit_trails.quantity * audit_trails.price_tali / 1.3) * 0.7
-                        WHEN audit_trails.category = "order" AND audit_trails.price_kilo IS NOT NULL 
+                        WHEN audit_trails.category = \'order\' AND audit_trails.price_kilo IS NOT NULL 
                         THEN (audit_trails.quantity * audit_trails.price_kilo / 1.3) * 0.7
                         ELSE 0
                     END
                 ) as total_cogs'),
                 DB::raw('SUM(
                     CASE 
-                        WHEN audit_trails.category = "Kilo" AND audit_trails.price_kilo IS NOT NULL 
+                        WHEN audit_trails.category = \'Kilo\' AND audit_trails.price_kilo IS NOT NULL 
                         THEN audit_trails.quantity * audit_trails.price_kilo - ((audit_trails.quantity * audit_trails.price_kilo / 1.3) * 0.7)
-                        WHEN audit_trails.category = "Pc" AND audit_trails.price_pc IS NOT NULL 
+                        WHEN audit_trails.category = \'Pc\' AND audit_trails.price_pc IS NOT NULL 
                         THEN audit_trails.quantity * audit_trails.price_pc - ((audit_trails.quantity * audit_trails.price_pc / 1.3) * 0.7)
-                        WHEN audit_trails.category = "Tali" AND audit_trails.price_tali IS NOT NULL 
+                        WHEN audit_trails.category = \'Tali\' AND audit_trails.price_tali IS NOT NULL 
                         THEN audit_trails.quantity * audit_trails.price_tali - ((audit_trails.quantity * audit_trails.price_tali / 1.3) * 0.7)
-                        WHEN audit_trails.category = "order" AND audit_trails.price_kilo IS NOT NULL 
+                        WHEN audit_trails.category = \'order\' AND audit_trails.price_kilo IS NOT NULL 
                         THEN audit_trails.quantity * audit_trails.price_kilo - ((audit_trails.quantity * audit_trails.price_kilo / 1.3) * 0.7)
                         ELSE 0
                     END
