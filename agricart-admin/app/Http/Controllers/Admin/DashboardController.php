@@ -458,7 +458,7 @@ class DashboardController extends Controller
                 'users.id',
                 'users.name',
                 DB::raw('COUNT(sales_audit.id) as total_orders'),
-                DB::raw('SUM(CASE WHEN sales_audit.delivery_status = "delivered" THEN 1 ELSE 0 END) as delivered_orders')
+                DB::raw('SUM(CASE WHEN sales_audit.delivery_status = \'delivered\' THEN 1 ELSE 0 END) as delivered_orders')
             )
             ->groupBy('users.id', 'users.name')
             ->having('total_orders', '>', 0)
