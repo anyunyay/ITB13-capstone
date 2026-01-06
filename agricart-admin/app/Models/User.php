@@ -43,8 +43,6 @@ class User extends Authenticatable implements MustVerifyEmail
         'active',
         // Default account flag
         'is_default',
-        // Session management
-        'current_session_id',
         // Email verification
         'email_verified_at',
         // Appearance settings
@@ -272,76 +270,6 @@ class User extends Authenticatable implements MustVerifyEmail
         } elseif ($this->type === 'member' && !$this->can('access member features')) {
             $this->givePermissionTo('access member features');
         }
-    }
-
-    /**
-     * Invalidate all other sessions for this user except the current one
-     */
-    public function invalidateOtherSessions($currentSessionId)
-    {
-        // Update the user's current session ID
-        $this->update(['current_session_id' => $currentSessionId]);
-
-        // Delete all other sessions for this user from the sessions table
-        DB::table('sessions')
-            ->where('user_id', $this->id)
-            ->where('id', '!=', $currentSessionId)
-            ->delete();
-    }
-
-    /**
-     * Check if the current session is valid for this user
-     */
-    public function isCurrentSession($sessionId)
-    {
-        return $this->current_session_id === $sessionId;
-    }
-
-    /**
-     * Clear the current session ID when user logs out
-     */
-    public function clearCurrentSession()
-    {
-        $this->update(['current_session_id' => null]);
-    }
-
-    /**
-     * Check if user has an active session
-     */
-    public function hasActiveSession()
-    {
-        return !is_null($this->current_session_id);
-    }
-
-    /**
-     * Get the email change requests for this user.
-     */
-    public function emailChangeRequests()
-    {
-        return $this->hasMany(EmailChangeRequest::class);
-    }
-
-    /**
-     * Get the appearance settings for this user.
-     */
-    public function appearanceSettings()
-    {
-        return $this->hasOne(AppearanceSettings::class);
-    }
-
-    /**
-     * Check if the current session is still valid (exists in sessions table)
-     */
-    public function isSessionValid()
-    {
-        if (!$this->hasActiveSession()) {
-            return false;
-        }
-
-        return DB::table('sessions')
-            ->where('id', $this->current_session_id)
-            ->where('user_id', $this->id)
-            ->exists();
     }
 
     /**

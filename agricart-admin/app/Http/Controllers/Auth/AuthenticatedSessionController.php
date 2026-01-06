@@ -183,16 +183,6 @@ class AuthenticatedSessionController extends Controller
 
         $user->ensurePermissions();
 
-        // Check if user already has an active session
-        if ($user->hasActiveSession() && $user->isSessionValid()) {
-            // User already has an active session, redirect to restriction page
-            // DO NOT invalidate other sessions here - let user decide on restriction page
-            return redirect()->route('single-session.restricted');
-        }
-
-        // Set current session as active (only if no other session exists)
-        $user->update(['current_session_id' => $request->session()->getId()]);
-
         // Check if user is a default account and needs to update credentials
         if ($user->is_default) {
             return redirect()->route('credentials.update.show');
@@ -216,16 +206,6 @@ class AuthenticatedSessionController extends Controller
         // This code should never be reached for wrong user types
 
         $user->ensurePermissions();
-
-        // Check if user already has an active session
-        if ($user->hasActiveSession() && $user->isSessionValid()) {
-            // User already has an active session, redirect to restriction page
-            // DO NOT invalidate other sessions here - let user decide on restriction page
-            return redirect()->route('single-session.restricted');
-        }
-
-        // Set current session as active (only if no other session exists)
-        $user->update(['current_session_id' => $request->session()->getId()]);
 
         // Check if user is a default account and needs to update credentials
         if ($user->is_default) {
@@ -251,17 +231,6 @@ class AuthenticatedSessionController extends Controller
 
         $user->ensurePermissions();
 
-        // Log successful member login
-        // Check if user already has an active session
-        if ($user->hasActiveSession() && $user->isSessionValid()) {
-            // User already has an active session, redirect to restriction page
-            // DO NOT invalidate other sessions here - let user decide on restriction page
-            return redirect()->route('single-session.restricted');
-        }
-
-        // Set current session as active (only if no other session exists)
-        $user->update(['current_session_id' => $request->session()->getId()]);
-
         // Check if user is a default account and needs to update credentials
         if ($user->is_default) {
             return redirect()->route('credentials.update.show');
@@ -286,17 +255,6 @@ class AuthenticatedSessionController extends Controller
 
         $user->ensurePermissions();
 
-        // Log successful logistic login
-        // Check if user already has an active session
-        if ($user->hasActiveSession() && $user->isSessionValid()) {
-            // User already has an active session, redirect to restriction page
-            // DO NOT invalidate other sessions here - let user decide on restriction page
-            return redirect()->route('single-session.restricted');
-        }
-
-        // Set current session as active (only if no other session exists)
-        $user->update(['current_session_id' => $request->session()->getId()]);
-
         // Check if user is a default account and needs to update credentials
         if ($user->is_default) {
             return redirect()->route('credentials.update.show');
@@ -312,11 +270,6 @@ class AuthenticatedSessionController extends Controller
     {
         $user = Auth::user();
         $userType = $user?->type;
-        
-        // Clear the current session ID from the user record
-        if ($user) {
-            $user->clearCurrentSession();
-        }
 
         Auth::guard('web')->logout();
 
