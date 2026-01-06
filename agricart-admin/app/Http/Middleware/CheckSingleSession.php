@@ -59,32 +59,52 @@ class CheckSingleSession
             elseif (!$user->isCurrentSession($currentSessionId)) {
                 // Verify the stored session still exists in the database
                 if (!$user->isSessionValid()) {
-                    // The stored session is invalid, update to current session
+                    // The stored session is invalid (expired/deleted), update to current session
+                    // This is normal behavior when sessions expire or are cleaned up
                     try {
                         $user->update(['current_session_id' => $currentSessionId]);
+                        Log::info('Updated expired session for user ' . $user->id . ' to new session: ' . $currentSessionId);
                     } catch (\Exception $e) {
-                        \Log::warning('Failed to update invalid session ID for user ' . $user->id . ': ' . $e->getMessage());
+                        Log::warning('Failed to update expired session ID for user ' . $user->id . ': ' . $e->getMessage());
                     }
                 } else {
-                    // This session is not the current active session and the stored session is valid
-                    // User has been kicked out by another session - log them out and redirect to appropriate login
-                    $userType = $user->type;
+                    // Check if the stored session is very recent (within 5 minutes)
+                    // This handles session regeneration during the same browser session
+                    $storedSession = \DB::table('sessions')
+                        ->where('id', $user->current_session_id)
+                        ->where('user_id', $user->id)
+                        ->first();
+                    
+                    if ($storedSession && $storedSession->last_activity > (time() - 300)) {
+                        // Session is recent, this might be session regeneration
+                        // Allow it and update to the new session ID
+                        try {
+                            $user->update(['current_session_id' => $currentSessionId]);
+                            Log::info('Updated regenerated session for user ' . $user->id . ' to new session: ' . $currentSessionId);
+                        } catch (\Exception $e) {
+                            Log::warning('Failed to update regenerated session ID for user ' . $user->id . ': ' . $e->getMessage());
+                        }
+                    } else {
+                        // This session is not the current active session and the stored session is valid and old
+                        // User has been kicked out by another session - log them out and redirect to appropriate login
+                        $userType = $user->type;
 
-                    // Clear the session
-                    Auth::guard('web')->logout();
-                    $request->session()->invalidate();
-                    $request->session()->regenerateToken();
+                        // Clear the session
+                        Auth::guard('web')->logout();
+                        $request->session()->invalidate();
+                        $request->session()->regenerateToken();
 
-                    // Determine the correct login route based on user type
-                    $loginRoute = match ($userType) {
-                        'admin', 'staff' => 'admin.login',
-                        'member' => 'member.login',
-                        'logistic' => 'logistic.login',
-                        default => 'login', // customer
-                    };
+                        // Determine the correct login route based on user type
+                        $loginRoute = match ($userType) {
+                            'admin', 'staff' => 'admin.login',
+                            'member' => 'member.login',
+                            'logistic' => 'logistic.login',
+                            default => 'login', // customer
+                        };
 
-                    // Redirect to appropriate login page with a message
-                    return redirect()->route($loginRoute)->with('error', 'Your account is logged in from another device or browser. Please log in again.');
+                        // Redirect to appropriate login page with a message
+                        return redirect()->route($loginRoute)->with('error', 'Your account is logged in from another device or browser. Please log in again.');
+                    }
                 }
             }
         }
