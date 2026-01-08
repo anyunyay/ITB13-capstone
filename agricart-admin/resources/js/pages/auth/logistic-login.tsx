@@ -13,7 +13,6 @@ import AuthLayout from '@/layouts/auth-layout';
 import CountdownTimer from '@/components/common/feedback/CountdownTimer';
 import { useLockoutStatus } from '@/hooks/useLockoutStatus';
 import DeactivatedAccountModal from '@/components/shared/auth/DeactivatedAccountModal';
-import DemoCredentials from '@/components/shared/auth/DemoCredentials';
 
 type LogisticLoginForm = {
     email: string;
@@ -93,9 +92,6 @@ export default function LogisticLogin({ status, canResetPassword }: LogisticLogi
                 iconColor="text-primary"
             >
                 <Head title="Logistics Login" />
-
-                {/* Demo Credentials */}
-                <DemoCredentials />
 
                 {/* Lockout Warning - Show prominently at the top */}
                 {lockoutStatus?.locked && (

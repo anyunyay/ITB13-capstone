@@ -13,7 +13,6 @@ import AuthLayout from '@/layouts/auth-layout';
 import CountdownTimer from '@/components/common/feedback/CountdownTimer';
 import { useLockoutStatus } from '@/hooks/useLockoutStatus';
 import DeactivatedAccountModal from '@/components/shared/auth/DeactivatedAccountModal';
-import DemoCredentials from '@/components/shared/auth/DemoCredentials';
 
 type MemberLoginForm = {
     member_id: string;
@@ -93,9 +92,6 @@ export default function MemberLogin({ status, canResetPassword }: MemberLoginPro
                 iconColor="text-accent"
             >
                 <Head title="Member Login" />
-
-                {/* Demo Credentials */}
-                <DemoCredentials />
 
             {/* Lockout Warning - Show prominently at the top */}
             {lockoutStatus?.locked && (
