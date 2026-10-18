@@ -98,33 +98,33 @@ const Footer: React.FC<FooterProps> = ({
                     <Leaf className="w-7 h-7 sm:w-8 sm:h-8 text-primary-foreground" />
                   </div>
                   <div>
-                    <h3 className="text-2xl sm:text-3xl font-bold text-foreground">{companyName}</h3>
-                    <p className="text-sm text-secondary font-medium">{t('customer.fresh_from_farm')}</p>
+                    <h3 className="text-2xl sm:text-3xl font-bold text-white">{companyName}</h3>
+                    <p className="text-sm text-green-400 font-medium">{t('customer.fresh_from_farm')}</p>
                   </div>
                 </div>
 
                 {/* Description */}
-                <p className="text-sm sm:text-base text-muted-foreground leading-relaxed max-w-md">
+                <p className="text-sm sm:text-base text-gray-300 leading-relaxed max-w-md">
                   {t('customer.footer_description')}
                 </p>
 
                 {/* Quick Stats or Badge */}
                 <div className="flex flex-wrap gap-3">
                   <div className="px-4 py-2 bg-primary/10 border border-primary/20 rounded-lg">
-                    <p className="text-xs text-secondary font-semibold">{t('customer.percent_fresh')}</p>
+                    <p className="text-xs text-green-400 font-semibold">{t('customer.percent_fresh')}</p>
                   </div>
                   <div className="px-4 py-2 bg-primary/10 border border-primary/20 rounded-lg">
-                    <p className="text-xs text-secondary font-semibold">{t('customer.locally_sourced')}</p>
+                    <p className="text-xs text-green-400 font-semibold">{t('customer.locally_sourced')}</p>
                   </div>
                   <div className="px-4 py-2 bg-primary/10 border border-primary/20 rounded-lg">
-                    <p className="text-xs text-secondary font-semibold">{t('customer.sustainable')}</p>
+                    <p className="text-xs text-green-400 font-semibold">{t('customer.sustainable')}</p>
                   </div>
                 </div>
               </div>
 
               {/* Right Column - Contact Information */}
               <div className="lg:col-span-7">
-                <h4 className="text-lg sm:text-xl font-bold text-foreground mb-6 flex items-center gap-2">
+                <h4 className="text-lg sm:text-xl font-bold text-white mb-6 flex items-center gap-2">
                   <span className="w-1 h-6 bg-primary rounded-full"></span>
                   {t('customer.get_in_touch')}
                 </h4>
@@ -144,8 +144,8 @@ const Footer: React.FC<FooterProps> = ({
                         <Facebook className="w-6 h-6 text-primary-foreground" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-xs text-muted-foreground mb-1 font-medium">{t('customer.follow_us_on')}</p>
-                        <p className="text-base font-bold text-foreground group-hover:text-secondary transition-colors duration-300">{t('customer.facebook')}</p>
+                        <p className="text-xs text-gray-400 mb-1 font-medium">{t('customer.follow_us_on')}</p>
+                        <p className="text-base font-bold text-white group-hover:text-green-400 transition-colors duration-300">{t('customer.facebook')}</p>
                       </div>
                     </div>
                   </a>
@@ -162,8 +162,8 @@ const Footer: React.FC<FooterProps> = ({
                         <Mail className="w-6 h-6 text-primary-foreground" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-xs text-muted-foreground mb-1 font-medium">{t('customer.email_us_at')}</p>
-                        <p className="text-sm sm:text-base font-bold text-foreground group-hover:text-secondary transition-colors duration-300 truncate">{emailAddress}</p>
+                        <p className="text-xs text-gray-400 mb-1 font-medium">{t('customer.email_us_at')}</p>
+                        <p className="text-sm sm:text-base font-bold text-white group-hover:text-green-400 transition-colors duration-300 truncate">{emailAddress}</p>
                       </div>
                     </div>
                   </a>
@@ -176,8 +176,8 @@ const Footer: React.FC<FooterProps> = ({
                         <MapPin className="w-6 h-6 text-primary-foreground" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-xs text-muted-foreground mb-1 font-medium">{t('customer.visit_us_at')}</p>
-                        <p className="text-base font-bold text-foreground group-hover:text-secondary transition-colors duration-300">{physicalAddress}</p>
+                        <p className="text-xs text-gray-400 mb-1 font-medium">{t('customer.visit_us_at')}</p>
+                        <p className="text-base font-bold text-white group-hover:text-green-400 transition-colors duration-300">{physicalAddress}</p>
                       </div>
                     </div>
                   </div>
@@ -199,7 +199,7 @@ const Footer: React.FC<FooterProps> = ({
               
               {/* Copyright */}
               <div className="order-2 md:order-1">
-                <p className="text-xs sm:text-sm text-muted-foreground m-0 text-center md:text-left">
+                <p className="text-xs sm:text-sm text-gray-300 m-0 text-center md:text-left font-medium">
                   © {currentYear} {companyName}. {t('customer.all_rights_reserved')}
                 </p>
               </div>
@@ -211,7 +211,7 @@ const Footer: React.FC<FooterProps> = ({
                     <li key={index} className="m-0">
                       <Link 
                         href={link.href}
-                        className="text-xs sm:text-sm text-muted-foreground no-underline font-medium transition-all duration-200 px-3 py-2 rounded-lg hover:text-secondary hover:bg-primary/10 whitespace-nowrap"
+                        className="text-xs sm:text-sm text-gray-300 no-underline font-medium transition-all duration-200 px-3 py-2 rounded-lg hover:text-white hover:bg-primary/20 whitespace-nowrap"
                       >
                         {link.title}
                       </Link>

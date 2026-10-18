@@ -149,7 +149,7 @@ class RoleSeeder extends Seeder
         // Create specific admin user as requested
         $adminUser = User::create([
             'type' => 'admin',
-            'name' => 'Samuel Salazar',
+            'name' => 'Admin User',
             'email' => 'admin@admin.com',
             'password' => Hash::make('12345678'),
             'email_verified_at' => now(),
@@ -170,7 +170,7 @@ class RoleSeeder extends Seeder
             'is_active' => true,
         ]);
 
-        $this->command->info('✅ Created admin user: Samuel Salazar with admin role');
+        $this->command->info('✅ Created admin user: Admin User with admin role');
     }
 
     /**

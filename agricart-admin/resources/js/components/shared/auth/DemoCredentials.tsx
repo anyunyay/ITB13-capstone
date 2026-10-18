@@ -1,5 +1,6 @@
 import { Info, Copy, Check } from 'lucide-react';
 import { useState } from 'react';
+import { Link } from '@inertiajs/react';
 
 interface DemoCredentialsProps {
     className?: string;
@@ -10,6 +11,7 @@ interface Credential {
     route: string;
     email: string;
     password: string;
+    isMemberId?: boolean;
 }
 
 const credentials: Credential[] = [
@@ -22,8 +24,9 @@ const credentials: Credential[] = [
     {
         label: 'Member (Farmer)',
         route: '/member/login',
-        email: 'member@member.com',
-        password: '12345678'
+        email: '2411000',
+        password: '12345678',
+        isMemberId: true
     },
     {
         label: 'Logistics',
@@ -64,7 +67,12 @@ export default function DemoCredentials({ className = '' }: DemoCredentialsProps
                         {credentials.map((cred, index) => (
                             <div key={index} className="text-sm">
                                 <div className="font-medium text-blue-800 mb-1">
-                                    {cred.label} – <span className="text-blue-600">{cred.route}</span>
+                                    {cred.label} – <Link 
+                                        href={cred.route} 
+                                        className="text-blue-600 hover:text-blue-800 hover:underline transition-colors"
+                                    >
+                                        {cred.route}
+                                    </Link>
                                 </div>
                                 <div className="flex items-center gap-2 text-blue-700">
                                     <span className="font-mono bg-white px-2 py-1 rounded border text-xs">
@@ -74,7 +82,7 @@ export default function DemoCredentials({ className = '' }: DemoCredentialsProps
                                         type="button"
                                         onClick={() => copyToClipboard(cred.email, `email-${index}`)}
                                         className="p-1 hover:bg-blue-100 rounded transition-colors"
-                                        title="Copy email"
+                                        title={cred.isMemberId ? "Copy member ID" : "Copy email"}
                                     >
                                         {copiedField === `email-${index}` ? (
                                             <Check className="h-3 w-3 text-green-600" />

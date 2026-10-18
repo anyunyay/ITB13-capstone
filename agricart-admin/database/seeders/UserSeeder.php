@@ -46,33 +46,33 @@ class UserSeeder extends Seeder
 
         // Create logistics users with assigned areas
         $logisticsData = [
-            ['name' => 'Judel Macasinag', 'email' => 'judel@logistic.com', 'area' => 'Sala'],
-            ['name' => 'Elmo V. Republica', 'email' => 'elmo@logistic.com', 'area' => 'Pulo'],
-            ['name' => 'Maria Santos', 'email' => 'maria.santos@logistic.com', 'area' => 'Baclaran'],
-            ['name' => 'Juan Dela Cruz', 'email' => 'juan.delacruz@logistic.com', 'area' => 'Banay-Banay'],
-            ['name' => 'Pedro Reyes', 'email' => 'pedro.reyes@logistic.com', 'area' => 'Banlic'],
-            ['name' => 'Ana Garcia', 'email' => 'ana.garcia@logistic.com', 'area' => 'Butong'],
-            ['name' => 'Carlos Mendoza', 'email' => 'carlos.mendoza@logistic.com', 'area' => 'Bigaa'],
-            ['name' => 'Rosa Fernandez', 'email' => 'rosa.fernandez@logistic.com', 'area' => 'Casile'],
-            ['name' => 'Miguel Torres', 'email' => 'miguel.torres@logistic.com', 'area' => 'Gulod'],
-            ['name' => 'Sofia Ramirez', 'email' => 'sofia.ramirez@logistic.com', 'area' => 'Mamatid'],
-            ['name' => 'Diego Lopez', 'email' => 'diego.lopez@logistic.com', 'area' => 'Marinig'],
-            ['name' => 'Carmen Gonzales', 'email' => 'carmen.gonzales@logistic.com', 'area' => 'Niugan'],
-            ['name' => 'Ricardo Flores', 'email' => 'ricardo.flores@logistic.com', 'area' => 'Pittland'],
-            ['name' => 'Elena Cruz', 'email' => 'elena.cruz@logistic.com', 'area' => 'San Isidro'],
-            ['name' => 'Fernando Diaz', 'email' => 'fernando.diaz@logistic.com', 'area' => 'Diezmo'],
-            ['name' => 'Isabel Morales', 'email' => 'isabel.morales@logistic.com', 'area' => 'Barangay Uno (Poblacion)'],
-            ['name' => 'Antonio Ramos', 'email' => 'antonio.ramos@logistic.com', 'area' => 'Barangay Dos (Poblacion)'],
-            ['name' => 'Lucia Herrera', 'email' => 'lucia.herrera@logistic.com', 'area' => 'Barangay Tres (Poblacion)'],
-            ['name' => 'Roberto Silva', 'email' => 'roberto.silva@logistic.com', 'area' => 'Sala'],
-            ['name' => 'Patricia Vargas', 'email' => 'patricia.vargas@logistic.com', 'area' => 'Pulo'],
-            ['name' => 'Manuel Castro', 'email' => 'manuel.castro@logistic.com', 'area' => 'Baclaran'],
-            ['name' => 'Gloria Ortiz', 'email' => 'gloria.ortiz@logistic.com', 'area' => 'Banlic'],
-            ['name' => 'Alejandro Ruiz', 'email' => 'alejandro.ruiz@logistic.com', 'area' => 'Bigaa'],
-            ['name' => 'Teresa Jimenez', 'email' => 'teresa.jimenez@logistic.com', 'area' => null], // No area assigned
-            ['name' => 'Francisco Navarro', 'email' => 'francisco.navarro@logistic.com', 'area' => 'Casile'],
-            ['name' => 'Beatriz Romero', 'email' => 'beatriz.romero@logistic.com', 'area' => null], // No area assigned
-            ['name' => 'Javier Gutierrez', 'email' => 'javier.gutierrez@logistic.com', 'area' => 'Marinig'],
+            ['name' => 'Logistic 1', 'email' => 'logistic1@logistic.com', 'area' => 'Sala'],
+            ['name' => 'Logistic 2', 'email' => 'logistic2@logistic.com', 'area' => 'Pulo'],
+            ['name' => 'Logistic 3', 'email' => 'logistic3@logistic.com', 'area' => 'Baclaran'],
+            ['name' => 'Logistic 4', 'email' => 'logistic4@logistic.com', 'area' => 'Banay-Banay'],
+            ['name' => 'Logistic 5', 'email' => 'logistic5@logistic.com', 'area' => 'Banlic'],
+            ['name' => 'Logistic 6', 'email' => 'logistic6@logistic.com', 'area' => 'Butong'],
+            ['name' => 'Logistic 7', 'email' => 'logistic7@logistic.com', 'area' => 'Bigaa'],
+            ['name' => 'Logistic 8', 'email' => 'logistic8@logistic.com', 'area' => 'Casile'],
+            ['name' => 'Logistic 9', 'email' => 'logistic9@logistic.com', 'area' => 'Gulod'],
+            ['name' => 'Logistic 10', 'email' => 'logistic10@logistic.com', 'area' => 'Mamatid'],
+            ['name' => 'Logistic 11', 'email' => 'logistic11@logistic.com', 'area' => 'Marinig'],
+            ['name' => 'Logistic 12', 'email' => 'logistic12@logistic.com', 'area' => 'Niugan'],
+            ['name' => 'Logistic 13', 'email' => 'logistic13@logistic.com', 'area' => 'Pittland'],
+            ['name' => 'Logistic 14', 'email' => 'logistic14@logistic.com', 'area' => 'San Isidro'],
+            ['name' => 'Logistic 15', 'email' => 'logistic15@logistic.com', 'area' => 'Diezmo'],
+            ['name' => 'Logistic 16', 'email' => 'logistic16@logistic.com', 'area' => 'Barangay Uno (Poblacion)'],
+            ['name' => 'Logistic 17', 'email' => 'logistic17@logistic.com', 'area' => 'Barangay Dos (Poblacion)'],
+            ['name' => 'Logistic 18', 'email' => 'logistic18@logistic.com', 'area' => 'Barangay Tres (Poblacion)'],
+            ['name' => 'Logistic 19', 'email' => 'logistic19@logistic.com', 'area' => 'Sala'],
+            ['name' => 'Logistic 20', 'email' => 'logistic20@logistic.com', 'area' => 'Pulo'],
+            ['name' => 'Logistic 21', 'email' => 'logistic21@logistic.com', 'area' => 'Baclaran'],
+            ['name' => 'Logistic 22', 'email' => 'logistic22@logistic.com', 'area' => 'Banlic'],
+            ['name' => 'Logistic 23', 'email' => 'logistic23@logistic.com', 'area' => 'Bigaa'],
+            ['name' => 'Logistic 24', 'email' => 'logistic24@logistic.com', 'area' => null], // No area assigned
+            ['name' => 'Logistic 25', 'email' => 'logistic25@logistic.com', 'area' => 'Casile'],
+            ['name' => 'Logistic 26', 'email' => 'logistic26@logistic.com', 'area' => null], // No area assigned
+            ['name' => 'Logistic 27', 'email' => 'logistic27@logistic.com', 'area' => 'Marinig'],
         ];
 
         foreach ($logisticsData as $index => $logisticData) {
@@ -106,27 +106,29 @@ class UserSeeder extends Seeder
             ]);
         }
 
-        // Create Farmer Users
+        // Create Farmer Users (Note: These will be recreated by MemberSeeder with proper member_id)
+        // This creates initial farmer users that will be replaced by MemberSeeder
         $farmers = [
-            ['name' => 'Sonia Canceran', 'email' => 'sonia.canceran@farmer.com'],
-            ['name' => 'Aurora P. Cervantes', 'email' => 'aurora.cervantes@farmer.com'],
-            ['name' => 'Roger Dubos', 'email' => 'roger.dubos@farmer.com'],
-            ['name' => 'Jouie P. Asido', 'email' => 'jouie.asido@farmer.com'],
-            ['name' => 'Ronnie Asido', 'email' => 'ronnie.asido@farmer.com'],
-            ['name' => 'Ronaldo L. Comite', 'email' => 'ronaldo.comite@farmer.com'],
-            ['name' => 'Sotelia B. Cariod', 'email' => 'sotelia.cariod@farmer.com'],
-            ['name' => 'Jell O. Federis', 'email' => 'jell.federis@farmer.com'],
-            ['name' => 'Gregorio L. Bando', 'email' => 'gregorio.bando@farmer.com'],
-            ['name' => 'Noel L. Villare', 'email' => 'noel.villare@farmer.com'],
-            ['name' => 'Jimmy F. Santiago', 'email' => 'jimmy.santiago@farmer.com'],
-            ['name' => 'Cristina R. Rogel', 'email' => 'cristina.rogel@farmer.com'],
+            ['name' => 'Farmer 1', 'email' => 'farmer1@farmer.com', 'member_id' => '2411000'],
+            ['name' => 'Farmer 2', 'email' => 'farmer2@farmer.com', 'member_id' => '2411001'],
+            ['name' => 'Farmer 3', 'email' => 'farmer3@farmer.com', 'member_id' => '2411002'],
+            ['name' => 'Farmer 4', 'email' => 'farmer4@farmer.com', 'member_id' => '2411003'],
+            ['name' => 'Farmer 5', 'email' => 'farmer5@farmer.com', 'member_id' => '2411004'],
+            ['name' => 'Farmer 6', 'email' => 'farmer6@farmer.com', 'member_id' => '2411005'],
+            ['name' => 'Farmer 7', 'email' => 'farmer7@farmer.com', 'member_id' => '2411006'],
+            ['name' => 'Farmer 8', 'email' => 'farmer8@farmer.com', 'member_id' => '2411007'],
+            ['name' => 'Farmer 9', 'email' => 'farmer9@farmer.com', 'member_id' => '2411008'],
+            ['name' => 'Farmer 10', 'email' => 'farmer10@farmer.com', 'member_id' => '2411009'],
+            ['name' => 'Farmer 11', 'email' => 'farmer11@farmer.com', 'member_id' => '2411010'],
+            ['name' => 'Farmer 12', 'email' => 'farmer12@farmer.com', 'member_id' => '2411011'],
         ];
 
         foreach ($farmers as $index => $farmerData) {
             $farmer = User::create([
                 'type' => 'member',
                 'name' => $farmerData['name'],
-                'email' => $farmerData['email'],
+                'email' => null, // Members use member_id for login, not email
+                'member_id' => $farmerData['member_id'],
                 'contact_number' => '0912' . str_pad($index + 1, 7, '0', STR_PAD_LEFT),
                 'registration_date' => now()->subDays(60 - $index * 2),
                 'password' => Hash::make('12345678'),
@@ -147,8 +149,8 @@ class UserSeeder extends Seeder
         // Create customer users
         $customers = [
             [
-                'name' => 'Test Customer',
-                'email' => 'customer@customer.com',
+                'name' => 'Customer 1',
+                'email' => 'customer1@customer.com',
                 'contact_number' => '09111222333',
                 'street' => '321 Customer Avenue',
                 'barangay' => 'Sala',
@@ -156,7 +158,7 @@ class UserSeeder extends Seeder
                 'province' => 'Laguna',
             ],
             [
-                'name' => 'John Doe',
+                'name' => 'Customer 2',
                 'email' => 'customer2@customer.com',
                 'contact_number' => '09123456789',
                 'street' => '456 Main Street',
@@ -165,7 +167,7 @@ class UserSeeder extends Seeder
                 'province' => 'Laguna',
             ],
             [
-                'name' => 'Jane Smith',
+                'name' => 'Customer 3',
                 'email' => 'customer3@customer.com',
                 'contact_number' => '09234567890',
                 'street' => '789 Oak Avenue',
@@ -174,7 +176,7 @@ class UserSeeder extends Seeder
                 'province' => 'Laguna',
             ],
             [
-                'name' => 'Bob Johnson',
+                'name' => 'Customer 4',
                 'email' => 'customer4@customer.com',
                 'contact_number' => '09345678901',
                 'street' => '101 Pine Road',
@@ -213,8 +215,8 @@ class UserSeeder extends Seeder
 
         $this->command->info('✅ Created users:');
         $this->command->info('   - ' . count($logisticsData) . ' Logistics personnel with assigned areas');
-        $this->command->info('   - 12 Members (Farmers)');
-        $this->command->info('   - 4 Customers (Test Customer, John Doe, Jane Smith, Bob Johnson)');
+        $this->command->info('   - 12 Members (Farmers) - will be recreated by MemberSeeder with proper member_id');
+        $this->command->info('   - 4 Customers');
 
         // Note: Members will be created in DatabaseSeeder with specific member ID 2411000
         // as requested to exclude member seeding from this seeder

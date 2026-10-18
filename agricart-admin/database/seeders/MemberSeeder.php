@@ -23,7 +23,7 @@ class MemberSeeder extends Seeder
         $members = [
             [
                 'member_id' => '2411000',
-                'name' => 'Sonia Canceran',
+                'name' => 'Farmer 1',
                 'contact_number' => '09120000001',
                 'registration_date' => now()->subDays(60),
                 'street' => 'Farm 1, Agricultural Zone',
@@ -33,7 +33,7 @@ class MemberSeeder extends Seeder
             ],
             [
                 'member_id' => '2411001',
-                'name' => 'Aurora P. Cervantes',
+                'name' => 'Farmer 2',
                 'contact_number' => '09120000002',
                 'registration_date' => now()->subDays(58),
                 'street' => 'Farm 2, Agricultural Zone',
@@ -43,7 +43,7 @@ class MemberSeeder extends Seeder
             ],
             [
                 'member_id' => '2411002',
-                'name' => 'Roger Dubos',
+                'name' => 'Farmer 3',
                 'contact_number' => '09120000003',
                 'registration_date' => now()->subDays(56),
                 'street' => 'Farm 3, Agricultural Zone',
@@ -53,7 +53,7 @@ class MemberSeeder extends Seeder
             ],
             [
                 'member_id' => '2411003',
-                'name' => 'Jouie P. Asido',
+                'name' => 'Farmer 4',
                 'contact_number' => '09120000004',
                 'registration_date' => now()->subDays(54),
                 'street' => 'Farm 4, Agricultural Zone',
@@ -63,7 +63,7 @@ class MemberSeeder extends Seeder
             ],
             [
                 'member_id' => '2411004',
-                'name' => 'Ronnie Asido',
+                'name' => 'Farmer 5',
                 'contact_number' => '09120000005',
                 'registration_date' => now()->subDays(52),
                 'street' => 'Farm 5, Agricultural Zone',
@@ -73,7 +73,7 @@ class MemberSeeder extends Seeder
             ],
             [
                 'member_id' => '2411005',
-                'name' => 'Ronaldo L. Comite',
+                'name' => 'Farmer 6',
                 'contact_number' => '09120000006',
                 'registration_date' => now()->subDays(50),
                 'street' => 'Farm 6, Agricultural Zone',
@@ -83,7 +83,7 @@ class MemberSeeder extends Seeder
             ],
             [
                 'member_id' => '2411006',
-                'name' => 'Sotelia B. Cariod',
+                'name' => 'Farmer 7',
                 'contact_number' => '09120000007',
                 'registration_date' => now()->subDays(48),
                 'street' => 'Farm 7, Agricultural Zone',
@@ -93,7 +93,7 @@ class MemberSeeder extends Seeder
             ],
             [
                 'member_id' => '2411007',
-                'name' => 'Jell O. Federis',
+                'name' => 'Farmer 8',
                 'contact_number' => '09120000008',
                 'registration_date' => now()->subDays(46),
                 'street' => 'Farm 8, Agricultural Zone',
@@ -103,7 +103,7 @@ class MemberSeeder extends Seeder
             ],
             [
                 'member_id' => '2411008',
-                'name' => 'Gregorio L. Bando',
+                'name' => 'Farmer 9',
                 'contact_number' => '09120000009',
                 'registration_date' => now()->subDays(44),
                 'street' => 'Farm 9, Agricultural Zone',
@@ -113,7 +113,7 @@ class MemberSeeder extends Seeder
             ],
             [
                 'member_id' => '2411009',
-                'name' => 'Noel L. Villare',
+                'name' => 'Farmer 10',
                 'contact_number' => '09120000010',
                 'registration_date' => now()->subDays(42),
                 'street' => 'Farm 10, Agricultural Zone',
@@ -123,7 +123,7 @@ class MemberSeeder extends Seeder
             ],
             [
                 'member_id' => '2411010',
-                'name' => 'Jimmy F. Santiago',
+                'name' => 'Farmer 11',
                 'contact_number' => '09120000011',
                 'registration_date' => now()->subDays(40),
                 'street' => 'Farm 11, Agricultural Zone',
@@ -133,7 +133,7 @@ class MemberSeeder extends Seeder
             ],
             [
                 'member_id' => '2411011',
-                'name' => 'Cristina R. Rogel',
+                'name' => 'Farmer 12',
                 'contact_number' => '09120000012',
                 'registration_date' => now()->subDays(38),
                 'street' => 'Farm 12, Agricultural Zone',

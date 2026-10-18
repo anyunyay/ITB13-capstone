@@ -19,8 +19,8 @@ class StaffSeeder extends Seeder
         // Define staff members with unique names and their permission sets
         $staffMembers = [
             [
-                'name' => 'Carlos Mendoza',
-                'email' => 'carlos@staff.com',
+                'name' => 'Staff 1',
+                'email' => 'staff1@staff.com',
                 'contact_number' => '09171234567',
                 'street' => '123 Commerce Street',
                 'barangay' => 'Sala',
@@ -43,8 +43,8 @@ class StaffSeeder extends Seeder
                 ]
             ],
             [
-                'name' => 'Elena Rodriguez',
-                'email' => 'elena@staff.com',
+                'name' => 'Staff 2',
+                'email' => 'staff2@staff.com',
                 'contact_number' => '09182345678',
                 'street' => '456 Business Avenue',
                 'barangay' => 'Sala',
@@ -65,8 +65,8 @@ class StaffSeeder extends Seeder
                 ]
             ],
             [
-                'name' => 'Miguel Santos',
-                'email' => 'miguel@staff.com',
+                'name' => 'Staff 3',
+                'email' => 'staff3@staff.com',
                 'contact_number' => '09193456789',
                 'street' => '789 Trade Road',
                 'barangay' => 'Sala',
@@ -83,8 +83,8 @@ class StaffSeeder extends Seeder
                 ]
             ],
             [
-                'name' => 'Patricia Cruz',
-                'email' => 'patricia@staff.com',
+                'name' => 'Staff 4',
+                'email' => 'staff4@staff.com',
                 'contact_number' => '09204567890',
                 'street' => '321 Market Lane',
                 'barangay' => 'Sala',
@@ -101,8 +101,8 @@ class StaffSeeder extends Seeder
                 ]
             ],
             [
-                'name' => 'Roberto Fernandez',
-                'email' => 'roberto@staff.com',
+                'name' => 'Staff 5',
+                'email' => 'staff5@staff.com',
                 'contact_number' => '09215678901',
                 'street' => '654 Analytics Boulevard',
                 'barangay' => 'Sala',
@@ -118,8 +118,8 @@ class StaffSeeder extends Seeder
                 ]
             ],
             [
-                'name' => 'Diana Reyes',
-                'email' => 'diana@staff.com',
+                'name' => 'Staff 6',
+                'email' => 'staff6@staff.com',
                 'contact_number' => '09226789012',
                 'street' => '987 Operations Street',
                 'barangay' => 'Sala',
@@ -142,8 +142,8 @@ class StaffSeeder extends Seeder
                 ]
             ],
             [
-                'name' => 'Antonio Garcia',
-                'email' => 'antonio@staff.com',
+                'name' => 'Staff 7',
+                'email' => 'staff7@staff.com',
                 'contact_number' => '09237890123',
                 'street' => '147 Supply Chain Drive',
                 'barangay' => 'Sala',
@@ -163,8 +163,8 @@ class StaffSeeder extends Seeder
                 ]
             ],
             [
-                'name' => 'Sofia Martinez',
-                'email' => 'sofia@staff.com',
+                'name' => 'Staff 8',
+                'email' => 'staff8@staff.com',
                 'contact_number' => '09248901234',
                 'street' => '258 Finance Plaza',
                 'barangay' => 'Sala',

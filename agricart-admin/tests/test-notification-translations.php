@@ -14,11 +14,11 @@ echo "=== Testing Notification Translation System ===\n\n";
 // Test all message keys
 $messageKeys = [
     // Admin/Staff
-    'new_order' => ['order_id' => 123, 'customer_name' => 'Juan Dela Cruz'],
-    'inventory_update_added' => ['product_name' => 'Rice 25kg', 'member_name' => 'Maria Santos'],
-    'membership_update_added' => ['member_name' => 'Pedro Garcia'],
+    'new_order' => ['order_id' => 123, 'customer_name' => 'Customer 1'],
+    'inventory_update_added' => ['product_name' => 'Rice 25kg', 'member_name' => 'Farmer 1'],
+    'membership_update_added' => ['member_name' => 'Farmer 1'],
     'password_change_request' => ['member_identifier' => 'MEM001'],
-    'password_change_request_cancelled' => ['member_name' => 'Maria Santos', 'member_identifier' => 'MEM001'],
+    'password_change_request_cancelled' => ['member_name' => 'Farmer 1', 'member_identifier' => 'MEM001'],
     
     // Customer
     'order_confirmation' => [],
@@ -34,7 +34,7 @@ $messageKeys = [
     'order_receipt' => ['order_id' => 123],
     
     // Member
-    'product_sale' => ['product_name' => 'Rice 25kg', 'customer_name' => 'Juan Dela Cruz'],
+    'product_sale' => ['product_name' => 'Rice 25kg', 'customer_name' => 'Customer 1'],
     'earnings_update' => ['period' => 'monthly', 'amount' => '1,500.00'],
     'low_stock_alert' => ['stock_type' => 'available', 'product_name' => 'Rice 25kg', 'quantity' => 5],
     'stock_added' => ['product_name' => 'Rice 25kg', 'admin_name' => 'Admin User'],
@@ -42,7 +42,7 @@ $messageKeys = [
     // Logistic
     'delivery_task' => ['order_id' => 123],
     'logistic_order_ready' => ['order_id' => 123],
-    'logistic_order_picked_up' => ['order_id' => 123, 'customer_name' => 'Juan Dela Cruz'],
+    'logistic_order_picked_up' => ['order_id' => 123, 'customer_name' => 'Customer 1'],
 ];
 
 $passed = 0;
